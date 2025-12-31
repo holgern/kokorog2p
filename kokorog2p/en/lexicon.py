@@ -49,6 +49,59 @@ CURRENCIES: Final[Dict[str, Tuple[str, str]]] = {
 # Ordinal suffixes
 ORDINALS: Final[frozenset[str]] = frozenset(["st", "nd", "rd", "th"])
 
+# Greek letter mappings (uppercase and lowercase)
+GREEK_LETTERS: Final[Dict[str, str]] = {
+    "Α": "alpha",
+    "α": "alpha",
+    "Β": "beta",
+    "β": "beta",
+    "Γ": "gamma",
+    "γ": "gamma",
+    "Δ": "delta",
+    "δ": "delta",
+    "Ε": "epsilon",
+    "ε": "epsilon",
+    "Ζ": "zeta",
+    "ζ": "zeta",
+    "Η": "eta",
+    "η": "eta",
+    "Θ": "theta",
+    "θ": "theta",
+    "Ι": "iota",
+    "ι": "iota",
+    "Κ": "kappa",
+    "κ": "kappa",
+    "Λ": "lambda",
+    "λ": "lambda",
+    "Μ": "mu",
+    "μ": "mu",
+    "Ν": "nu",
+    "ν": "nu",
+    "Ξ": "xi",
+    "ξ": "xi",
+    "Ο": "omicron",
+    "ο": "omicron",
+    "Π": "pi",
+    "π": "pi",
+    "Ρ": "rho",
+    "ρ": "rho",
+    "Σ": "sigma",
+    "σ": "sigma",
+    "ς": "sigma",
+    "Τ": "tau",
+    "τ": "tau",
+    "Υ": "upsilon",
+    "υ": "upsilon",
+    "Φ": "phi",
+    "φ": "phi",
+    "Χ": "chi",
+    "χ": "chi",
+    "Ψ": "psi",
+    "ψ": "psi",
+    "Ω": "omega",
+    "ω": "omega",
+}
+
 
 # =============================================================================
 # Helper Classes
@@ -536,6 +589,27 @@ class Lexicon:
             for i, c in enumerate(word)
         )
 
+    @staticmethod
+    def normalize_greek(word: str) -> str:
+        """Convert Greek letters to their English names.
+
+        Args:
+            word: Word possibly containing Greek letters.
+
+        Returns:
+            Word with Greek letters replaced by their English names.
+        """
+        # Single Greek letter becomes the letter name
+        if word in GREEK_LETTERS:
+            return GREEK_LETTERS[word]
+
+        # For words containing Greek letters, replace each occurrence
+        result = word
+        for greek, english in GREEK_LETTERS.items():
+            if greek in result:
+                result = result.replace(greek, english)
+        return result
+
     def __call__(
         self,
         word: str,
@@ -558,6 +632,9 @@ class Lexicon:
         word = word.replace(chr(8216), "'").replace(chr(8217), "'")
         word = unicodedata.normalize("NFKC", word)
         word = "".join(self.numeric_if_needed(c) for c in word)
+
+        # Normalize Greek letters (e.g., α -> alpha, β -> beta)
+        word = self.normalize_greek(word)
 
         # Calculate stress from capitalization
         if stress is None and word != word.lower():
