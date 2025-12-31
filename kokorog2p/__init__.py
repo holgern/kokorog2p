@@ -45,6 +45,25 @@ from kokorog2p.vocab import (
     PAD_IDX,
 )
 
+# Punctuation handling
+from kokorog2p.punctuation import (
+    Punctuation,
+    normalize_punctuation,
+    filter_punctuation,
+    is_kokoro_punctuation,
+    KOKORO_PUNCTUATION,
+)
+
+# Word mismatch detection
+from kokorog2p.words_mismatch import (
+    MismatchMode,
+    MismatchInfo,
+    MismatchStats,
+    detect_mismatches,
+    check_word_alignment,
+    count_words,
+)
+
 # Version info
 try:
     from kokorog2p._version import __version__, __version_tuple__
@@ -68,7 +87,7 @@ def get_g2p(
     language code. Results are cached for efficiency.
 
     Args:
-        language: Language code (e.g., 'en-us', 'en-gb').
+        language: Language code (e.g., 'en-us', 'en-gb', 'zh', 'ja', 'fr', etc.).
         use_espeak_fallback: Whether to use espeak for out-of-vocabulary words.
         use_spacy: Whether to use spaCy for tokenization and POS tagging.
         **kwargs: Additional arguments passed to the G2P constructor.
@@ -77,11 +96,17 @@ def get_g2p(
         A G2PBase instance for the specified language.
 
     Raises:
-        ValueError: If the language is not supported.
+        ValueError: If the language is not supported and no fallback is available.
 
     Example:
         >>> g2p = get_g2p("en-us")
         >>> tokens = g2p("Hello world!")
+        >>> # Chinese
+        >>> g2p_zh = get_g2p("zh")
+        >>> # Japanese
+        >>> g2p_ja = get_g2p("ja")
+        >>> # French (uses espeak fallback)
+        >>> g2p_fr = get_g2p("fr")
     """
     # Normalize language code
     lang = language.lower().replace("_", "-")
@@ -92,6 +117,7 @@ def get_g2p(
         return _g2p_cache[cache_key]
 
     # Create G2P instance based on language
+    g2p: G2PBase
     if lang.startswith("en"):
         from kokorog2p.en import EnglishG2P
 
@@ -101,10 +127,19 @@ def get_g2p(
             use_spacy=use_spacy,
             **kwargs,
         )
+    elif lang in ("zh", "zh-cn", "zh-tw", "cmn", "chinese"):
+        from kokorog2p.zh import ChineseG2P
+
+        g2p = ChineseG2P(language=language, **kwargs)
+    elif lang in ("ja", "ja-jp", "jpn", "japanese"):
+        from kokorog2p.ja import JapaneseG2P
+
+        g2p = JapaneseG2P(language=language, **kwargs)
     else:
-        raise ValueError(
-            f"Unsupported language: {language}. Currently supported: en-us, en-gb"
-        )
+        # Fallback to espeak-only G2P for other languages
+        from kokorog2p.espeak_g2p import EspeakOnlyG2P
+
+        g2p = EspeakOnlyG2P(language=language, **kwargs)
 
     _g2p_cache[cache_key] = g2p
     return g2p
@@ -213,4 +248,17 @@ __all__ = [
     "get_kokoro_config",
     "N_TOKENS",
     "PAD_IDX",
+    # Punctuation handling
+    "Punctuation",
+    "normalize_punctuation",
+    "filter_punctuation",
+    "is_kokoro_punctuation",
+    "KOKORO_PUNCTUATION",
+    # Word mismatch detection
+    "MismatchMode",
+    "MismatchInfo",
+    "MismatchStats",
+    "detect_mismatches",
+    "check_word_alignment",
+    "count_words",
 ]

@@ -16,6 +16,7 @@ class GToken:
         phonemes: The phonemic transcription of the token.
         start_ts: Start timestamp for audio alignment.
         end_ts: End timestamp for audio alignment.
+        rating: Quality rating of the phoneme transcription.
         _: Extension dictionary for custom attributes.
     """
 
@@ -25,6 +26,7 @@ class GToken:
     phonemes: Optional[str] = None
     start_ts: Optional[float] = None
     end_ts: Optional[float] = None
+    rating: Optional[str] = None
     _: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

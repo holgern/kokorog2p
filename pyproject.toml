@@ -8,6 +8,7 @@ include = ["kokorog2p*"]
 
 [tool.setuptools.package-data]
 "kokorog2p.en.data" = ["*.json"]
+"kokorog2p.ja.data" = ["*.txt"]
 
 [project]
 name = "kokorog2p"
@@ -50,8 +51,26 @@ en = [
     "spacy>=3.5.0",
     "num2words>=0.5.12",
 ]
+zh = [
+    "jieba>=0.42.1",
+    "pypinyin>=0.49.0",
+    "cn2an>=0.5.22",
+    "pypinyin-dict>=0.8.0",
+    "ordered-set>=4.1.0",
+]
+ja = [
+    "pyopenjtalk>=0.3.0",
+    "fugashi>=1.3.0",
+    "jaconv>=0.3.4",
+    "mojimoji>=0.0.13",
+    "unidic>=1.1.0",
+]
+ko = [
+    "jamo>=0.4.1",
+    "nltk>=3.8.1",
+]
 all = [
-    "kokorog2p[espeak,en]",
+    "kokorog2p[espeak,en,zh,ja,ko]",
 ]
 dev = [
     "pytest>=7.0.0",

@@ -197,11 +197,13 @@ class TestMainAPI:
         # Note: Can't test this without espeak, but the cache key is different
 
     def test_get_g2p_unsupported_language(self):
-        """Test unsupported language raises error."""
-        from kokorog2p import get_g2p
+        """Test unsupported language falls back to EspeakOnlyG2P."""
+        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p.espeak_g2p import EspeakOnlyG2P
 
-        with pytest.raises(ValueError, match="Unsupported language"):
-            get_g2p("de-de")
+        clear_cache()
+        g2p = get_g2p("de-de")
+        assert isinstance(g2p, EspeakOnlyG2P)
 
     def test_clear_cache(self):
         """Test cache clearing."""
