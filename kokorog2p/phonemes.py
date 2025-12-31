@@ -42,15 +42,24 @@ GB_VOCAB: Final[frozenset[str]] = SHARED_PHONES | GB_ONLY_PHONES
 
 # Espeak to Kokoro phoneme mappings
 # Sorted by length (descending) to ensure longest matches first
+# Note: espeak uses Unicode combining tie (U+0361: ͡) for affricates/diphthongs
 _ESPEAK_MAPPINGS: Final[dict[str, str]] = {
     # Remove nasalization
     "\u0303": "",
-    # Diphthongs
+    # Diphthongs (with Unicode tie U+0361)
+    "a͡ɪ": "I",  # aɪ -> I (eye sound)
+    "a͡ʊ": "W",  # aʊ -> W (ow sound)
+    "e͡ɪ": "A",  # eɪ -> A (ay sound)
+    "ɔ͡ɪ": "Y",  # ɔɪ -> Y (oy sound)
+    # Affricates (with Unicode tie U+0361)
+    "d͡ʒ": "ʤ",  # dʒ -> ʤ (j sound)
+    "t͡ʃ": "ʧ",  # tʃ -> ʧ (ch sound)
+    # Diphthongs (with ASCII caret fallback)
     "a^ɪ": "I",  # aɪ -> I (eye sound)
     "a^ʊ": "W",  # aʊ -> W (ow sound)
     "e^ɪ": "A",  # eɪ -> A (ay sound)
     "ɔ^ɪ": "Y",  # ɔɪ -> Y (oy sound)
-    # Affricates
+    # Affricates (with ASCII caret fallback)
     "d^ʒ": "ʤ",  # dʒ -> ʤ (j sound)
     "t^ʃ": "ʧ",  # tʃ -> ʧ (ch sound)
     # Consonants
@@ -58,14 +67,16 @@ _ESPEAK_MAPPINGS: Final[dict[str, str]] = {
     "x": "k",  # velar fricative -> k
     "ç": "k",  # palatal fricative -> k
     "ɬ": "l",  # lateral fricative -> l
-    "ʔ": "t",  # glottal stop -> t
-    "ʔn": "tᵊn",
-    "ʔˌn\u0329": "tᵊn",
-    # Vowels
+    # Glottal stop with syllabic n - keep ʔ (valid US phoneme)
+    "ʔn\u0329": "ʔn",  # ʔn̩ -> ʔn (syllabic n marker removed)
+    "ʔˌn\u0329": "ʔn",  # ʔˌn̩ -> ʔn (with secondary stress)
+    # Vowels - rhotacized schwa combinations (must come before plain ɚ)
+    "ɚɹ": "əɹ",  # rhotacized schwa + r -> schwa + r (avoid double r)
+    "ɚ": "əɹ",  # rhotacized schwa -> schwa + r
     "e": "A",  # plain e -> A
     "ɐ": "ə",  # near-open central -> schwa
-    "ə^l": "ᵊl",  # syllabic l
-    "ɚ": "əɹ",  # rhotacized schwa
+    # Note: ə͡l -> ᵊl is handled conditionally in from_espeak()
+    # (only after consonants, not after vowels)
     # Palatalization (remove, except before O/Q)
     "ʲO": "jO",
     "ʲQ": "jQ",
@@ -108,14 +119,14 @@ def from_espeak(phonemes: str, british: bool = False) -> str:
     Convert espeak IPA output to Kokoro phonemes.
 
     Args:
-        phonemes: The espeak phoneme string (with tie character ^).
+        phonemes: The espeak phoneme string (with tie character ^ or ͡).
         british: Whether to use British English mappings.
 
     Returns:
         Kokoro-compatible phoneme string.
 
     Example:
-        >>> from_espeak("mˈɜːt^ʃəntʃˌɪp", british=False)
+        >>> from_espeak("mˈɜːt͡ʃənt͡ʃˌɪp", british=False)
         'mˈɜɹʧəntʃˌɪp'
     """
     result = phonemes
@@ -128,20 +139,32 @@ def from_espeak(phonemes: str, british: bool = False) -> str:
     result = re.sub(r"(\S)\u0329", r"ᵊ\1", result)
     result = result.replace(chr(809), "")
 
+    # Handle syllabic l: ə͡l -> ᵊl only after consonants (not after vowels)
+    # This prevents "material" (vowel + ə͡l) from becoming "materiᵊl"
+    # while "little" (consonant + ə͡l) correctly becomes "littᵊl"
+    _consonants_pattern = r"[bdfhjklmnpstvwzðŋɡɹɾʃʒʤʧθʔ]"
+    result = re.sub(f"({_consonants_pattern})ə͡l", r"\1ᵊl", result)
+    result = re.sub(f"({_consonants_pattern})ə\\^l", r"\1ᵊl", result)
+
     # Apply dialect-specific mappings
     if british:
+        result = result.replace("e͡ə", "ɛː")
         result = result.replace("e^ə", "ɛː")
         result = result.replace("iə", "ɪə")
+        result = result.replace("ə͡ʊ", "Q")
         result = result.replace("ə^ʊ", "Q")
     else:
+        result = result.replace("o͡ʊ", "O")
         result = result.replace("o^ʊ", "O")
         result = result.replace("ɜːɹ", "ɜɹ")
         result = result.replace("ɜː", "ɜɹ")
         result = result.replace("ɪə", "iə")
         result = result.replace("ː", "")
 
-    # Remove tie character
-    return result.replace("^", "")
+    # Remove tie characters (both Unicode and ASCII)
+    result = result.replace("͡", "").replace("^", "")
+
+    return result
 
 
 def to_espeak(phonemes: str) -> str:

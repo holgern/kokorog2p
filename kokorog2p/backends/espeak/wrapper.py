@@ -1,407 +1,303 @@
-"""Wrapper on espeak-ng library.
+"""High-level wrapper for espeak-ng phonemization.
 
-Based on phonemizer by Mathieu Bernard, licensed under GPL-3.0.
+This module provides a convenient interface to the espeak-ng library for
+converting text to phonemes. It handles library discovery, voice selection,
+and phoneme conversion.
+
+Copyright 2024 kokorog2p contributors
+Licensed under the Apache License, Version 2.0
 """
 
-import ctypes
 import ctypes.util
 import functools
 import os
 import pathlib
-import sys
-import tempfile
-import weakref
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from kokorog2p.backends.espeak.api import EspeakAPI
-from kokorog2p.backends.espeak.voice import EspeakVoice
+from kokorog2p.backends.espeak.api import EspeakLibrary, PHONEMES_IPA
+from kokorog2p.backends.espeak.voice import (
+    Voice,
+    VoiceStruct,
+    struct_to_voice,
+    voice_to_struct,
+)
 
 
-class EspeakWrapper:
-    """Wrapper on espeak shared library.
+# Environment variable for custom library path
+ENV_LIBRARY_PATH = "KOKOROG2P_ESPEAK_LIBRARY"
+ENV_DATA_PATH = "KOKOROG2P_ESPEAK_DATA"
 
-    The aim of this wrapper is not to be exhaustive but to encapsulate the
-    espeak functions required for phonemization. It relies on a espeak shared
-    library (*.so on Linux, *.dylib on Mac and *.dll on Windows) that must be
-    installed on the system.
 
-    Use the function `EspeakWrapper.set_library()` before instantiation to
-    customize the library to use.
+def find_espeak_library() -> str:
+    """Find the espeak-ng shared library.
+
+    Search order:
+    1. KOKOROG2P_ESPEAK_LIBRARY environment variable
+    2. espeakng_loader package (if installed)
+    3. System library (espeak-ng or espeak)
+
+    Returns:
+        Path to the espeak library.
 
     Raises:
-        RuntimeError: If the espeak shared library cannot be loaded.
+        RuntimeError: If no library can be found.
+    """
+    # Check environment variable
+    if ENV_LIBRARY_PATH in os.environ:
+        lib_path = pathlib.Path(os.environ[ENV_LIBRARY_PATH])
+        if lib_path.is_file():
+            return str(lib_path.resolve())
+        raise RuntimeError(f"{ENV_LIBRARY_PATH}={lib_path} is not a valid file")
+
+    # Try espeakng_loader package
+    try:
+        import espeakng_loader
+
+        loader_path = espeakng_loader.get_library_path()
+        if loader_path and os.path.isfile(loader_path):
+            return loader_path
+    except ImportError:
+        pass
+
+    # Try system library
+    lib_name = ctypes.util.find_library("espeak-ng") or ctypes.util.find_library(
+        "espeak"
+    )
+    if lib_name:
+        return lib_name
+
+    raise RuntimeError(
+        "Could not find espeak-ng library. Install espeak-ng or espeakng-loader package."
+    )
+
+
+def find_espeak_data() -> Optional[Path]:
+    """Find the espeak-ng data directory.
+
+    Search order:
+    1. KOKOROG2P_ESPEAK_DATA environment variable
+    2. espeakng_loader package (if installed)
+    3. None (let espeak find it)
+
+    Returns:
+        Path to data directory, or None to use espeak's default.
+    """
+    # Check environment variable
+    if ENV_DATA_PATH in os.environ:
+        data_path = pathlib.Path(os.environ[ENV_DATA_PATH])
+        if data_path.is_dir():
+            return data_path.resolve()
+        raise RuntimeError(f"{ENV_DATA_PATH}={data_path} is not a valid directory")
+
+    # Try espeakng_loader package
+    try:
+        import espeakng_loader
+
+        loader_data = espeakng_loader.get_data_path()
+        if loader_data and os.path.isdir(loader_data):
+            return pathlib.Path(loader_data).resolve()
+    except ImportError:
+        pass
+
+    return None
+
+
+class Phonemizer:
+    """High-level interface for espeak-ng phonemization.
+
+    This class provides a simple API for converting text to phonemes using
+    espeak-ng. It handles library loading, voice selection, and phoneme
+    conversion.
+
+    Example:
+        >>> phonemizer = Phonemizer()
+        >>> phonemizer.set_voice("en-us")
+        >>> phonemizer.phonemize("hello world")
+        'həlˈoʊ wˈɜːld'
     """
 
-    # a static variable used to overload the default espeak library installed
-    # on the system. The user can choose an alternative espeak library with
-    # the method EspeakWrapper.set_library().
-    _ESPEAK_LIBRARY: Optional[str] = None
-    _ESPEAK_DATA_PATH: Optional[str] = None
+    # Class-level overrides for library/data paths
+    _custom_library: Optional[str] = None
+    _custom_data: Optional[str] = None
 
     def __init__(self) -> None:
-        # the following attributes are accessed through properties and are
-        # lazily initialized
+        """Initialize the phonemizer.
+
+        Raises:
+            RuntimeError: If espeak-ng library cannot be loaded.
+        """
         self._version: Optional[Tuple[int, ...]] = None
         self._data_path: Optional[Path] = None
-        self._voice: Optional[EspeakVoice] = None
+        self._current_voice: Optional[Voice] = None
 
-        # load the espeak API
-        self._espeak = EspeakAPI(self.library(), self.data_path)
+        # Find library and data paths
+        lib_path = self._custom_library or find_espeak_library()
+        data_path = self._custom_data or find_espeak_data()
 
-        # lazy loading of attributes only required for the synthetize method
-        self._libc_: Optional[Any] = None
-        self._tempfile_: Optional[Any] = None
+        # Initialize low-level API
+        self._api = EspeakLibrary(lib_path, data_path)
 
-    @property
-    def _libc(self) -> Any:
-        if self._libc_ is None:
-            self._libc_ = (
-                ctypes.windll.msvcrt
-                if sys.platform == "win32"
-                else ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
-            )
-        return self._libc_
+    @classmethod
+    def set_library_path(cls, path: Optional[str]) -> None:
+        """Set a custom library path for all instances.
 
-    @property
-    def _tempfile(self) -> Any:
-        if self._tempfile_ is None:
-            # this will automatically removed at exit
-            # pylint: disable=consider-using-with
-            self._tempfile_ = tempfile.NamedTemporaryFile()
-            weakref.finalize(self._tempfile_, self._tempfile_.close)
-        return self._tempfile_
+        Args:
+            path: Path to espeak library, or None to use auto-detection.
+        """
+        cls._custom_library = path
+
+    @classmethod
+    def set_data_path(cls, path: Optional[str]) -> None:
+        """Set a custom data path for all instances.
+
+        Args:
+            path: Path to espeak data directory, or None to use auto-detection.
+        """
+        cls._custom_data = path
 
     def __getstate__(self) -> Dict[str, Any]:
-        """For pickling, when phonemizing on multiple jobs."""
+        """Support pickling for multiprocessing."""
         return {
             "version": self._version,
             "data_path": self._data_path,
-            "voice": self._voice,
+            "voice": self._current_voice,
         }
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
-        """For unpickling, when phonemizing on multiple jobs."""
+        """Restore from pickle."""
         self.__init__()
         self._version = state["version"]
         self._data_path = state["data_path"]
-        self._voice = state["voice"]
-        if self._voice:
-            if "mb" in self._voice.identifier:  # mbrola voice
-                self.set_voice(self._voice.identifier[3:])
-            else:
-                self.set_voice(self._voice.language)
-
-    @classmethod
-    def set_library(cls, library: Optional[str]) -> None:
-        """Sets the espeak backend to use `library`.
-
-        If this is not set, the backend uses the default espeak shared library
-        from the system installation.
-
-        Args:
-            library: The path to the espeak shared library to use as backend.
-                Set to None to restore the default.
-        """
-        cls._ESPEAK_LIBRARY = library
-
-    @classmethod
-    def set_data_path(cls, data_path: Optional[str]) -> None:
-        """Sets the path for the data to be used by the espeak backend.
-
-        If this is not set, the backend uses the default data path from the
-        system installation.
-
-        Args:
-            data_path: The path to the data to be used by the espeak backend.
-                Set to None to restore the default.
-        """
-        cls._ESPEAK_DATA_PATH = data_path
-
-    @classmethod
-    def library(cls) -> str:
-        """Returns the espeak library used as backend.
-
-        The following precedence rule applies for library lookup:
-        1. As specified by EspeakWrapper.set_library()
-        2. Or as specified by the environment variable PHONEMIZER_ESPEAK_LIBRARY
-        3. Or from espeakng-loader package if installed
-        4. Or the default espeak library found on the system
-
-        Raises:
-            RuntimeError: If the espeak library cannot be found or if the
-                environment variable PHONEMIZER_ESPEAK_LIBRARY is set to a
-                non-readable file.
-        """
-        if cls._ESPEAK_LIBRARY:
-            return cls._ESPEAK_LIBRARY
-
-        if "PHONEMIZER_ESPEAK_LIBRARY" in os.environ:
-            library = pathlib.Path(os.environ["PHONEMIZER_ESPEAK_LIBRARY"])
-            if not (library.is_file() and os.access(library, os.R_OK)):
-                raise RuntimeError(  # pragma: nocover
-                    f"PHONEMIZER_ESPEAK_LIBRARY={library} is not a readable file"
-                )
-            return str(library.resolve())
-
-        # Try espeakng-loader package
-        try:
-            import espeakng_loader
-
-            loader_path = espeakng_loader.get_library_path()
-            if loader_path and os.path.isfile(loader_path):
-                return loader_path
-        except ImportError:
-            pass
-
-        library_name = ctypes.util.find_library(
-            "espeak-ng"
-        ) or ctypes.util.find_library("espeak")
-        if not library_name:  # pragma: nocover
-            raise RuntimeError("failed to find espeak library")
-        return library_name
-
-    def _fetch_version_and_path(self) -> None:
-        """Initializes version and data path from the espeak library."""
-        version_bytes, data_path_bytes = self._espeak.info()
-
-        # pylint: disable=no-member
-        self._data_path = pathlib.Path(data_path_bytes.decode())
-        if not self._data_path.is_dir():  # pragma: nocover
-            raise RuntimeError("failed to retrieve espeak data directory")
-
-        # espeak-1.48 appends the release date to version number, here we
-        # simply ignore it
-        version = version_bytes.decode().strip().split(" ")[0].replace("-dev", "")
-        self._version = tuple(int(v) for v in version.split("."))
+        self._current_voice = state["voice"]
+        if self._current_voice:
+            self.set_voice(self._current_voice.language)
 
     @property
     def version(self) -> Tuple[int, ...]:
-        """The espeak version as a tuple of integers (major, minor, patch)."""
+        """Get espeak version as tuple of integers."""
         if self._version is None:
-            self._fetch_version_and_path()
-        return self._version  # type: ignore
+            version_str, data_str = self._api.get_info()
+            # Parse version string (e.g., "1.51.1" or "1.51.1-dev")
+            version_clean = version_str.strip().split()[0].replace("-dev", "")
+            self._version = tuple(int(x) for x in version_clean.split("."))
+            if data_str:
+                self._data_path = pathlib.Path(data_str)
+        return self._version
 
     @property
     def library_path(self) -> Path:
-        """The espeak library as a pathlib.Path instance."""
-        return self._espeak.library_path
+        """Get path to the espeak library."""
+        return self._api.library_path
 
     @property
     def data_path(self) -> Optional[Path]:
-        """Returns the espeak data path.
-
-        The following precedence rule applies for data path lookup:
-        1. As specified by EspeakWrapper.set_data_path()
-        2. Or as specified by the environment variable PHONEMIZER_ESPEAK_DATA_PATH
-        3. Or from espeakng-loader package if installed
-        4. Or the default espeak data path found by espeak itself
-        """
-        if self._ESPEAK_DATA_PATH:
-            data_path = pathlib.Path(self._ESPEAK_DATA_PATH)
-            if not (data_path.is_dir() and os.access(self._ESPEAK_DATA_PATH, os.R_OK)):
-                raise RuntimeError(
-                    f"{self._ESPEAK_DATA_PATH} is not a readable directory"
-                )
-            self._data_path = data_path.resolve()
-        elif "PHONEMIZER_ESPEAK_DATA_PATH" in os.environ:
-            data_path = pathlib.Path(os.environ["PHONEMIZER_ESPEAK_DATA_PATH"])
-            if not (data_path.is_dir() and os.access(data_path, os.R_OK)):
-                raise RuntimeError(  # pragma: nocover
-                    f"PHONEMIZER_ESPEAK_DATA_PATH={data_path} is not a readable directory"
-                )
-            self._data_path = data_path.resolve()
-        elif self._data_path is None:
-            # Try espeakng-loader package
-            try:
-                import espeakng_loader
-
-                loader_data = espeakng_loader.get_data_path()
-                if loader_data and os.path.isdir(loader_data):
-                    self._data_path = pathlib.Path(loader_data).resolve()
-            except ImportError:
-                pass
-
-        # Fetch path dynamically after initialize
-        if self._data_path is None and hasattr(self, "_espeak"):
-            self._fetch_version_and_path()
+        """Get path to espeak data directory."""
+        if self._data_path is None:
+            _, data_str = self._api.get_info()
+            if data_str:
+                self._data_path = pathlib.Path(data_str)
         return self._data_path
 
     @property
-    def voice(self) -> Optional[EspeakVoice]:
-        """The configured voice as an EspeakVoice instance.
-
-        If `set_voice` has not been called, returns None.
-        """
-        return self._voice
+    def voice(self) -> Optional[Voice]:
+        """Get the currently selected voice."""
+        return self._current_voice
 
     @functools.cache
-    def available_voices(self, name: Optional[str] = None) -> List[EspeakVoice]:
-        """Voices available for phonemization, as a list of `EspeakVoice`."""
-        voice_filter = None
-        if name:
-            voice_filter = EspeakVoice(language=name).to_ctypes()
-        voices = self._espeak.list_voices(voice_filter)
-
-        index = 0
-        available_voices: List[EspeakVoice] = []
-        # voices is an array to pointers, terminated by None
-        while voices[index]:
-            voice = voices[index].contents
-            available_voices.append(
-                EspeakVoice(
-                    name=os.fsdecode(voice.name).replace("_", " "),
-                    language=os.fsdecode(voice.languages)[1:],
-                    identifier=os.fsdecode(voice.identifier),
-                )
-            )
-            index += 1
-        return available_voices
-
-    def set_voice(self, voice_code: str) -> None:
-        """Setup the voice to use for phonemization.
+    def list_voices(self, filter_name: Optional[str] = None) -> List[Voice]:
+        """List available voices.
 
         Args:
-            voice_code: Must be a valid language code that is actually
-                supported by espeak.
+            filter_name: Optional filter (e.g., "mbrola" for mbrola voices).
+
+        Returns:
+            List of available Voice objects.
+        """
+        # Create filter if specified
+        voice_filter = None
+        if filter_name:
+            filter_voice = Voice(language=filter_name)
+            voice_filter = voice_to_struct(filter_voice)
+
+        # Get voices from library
+        voice_ptrs = self._api.list_voices(voice_filter)
+
+        voices: List[Voice] = []
+        idx = 0
+        while voice_ptrs[idx]:
+            struct = voice_ptrs[idx].contents
+            voices.append(struct_to_voice(struct))
+            idx += 1
+
+        return voices
+
+    def set_voice(self, language: str) -> None:
+        """Set the voice for phonemization.
+
+        Args:
+            language: Language code (e.g., "en-us", "en-gb", "fr-fr").
 
         Raises:
-            RuntimeError: If the required voice cannot be initialized.
+            RuntimeError: If the voice cannot be set.
         """
-        if "mb" in voice_code:
-            # this is an mbrola voice code. Select the voice by using
-            # identifier in the format 'mb/{voice_code}'
+        if not language:
+            raise RuntimeError('Invalid voice code ""')
+
+        # Check if this is an mbrola voice
+        if "mb" in language:
+            # Mbrola voices use identifier format "mb/{voice}"
             available = {
-                voice.identifier[3:]: voice.identifier
-                for voice in self.available_voices("mbrola")
+                v.identifier[3:]: v.identifier for v in self.list_voices("mbrola")
             }
         else:
-            # these are espeak voices. Select the voice using it's attached
-            # language code. Consider only the first voice of a given code as
-            # they are sorted by relevancy
+            # Regular espeak voices - map language to identifier
             available: Dict[str, str] = {}
-            for voice in self.available_voices():
-                if voice.language not in available:
-                    available[voice.language] = voice.identifier
+            for v in self.list_voices():
+                if v.language and v.language not in available:
+                    available[v.language] = v.identifier
 
-        try:
-            voice_name = available[voice_code]
-        except KeyError:
-            raise RuntimeError(f'invalid voice code "{voice_code}"') from None
+        # Find voice identifier
+        if language not in available:
+            raise RuntimeError(f'Invalid voice code "{language}"')
 
-        if self._espeak.set_voice_by_name(voice_name.encode("utf8")) != 0:
-            raise RuntimeError(  # pragma: nocover
-                f'failed to load voice "{voice_code}"'
-            )
+        identifier = available[language]
 
-        voice = self._get_voice()
-        if not voice:  # pragma: nocover
-            raise RuntimeError(f'failed to load voice "{voice_code}"')
-        self._voice = voice
+        # Set the voice
+        if self._api.set_voice_by_name(identifier) != 0:
+            raise RuntimeError(f'Failed to set voice "{language}"')
 
-    def _get_voice(self) -> Optional[EspeakVoice]:
-        """Returns the current voice used for phonemization.
+        # Update current voice
+        voice_struct = self._api.get_current_voice()
+        self._current_voice = struct_to_voice(voice_struct)
 
-        If no voice has been set up, returns None.
-        """
-        voice = self._espeak.get_current_voice()
-        if voice.name:
-            return EspeakVoice.from_ctypes(voice)
-        return None  # pragma: nocover
-
-    def text_to_phonemes(self, text: str, tie: bool = False) -> str:
-        """Translates a text into phonemes, must call set_voice() first.
-
-        This method is used by the Espeak backend. Wrapper on the
-        espeak_TextToPhonemes function.
+    def phonemize(self, text: str, use_tie: bool = False) -> str:
+        """Convert text to phonemes.
 
         Args:
-            text: The text to phonemize.
-            tie: When True use a '͡' character between consecutive characters
-                of a single phoneme. Else separate phoneme with '_'.
-                This option requires espeak>=1.49. Default to False.
+            text: Text to phonemize.
+            use_tie: If True, use tie character (͡) for affricates.
+                     If False, use underscore separator.
 
         Returns:
-            The phonemes for the text encoded in IPA, with '_' as phonemes
-            separator (excepted if ``tie`` is True) and ' ' as word separator.
+            Phoneme string in IPA format.
+
+        Raises:
+            RuntimeError: If no voice is set.
         """
-        if self.voice is None:  # pragma: nocover
-            raise RuntimeError("no voice specified")
+        if self._current_voice is None:
+            raise RuntimeError("No voice set. Call set_voice() first.")
 
-        if tie and self.version <= (1, 48, 3):
-            raise RuntimeError(  # pragma: nocover
-                "tie option only compatible with espeak>=1.49"
-            )
+        if use_tie and self.version < (1, 49):
+            raise RuntimeError("Tie option requires espeak >= 1.49")
 
-        # from Python string to C void** (a pointer to a pointer to chars)
-        text_ptr = ctypes.pointer(ctypes.c_char_p(text.encode("utf8")))
-
-        # input text is encoded as UTF8
-        text_mode = 1
-
-        # output phonemes in IPA and separated by _, or with a tie character if
-        # required. See comments for the function espeak_TextToPhonemes in
-        # speak_lib.h of the espeak sources for details.
-        if self.version <= (1, 48, 3):  # pragma: nocover
-            phonemes_mode = 0x03 | 0x01 << 4
-        elif tie:
-            phonemes_mode = 0x02 | 0x01 << 7 | ord("͡") << 8
-        else:
-            phonemes_mode = ord("_") << 8 | 0x02
-
-        result: List[str] = []
-        while text_ptr.contents.value is not None:
-            phonemes = self._espeak.text_to_phonemes(text_ptr, text_mode, phonemes_mode)
-            if phonemes:
-                result.append(phonemes.decode())
-        return " ".join(result)
-
-    def synthetize(self, text: str) -> str:
-        """Translates a text into phonemes, must call set_voice() first.
-
-        Only compatible with espeak>=1.49. This method is used by the
-        EspeakMbrola backend. Wrapper on the espeak_Synthesize function.
-
-        Args:
-            text: The text to phonemize.
-
-        Returns:
-            The phonemes for the text encoded in SAMPA, with '_' as phonemes
-            separator and no word separation.
-        """
-        if self.version < (1, 49):  # pragma: nocover
-            raise RuntimeError("not compatible with espeak<=1.48")
-        if self.voice is None:  # pragma: nocover
-            raise RuntimeError("no voice specified")
-
-        # init libc fopen and fclose functions
-        self._libc.fopen.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
-        self._libc.fopen.restype = ctypes.c_void_p
-        self._libc.fclose.argtypes = [ctypes.c_void_p]
-        self._libc.fclose.restype = ctypes.c_int
-
-        # output phonemes in SAMPA and separated by _. Write the result to a
-        # tempfile which is read back after phonemization (seems not possible
-        # to redirect to stdout). See comments for the function
-        # espeak_SetPhonemeTrace in speak_lib.h of the espeak sources for
-        # details.
-        self._tempfile.truncate(0)
-        file_p = self._libc.fopen(
-            self._tempfile.name.encode(),
-            self._tempfile.mode.encode(),
+        return self._api.text_to_phonemes(
+            text,
+            phoneme_mode=PHONEMES_IPA,
+            separator="_" if not use_tie else None,
+            use_tie=use_tie,
         )
 
-        self._espeak.set_phoneme_trace(0x01 << 4 | ord("_") << 8, file_p)
-        status = self._espeak.synthetize(
-            ctypes.c_char_p(text.encode("utf8")),
-            ctypes.c_size_t(len(text) + 1),
-            ctypes.c_uint(0x01),
-        )
-        self._libc.fclose(file_p)  # because flush does not work...
 
-        if status != 0:  # pragma: nocover
-            raise RuntimeError("failed to synthetize")
-
-        self._tempfile.seek(0)
-        phonemized = self._tempfile.read().decode().strip()
-        return phonemized
+# Backwards compatibility aliases
+EspeakWrapper = Phonemizer

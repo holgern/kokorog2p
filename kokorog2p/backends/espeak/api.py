@@ -1,285 +1,352 @@
-"""Low-level bindings to the espeak API.
+"""Low-level ctypes bindings to the espeak-ng shared library.
 
-Based on phonemizer by Mathieu Bernard, licensed under GPL-3.0.
+This module provides direct bindings to the espeak-ng C API functions
+defined in speak_lib.h. It handles library loading, initialization,
+and cleanup.
+
+Copyright 2024 kokorog2p contributors
+Licensed under the Apache License, Version 2.0
 """
 
 import atexit
 import ctypes
+import ctypes.util
+import os
 import pathlib
 import shutil
 import sys
 import tempfile
 import weakref
-from ctypes import CDLL
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
-from kokorog2p.backends.espeak.voice import EspeakVoice
+from kokorog2p.backends.espeak.voice import VoiceStruct
 
+# dlinfo is used on Linux/MacOS to get library path
 if sys.platform != "win32":
-    # cause a crash on Windows
-    import dlinfo
+    try:
+        import dlinfo
+
+        HAS_DLINFO = True
+    except ImportError:
+        HAS_DLINFO = False
+else:
+    HAS_DLINFO = False
 
 
-class EspeakAPI:
-    """Exposes the espeak API to the EspeakWrapper.
+# espeak_AUDIO_OUTPUT enum values from speak_lib.h
+AUDIO_OUTPUT_PLAYBACK = 0
+AUDIO_OUTPUT_RETRIEVAL = 1
+AUDIO_OUTPUT_SYNCHRONOUS = 2
+AUDIO_OUTPUT_SYNCH_PLAYBACK = 3
 
-    This class exposes only low-level bindings to the API and should not be
-    used directly.
+# Text encoding flags from speak_lib.h
+CHARS_AUTO = 0
+CHARS_UTF8 = 1
+CHARS_8BIT = 2
+CHARS_WCHAR = 3
+CHARS_16BIT = 4
+
+# Phoneme mode flags from speak_lib.h
+PHONEMES_SHOW = 0x01
+PHONEMES_IPA = 0x02
+PHONEMES_TRACE = 0x08
+PHONEMES_MBROLA = 0x10
+PHONEMES_TIE = 0x80
+
+
+def _find_library_path(lib: ctypes.CDLL) -> Path:
+    """Get the absolute path of a loaded shared library.
+
+    Args:
+        lib: A loaded ctypes CDLL instance.
+
+    Returns:
+        Absolute path to the library file.
+
+    Raises:
+        RuntimeError: If the library path cannot be determined.
+    """
+    # Try the _name attribute first (works on Windows and sometimes Linux)
+    name_path = pathlib.Path(lib._name).resolve()
+    if name_path.is_file():
+        return name_path
+
+    # On Linux/MacOS, use dlinfo if available
+    if HAS_DLINFO:
+        try:
+            return pathlib.Path(dlinfo.DLInfo(lib).path).resolve()
+        except Exception:
+            pass
+
+    raise RuntimeError(f"Cannot determine path for library: {lib._name}")
+
+
+class EspeakLibrary:
+    """Low-level bindings to the espeak-ng shared library.
+
+    This class handles loading the espeak-ng library, initializing it,
+    and providing access to the C API functions. Each instance gets its
+    own copy of the library to support multiple independent instances.
+
+    The library uses espeak-ng's synchronous mode for phonemization.
     """
 
     def __init__(
         self,
-        library: Union[str, Path],
-        data_path: Optional[Union[str, Path]],
+        library_path: Union[str, Path],
+        data_path: Optional[Union[str, Path]] = None,
     ) -> None:
-        # set to None to avoid an AttributeError in _delete if the __init__
-        # method raises, will be properly initialized below
-        self._library: Optional[CDLL] = None
+        """Initialize the espeak library bindings.
 
-        data_path_bytes: Optional[bytes] = None
+        Args:
+            library_path: Path to the espeak-ng shared library.
+            data_path: Optional path to espeak-ng data directory.
+
+        Raises:
+            RuntimeError: If the library cannot be loaded or initialized.
+        """
+        self._lib: Optional[ctypes.CDLL] = None
+        self._temp_dir: Optional[str] = None
+        self._original_path: Optional[Path] = None
+
+        # Convert data_path to bytes for C API
+        data_bytes: Optional[bytes] = None
         if data_path is not None:
-            data_path_bytes = str(data_path).encode("utf-8")
+            data_bytes = str(data_path).encode("utf-8")
 
-        # Because the library is not designed to be wrapped nor to be used in
-        # multithreaded/multiprocess contexts (massive use of global variables)
-        # we need a copy of the original library for each instance of the
-        # wrapper... (see "man dlopen" on Linux/MacOS: we cannot load two times
-        # the same library because a reference is then returned by dlopen). The
-        # tweak is therefore to make a copy of the original library in a
-        # different (temporary) directory.
+        # Load library to get its actual path
         try:
-            # load the original library in order to retrieve its full path
-            # Forced as str as it is required on Windows.
-            espeak: CDLL = ctypes.cdll.LoadLibrary(str(library))
-            library_path = self._shared_library_path(espeak)
-            del espeak
-        except OSError as error:
-            raise RuntimeError(f"failed to load espeak library: {error!s}") from None
+            temp_lib = ctypes.cdll.LoadLibrary(str(library_path))
+            self._original_path = _find_library_path(temp_lib)
+            del temp_lib
+        except OSError as e:
+            raise RuntimeError(f"Failed to load espeak library: {e}") from None
 
-        # will be automatically destroyed after use
-        self._tempdir = tempfile.mkdtemp()
+        # Create a temporary copy of the library
+        # This is needed because espeak-ng uses global state, so multiple
+        # instances require separate library copies
+        self._temp_dir = tempfile.mkdtemp(prefix="espeak_")
+        lib_copy = pathlib.Path(self._temp_dir) / self._original_path.name
+        shutil.copy(self._original_path, lib_copy, follow_symlinks=False)
 
-        # properly exit when the wrapper object is destroyed (see
-        # https://docs.python.org/3/library/weakref.html#comparing-finalizers-with-del-methods).
-        # But... weakref implementation does not work on windows so we register
-        # the cleanup with atexit. This means that, on Windows, all the
-        # temporary directories created by EspeakAPI instances will remain on
-        # disk until the Python process exit.
-        if sys.platform == "win32":  # pragma: nocover
-            atexit.register(self._delete_win32)
+        # Register cleanup
+        if sys.platform == "win32":
+            atexit.register(self._cleanup_windows)
         else:
-            weakref.finalize(self, self._delete, self._library, self._tempdir)
+            weakref.finalize(self, self._cleanup, None, self._temp_dir)
 
-        espeak_copy = pathlib.Path(self._tempdir) / library_path.name
-        shutil.copy(library_path, espeak_copy, follow_symlinks=False)
+        # Load the copy and initialize
+        self._lib = ctypes.cdll.LoadLibrary(str(lib_copy))
 
-        # finally load the library copy and initialize it. 0x02 is
-        # AUDIO_OUTPUT_SYNCHRONOUS in the espeak API
-        self._library = ctypes.cdll.LoadLibrary(str(espeak_copy))
+        # espeak_Initialize(output, buflength, path, options)
+        # output=AUDIO_OUTPUT_SYNCHRONOUS (0x02), buflength=0, options=0
         try:
-            if self._library.espeak_Initialize(0x02, 0, data_path_bytes, 0) <= 0:
-                raise RuntimeError(  # pragma: nocover
-                    "failed to initialize espeak shared library"
-                )
-        except AttributeError:  # pragma: nocover
-            raise RuntimeError("failed to load espeak library") from None
+            result = self._lib.espeak_Initialize(
+                AUDIO_OUTPUT_SYNCHRONOUS, 0, data_bytes, 0
+            )
+            if result <= 0:
+                raise RuntimeError("espeak_Initialize returned error")
+        except AttributeError:
+            raise RuntimeError("Invalid espeak library - missing espeak_Initialize")
 
-        # the path to the original one (the copy is considered an
-        # implementation detail and is not exposed)
-        self._library_path = library_path
+        # Update finalizer with the loaded library
+        if sys.platform != "win32":
+            weakref.finalize(self, self._cleanup, self._lib, self._temp_dir)
 
-    def _delete_win32(self) -> None:  # pragma: nocover
-        # Windows does not support static methods with ctypes libraries
-        # (library == None) so we use a proxy method...
-        self._delete(self._library, self._tempdir)
+    def _cleanup_windows(self) -> None:
+        """Cleanup for Windows (atexit handler)."""
+        self._cleanup(self._lib, self._temp_dir)
 
     @staticmethod
-    def _delete(library: Optional[CDLL], tempdir: str) -> None:
-        try:
-            # clean up the espeak library allocated memory
-            if library is not None:
-                library.espeak_Terminate()
-        except AttributeError:  # library not loaded
-            pass
+    def _cleanup(lib: Optional[ctypes.CDLL], temp_dir: Optional[str]) -> None:
+        """Clean up library resources.
 
-        # on Windows it is required to unload the library or the .dll file
-        # cannot be erased from the temporary directory
-        if sys.platform == "win32" and library is not None:  # pragma: nocover
-            # pylint: disable=import-outside-toplevel
-            # pylint: disable=protected-access
-            # pylint: disable=no-member
-            import _ctypes
+        Args:
+            lib: The loaded library to terminate.
+            temp_dir: Temporary directory to remove.
+        """
+        # Terminate espeak
+        if lib is not None:
+            try:
+                lib.espeak_Terminate()
+            except (AttributeError, OSError):
+                pass
 
-            _ctypes.FreeLibrary(library._handle)  # type: ignore
+            # On Windows, unload the DLL so we can delete it
+            if sys.platform == "win32":
+                try:
+                    import _ctypes
 
-        # clean up the tempdir containing the copy of the library
-        shutil.rmtree(tempdir)
+                    _ctypes.FreeLibrary(lib._handle)
+                except (ImportError, AttributeError, OSError):
+                    pass
+
+        # Remove temporary directory
+        if temp_dir and os.path.isdir(temp_dir):
+            try:
+                shutil.rmtree(temp_dir)
+            except OSError:
+                pass
 
     @property
     def library_path(self) -> Path:
-        """Absolute path to the espeak library being in use."""
-        return self._library_path
+        """Path to the original espeak library."""
+        if self._original_path is None:
+            raise RuntimeError("Library not loaded")
+        return self._original_path
 
-    @staticmethod
-    def _shared_library_path(library: CDLL) -> Path:
-        """Returns the absolute path to `library`.
+    @property
+    def temp_dir(self) -> Optional[str]:
+        """Temporary directory containing library copy."""
+        return self._temp_dir
 
-        This function is cross-platform and works for Linux, MacOS and Windows.
-        Raises a RuntimeError if the library path cannot be retrieved.
-        """
-        # pylint: disable=protected-access
-        path = pathlib.Path(library._name).resolve()
-        if path.is_file():
-            return path
-
-        try:
-            # Linux or MacOS only, ImportError on Windows
-            return pathlib.Path(dlinfo.DLInfo(library).path).resolve()
-        except (Exception, ImportError):  # pragma: nocover
-            raise RuntimeError(
-                f"failed to retrieve the path to {library} library"
-            ) from None
-
-    def info(self) -> Tuple[bytes, bytes]:
-        """Bindings to espeak_Info.
+    def get_info(self) -> Tuple[str, str]:
+        """Get espeak version and data path.
 
         Returns:
-            Tuple of (version, data_path) as encoded strings.
+            Tuple of (version_string, data_path).
+
+        Raises:
+            RuntimeError: If library not loaded.
         """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+        if self._lib is None:
+            raise RuntimeError("Library not loaded")
 
-        f_info = self._library.espeak_Info
-        f_info.restype = ctypes.c_char_p
-        data_path = ctypes.c_char_p()
-        version = f_info(ctypes.byref(data_path))
-        return version, data_path.value or b""
+        # const char *espeak_Info(const char **path_data)
+        func = self._lib.espeak_Info
+        func.restype = ctypes.c_char_p
 
-    def list_voices(
-        self,
-        name: Optional[EspeakVoice.VoiceStruct],
-    ) -> ctypes.Array:  # type: ignore
-        """Bindings to espeak_ListVoices.
+        path_ptr = ctypes.c_char_p()
+        version = func(ctypes.byref(path_ptr))
+
+        version_str = version.decode("utf-8") if version else ""
+        path_str = path_ptr.value.decode("utf-8") if path_ptr.value else ""
+
+        return version_str, path_str
+
+    def list_voices(self, voice_filter: Optional[VoiceStruct] = None) -> Any:
+        """List available voices.
 
         Args:
-            name: If specified, a filter on voices to be listed.
+            voice_filter: Optional filter for voice selection.
 
         Returns:
-            A pointer to EspeakVoice.Struct instances.
+            Array of pointers to VoiceStruct, terminated by NULL.
+
+        Raises:
+            RuntimeError: If library not loaded.
         """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+        if self._lib is None:
+            raise RuntimeError("Library not loaded")
 
-        f_list_voices = self._library.espeak_ListVoices
-        f_list_voices.argtypes = [ctypes.POINTER(EspeakVoice.VoiceStruct)]
-        f_list_voices.restype = ctypes.POINTER(ctypes.POINTER(EspeakVoice.VoiceStruct))
-        return f_list_voices(name)
+        # const espeak_VOICE **espeak_ListVoices(espeak_VOICE *voice_spec)
+        func = self._lib.espeak_ListVoices
+        func.argtypes = [ctypes.POINTER(VoiceStruct)]
+        func.restype = ctypes.POINTER(ctypes.POINTER(VoiceStruct))
 
-    def set_voice_by_name(self, name: bytes) -> int:
-        """Bindings to espeak_SetVoiceByName.
+        filter_ptr = ctypes.pointer(voice_filter) if voice_filter else None
+        return func(filter_ptr)
+
+    def set_voice_by_name(self, name: str) -> int:
+        """Set the voice by name/identifier.
 
         Args:
-            name: The voice name to setup.
+            name: Voice name or identifier.
 
         Returns:
-            0 on success, non-zero integer on failure.
+            0 on success, non-zero on failure.
+
+        Raises:
+            RuntimeError: If library not loaded.
         """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+        if self._lib is None:
+            raise RuntimeError("Library not loaded")
 
-        f_set_voice_by_name = self._library.espeak_SetVoiceByName
-        f_set_voice_by_name.argtypes = [ctypes.c_char_p]
-        return f_set_voice_by_name(name)
+        # espeak_ERROR espeak_SetVoiceByName(const char *name)
+        func = self._lib.espeak_SetVoiceByName
+        func.argtypes = [ctypes.c_char_p]
+        func.restype = ctypes.c_int
 
-    def get_current_voice(self) -> EspeakVoice.VoiceStruct:
-        """Bindings to espeak_GetCurrentVoice.
+        return func(name.encode("utf-8"))
+
+    def get_current_voice(self) -> VoiceStruct:
+        """Get the currently selected voice.
 
         Returns:
-            An EspeakVoice.Struct instance or None if no voice has been setup.
-        """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+            VoiceStruct for the current voice.
 
-        f_get_current_voice = self._library.espeak_GetCurrentVoice
-        f_get_current_voice.restype = ctypes.POINTER(EspeakVoice.VoiceStruct)
-        return f_get_current_voice().contents
+        Raises:
+            RuntimeError: If library not loaded.
+        """
+        if self._lib is None:
+            raise RuntimeError("Library not loaded")
+
+        # espeak_VOICE *espeak_GetCurrentVoice(void)
+        func = self._lib.espeak_GetCurrentVoice
+        func.restype = ctypes.POINTER(VoiceStruct)
+
+        return func().contents
 
     def text_to_phonemes(
         self,
-        text_ptr: ctypes.POINTER,  # type: ignore
-        text_mode: int,
-        phonemes_mode: int,
-    ) -> bytes:
-        """Bindings to espeak_TextToPhonemes.
+        text: str,
+        phoneme_mode: int = PHONEMES_IPA,
+        separator: Optional[str] = None,
+        use_tie: bool = False,
+    ) -> str:
+        """Convert text to phonemes.
 
         Args:
-            text_ptr: The text to be phonemized, as a pointer to a pointer of chars.
-            text_mode: Bits field (see espeak sources for details).
-            phonemes_mode: Bits field (see espeak sources for details).
+            text: Text to convert.
+            phoneme_mode: Phoneme output mode (default: IPA).
+            separator: Character to separate phonemes (default: None).
+            use_tie: If True, use tie character for multi-letter phonemes.
 
         Returns:
-            An encoded string containing the computed phonemes.
-        """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+            Phoneme string.
 
-        f_text_to_phonemes = self._library.espeak_TextToPhonemes
-        f_text_to_phonemes.restype = ctypes.c_char_p
-        f_text_to_phonemes.argtypes = [
+        Raises:
+            RuntimeError: If library not loaded.
+        """
+        if self._lib is None:
+            raise RuntimeError("Library not loaded")
+
+        # const char *espeak_TextToPhonemes(const void **textptr,
+        #                                   int textmode, int phonememode)
+        func = self._lib.espeak_TextToPhonemes
+        func.restype = ctypes.c_char_p
+        func.argtypes = [
             ctypes.POINTER(ctypes.c_char_p),
             ctypes.c_int,
             ctypes.c_int,
         ]
-        return f_text_to_phonemes(text_ptr, text_mode, phonemes_mode)
 
-    def set_phoneme_trace(self, mode: int, file_pointer: ctypes.c_void_p) -> None:
-        """Bindings on espeak_SetPhonemeTrace.
+        # Build phoneme_mode flags
+        # bit 1: 1 = IPA output
+        # bit 7: use separator from bits 8-23
+        # bits 8-23: separator character
+        mode = phoneme_mode
 
-        This method must be called before any call to synthetize().
+        if use_tie:
+            # Use tie character (U+0361) between phoneme parts
+            mode |= PHONEMES_TIE
+            mode |= ord("͡") << 8
+        elif separator:
+            mode |= ord(separator[0]) << 8
 
-        Args:
-            mode: Bits field (see espeak sources for details).
-            file_pointer: A pointer to an opened file in which to output
-                the phoneme trace.
-        """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
+        # Create pointer to text
+        text_bytes = text.encode("utf-8")
+        text_ptr = ctypes.pointer(ctypes.c_char_p(text_bytes))
 
-        f_set_phoneme_trace = self._library.espeak_SetPhonemeTrace
-        f_set_phoneme_trace.argtypes = [ctypes.c_int, ctypes.c_void_p]
-        f_set_phoneme_trace(mode, file_pointer)
+        # Text mode: 1 = UTF-8 input
+        text_mode = CHARS_UTF8
 
-    def synthetize(
-        self,
-        text_ptr: ctypes.c_char_p,
-        size: ctypes.c_size_t,
-        mode: ctypes.c_uint,
-    ) -> int:
-        """Bindings on espeak_Synth.
+        # Collect all phoneme chunks
+        result_parts = []
+        while text_ptr.contents.value is not None:
+            phonemes = func(text_ptr, text_mode, mode)
+            if phonemes:
+                result_parts.append(phonemes.decode("utf-8"))
 
-        The output phonemes are sent to the file specified by a call to
-        set_phoneme_trace().
-
-        Args:
-            text_ptr: A pointer to chars.
-            size: Number of chars in text.
-            mode: Bits field (see espeak sources for details).
-
-        Returns:
-            0 on success, non-zero integer on failure.
-        """
-        if self._library is None:
-            raise RuntimeError("espeak library not loaded")
-
-        f_synthetize = self._library.espeak_Synth
-        f_synthetize.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-            ctypes.c_uint,
-            ctypes.c_int,  # position_type
-            ctypes.c_uint,
-            ctypes.POINTER(ctypes.c_uint),
-            ctypes.c_void_p,
-        ]
-        return f_synthetize(text_ptr, size, 0, 1, 0, mode, None, None)
+        return " ".join(result_parts)

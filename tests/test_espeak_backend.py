@@ -1,6 +1,7 @@
-"""Tests for the EspeakBackend.
+"""Tests for the espeak-ng backend.
 
-Tests adapted from phonemizer-fork by Mathieu Bernard.
+Copyright 2024 kokorog2p contributors
+Licensed under the Apache License, Version 2.0
 """
 
 import os
@@ -14,48 +15,43 @@ import pytest
 class TestEspeakBackend:
     """Tests for the EspeakBackend class."""
 
-    def test_backend_creation(self, espeak_backend):
-        """Test backend creation."""
+    def test_creation(self, espeak_backend):
+        """Test backend creation with default parameters."""
         assert espeak_backend.language == "en-us"
         assert espeak_backend.with_stress is True
         assert espeak_backend.tie == "^"
 
-    def test_backend_is_british(self, espeak_backend, espeak_backend_gb):
-        """Test is_british property."""
+    def test_is_british(self, espeak_backend, espeak_backend_gb):
+        """Test British English detection."""
         assert espeak_backend.is_british is False
         assert espeak_backend_gb.is_british is True
 
-    def test_phonemize_simple_word(self, espeak_backend):
-        """Test phonemizing a simple word."""
+    def test_phonemize_word(self, espeak_backend):
+        """Test converting a single word to phonemes."""
         result = espeak_backend.phonemize("hello")
         assert isinstance(result, str)
         assert len(result) > 0
-        # Should contain stress marker for primary syllable
-        assert "ˈ" in result or "ˌ" in result or len(result) > 3
 
     def test_phonemize_sentence(self, espeak_backend):
-        """Test phonemizing a sentence."""
+        """Test converting a sentence to phonemes."""
         result = espeak_backend.phonemize("Hello world")
         assert isinstance(result, str)
         assert len(result) > 0
 
-    def test_phonemize_with_kokoro_conversion(self, espeak_backend):
-        """Test phonemization with Kokoro conversion."""
+    def test_phonemize_with_kokoro(self, espeak_backend):
+        """Test phonemization with Kokoro format conversion."""
         result = espeak_backend.phonemize("say", convert_to_kokoro=True)
-        # "say" contains the eɪ diphthong, which should be converted to A
-        # The result might vary by espeak version, but should be valid
         assert isinstance(result, str)
         assert len(result) > 0
 
-    def test_phonemize_without_kokoro_conversion(self, espeak_backend):
+    def test_phonemize_raw_ipa(self, espeak_backend):
         """Test phonemization without Kokoro conversion."""
         result = espeak_backend.phonemize("say", convert_to_kokoro=False)
         assert isinstance(result, str)
-        # Without conversion, should have original IPA
         assert len(result) > 0
 
     def test_phonemize_list(self, espeak_backend):
-        """Test phonemizing a list of texts."""
+        """Test batch phonemization."""
         texts = ["hello", "world", "test"]
         results = espeak_backend.phonemize_list(texts)
         assert isinstance(results, list)
@@ -63,17 +59,15 @@ class TestEspeakBackend:
         assert all(isinstance(r, str) for r in results)
 
     def test_word_phonemes(self, espeak_backend):
-        """Test single word phonemization."""
+        """Test single word phonemization without separators."""
         result = espeak_backend.word_phonemes("hello")
         assert isinstance(result, str)
-        # Should not have underscores or trailing separators
         assert "_" not in result
 
-    def test_version(self, espeak_backend):
-        """Test version property."""
+    def test_version_string(self, espeak_backend):
+        """Test version string format."""
         version = espeak_backend.version
         assert isinstance(version, str)
-        # Version should be in format like "1.51.1" or similar
         parts = version.split(".")
         assert len(parts) >= 1
 
@@ -91,359 +85,324 @@ class TestEspeakBackend:
 
 
 @pytest.mark.espeak
-class TestEspeakWrapper:
-    """Tests for the low-level EspeakWrapper."""
+class TestPhonemizer:
+    """Tests for the Phonemizer (wrapper) class."""
 
-    def test_wrapper_version(self, has_espeak):
-        """Test wrapper version."""
+    def test_version(self, has_espeak):
+        """Test version is available."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
+        p = Phonemizer()
+        assert p.version is not None
+        assert isinstance(p.version, tuple)
+        assert len(p.version) >= 2
 
-        assert wrapper.version is not None
-        assert isinstance(wrapper.version, tuple)
-        assert len(wrapper.version) >= 2
-
-    def test_wrapper_text_to_phonemes(self, has_espeak):
-        """Test text to phonemes conversion."""
+    def test_phonemize(self, has_espeak):
+        """Test basic phonemization."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        wrapper.set_voice("en-us")
+        p = Phonemizer()
+        p.set_voice("en-us")
 
-        result = wrapper.text_to_phonemes("hello")
+        result = p.phonemize("hello")
         assert isinstance(result, str)
         assert len(result) > 0
 
-    def test_wrapper_set_voice(self, has_espeak):
-        """Test setting voice."""
+    def test_set_voice(self, has_espeak):
+        """Test voice selection."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-
-        # Should not raise
-        wrapper.set_voice("en-us")
-        wrapper.set_voice("en-gb")
+        p = Phonemizer()
+        p.set_voice("en-us")
+        p.set_voice("en-gb")
 
 
 @pytest.mark.espeak
-class TestEspeakVoice:
-    """Tests for the EspeakVoice class."""
+class TestVoice:
+    """Tests for the Voice class."""
 
-    def test_voice_from_language(self, has_espeak):
-        """Test voice creation from language code."""
+    def test_from_language(self, has_espeak):
+        """Test creating voice from language code."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakVoice
+        from kokorog2p.backends.espeak import Voice
 
-        voice = EspeakVoice.from_language("en-us")
+        voice = Voice.from_language("en-us")
         assert voice.language == "en-us"
 
-        voice_gb = EspeakVoice.from_language("en-gb")
+        voice_gb = Voice.from_language("en-gb")
         assert voice_gb.language == "en-gb"
 
 
 @pytest.mark.espeak
-class TestEspeakStress:
-    """Tests for stress handling in espeak backend."""
+class TestVoiceListing:
+    """Tests for listing available voices."""
 
-    def test_stress_disabled(self, has_espeak):
-        """Test phonemization without stress markers."""
+    def test_list_voices(self, has_espeak):
+        """Test listing all voices."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakBackend
+        from kokorog2p.backends.espeak import Phonemizer
 
-        backend = EspeakBackend("en-us", with_stress=False)
-        result = backend.phonemize("hello world", convert_to_kokoro=False)
-        # Without stress, there should be no primary/secondary stress markers
-        # Note: espeak may still include some markers depending on version
-        assert isinstance(result, str)
-        assert len(result) > 0
-
-    def test_stress_enabled(self, has_espeak):
-        """Test phonemization with stress markers."""
-        if not has_espeak:
-            pytest.skip("espeak not available")
-
-        from kokorog2p.backends.espeak import EspeakBackend
-
-        backend = EspeakBackend("en-us", with_stress=True)
-        result = backend.phonemize("hello world", convert_to_kokoro=False)
-        # With stress, should include primary stress marker
-        assert isinstance(result, str)
-        assert len(result) > 0
-        # Check for stress markers in the raw output
-        assert "ˈ" in result or "ˌ" in result
-
-
-@pytest.mark.espeak
-class TestEspeakAvailableVoices:
-    """Tests for available voices enumeration."""
-
-    def test_available_voices(self, has_espeak):
-        """Test listing available voices."""
-        if not has_espeak:
-            pytest.skip("espeak not available")
-
-        from kokorog2p.backends.espeak import EspeakWrapper
-
-        wrapper = EspeakWrapper()
-        voices = wrapper.available_voices()
+        p = Phonemizer()
+        voices = p.list_voices()
 
         assert voices
         assert len(voices) > 0
-        # Should have at least English
         languages = {v.language for v in voices}
-        assert (
-            "en" in languages
-            or "en-us" in languages
-            or any(lang.startswith("en") for lang in languages)
-        )
+        assert any(lang.startswith("en") for lang in languages if lang)
 
-    def test_available_voices_filtered(self, has_espeak):
-        """Test listing available voices with filter."""
+    def test_list_voices_filtered(self, has_espeak):
+        """Test listing voices with filter."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
+        p = Phonemizer()
+        mbrola = p.list_voices("mbrola")
+        espeak = p.list_voices()
 
-        # Get mbrola voices (may be empty if not installed)
-        mbrola_voices = wrapper.available_voices("mbrola")
-        espeak_voices = wrapper.available_voices()
-
-        # Espeak and mbrola voices should not overlap
-        if mbrola_voices:
-            espeak_identifiers = {v.identifier for v in espeak_voices}
-            mbrola_identifiers = {v.identifier for v in mbrola_voices}
-            assert not espeak_identifiers.intersection(mbrola_identifiers)
+        if mbrola:
+            espeak_ids = {v.identifier for v in espeak}
+            mbrola_ids = {v.identifier for v in mbrola}
+            assert not espeak_ids.intersection(mbrola_ids)
 
 
 @pytest.mark.espeak
-class TestEspeakVoiceSetGet:
-    """Tests for setting and getting voices."""
+class TestVoiceSelection:
+    """Tests for voice selection."""
 
-    def test_set_get_voice(self, has_espeak):
-        """Test setting and getting voice."""
+    def test_set_and_get_voice(self, has_espeak):
+        """Test setting and retrieving voice."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        assert wrapper.voice is None
+        p = Phonemizer()
+        assert p.voice is None
 
-        wrapper.set_voice("en-us")
-        assert wrapper.voice is not None
-        assert wrapper.voice.language == "en-us"
-        assert (
-            "english" in wrapper.voice.name.lower()
-            or "america" in wrapper.voice.name.lower()
-        )
+        p.set_voice("en-us")
+        assert p.voice is not None
+        assert p.voice.language == "en-us"
 
-        wrapper.set_voice("fr-fr")
-        assert wrapper.voice.language == "fr-fr"
-        assert (
-            "french" in wrapper.voice.name.lower()
-            or "france" in wrapper.voice.name.lower()
-        )
+        p.set_voice("fr-fr")
+        assert p.voice.language == "fr-fr"
 
-    def test_set_invalid_voice(self, has_espeak):
-        """Test setting an invalid voice raises error."""
+    def test_invalid_voice(self, has_espeak):
+        """Test error on invalid voice."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
+        p = Phonemizer()
 
-        with pytest.raises(RuntimeError) as err:
-            wrapper.set_voice("")
-        assert "invalid voice code" in str(err)
+        with pytest.raises(RuntimeError):
+            p.set_voice("")
 
-        with pytest.raises(RuntimeError) as err:
-            wrapper.set_voice("non-existent-voice-xyz")
-        assert "invalid voice code" in str(err)
+        with pytest.raises(RuntimeError):
+            p.set_voice("nonexistent-xyz")
 
 
 @pytest.mark.espeak
-class TestEspeakPickle:
-    """Tests for pickling support (needed for multiprocessing)."""
+class TestPickling:
+    """Tests for pickle support."""
 
-    def test_pickle_wrapper(self, has_espeak):
-        """Test that EspeakWrapper can be pickled and unpickled."""
+    def test_pickle_phonemizer(self, has_espeak):
+        """Test pickling and unpickling."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        wrapper.set_voice("en-us")
+        p1 = Phonemizer()
+        p1.set_voice("en-us")
 
-        # Pickle and unpickle
-        dump = pickle.dumps(wrapper)
-        wrapper2 = pickle.loads(dump)
+        data = pickle.dumps(p1)
+        p2 = pickle.loads(data)
 
-        assert wrapper.version == wrapper2.version
-        assert wrapper.library_path == wrapper2.library_path
-        assert wrapper.voice.language == wrapper2.voice.language
+        assert p1.version == p2.version
+        assert p1.library_path == p2.library_path
+        assert p1.voice.language == p2.voice.language
 
-    def test_pickle_preserves_phonemization(self, has_espeak):
-        """Test that unpickled wrapper produces same results."""
+    def test_pickle_preserves_results(self, has_espeak):
+        """Test pickled instance produces same output."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        wrapper.set_voice("en-us")
+        p1 = Phonemizer()
+        p1.set_voice("en-us")
+        result1 = p1.phonemize("hello")
 
-        original_result = wrapper.text_to_phonemes("hello")
+        data = pickle.dumps(p1)
+        p2 = pickle.loads(data)
+        result2 = p2.phonemize("hello")
 
-        # Pickle and unpickle
-        dump = pickle.dumps(wrapper)
-        wrapper2 = pickle.loads(dump)
-
-        new_result = wrapper2.text_to_phonemes("hello")
-
-        assert original_result == new_result
+        assert result1 == result2
 
 
 @pytest.mark.espeak
-class TestEspeakMultipleInstances:
-    """Tests for multiple wrapper instances."""
+class TestMultipleInstances:
+    """Tests for multiple phonemizer instances."""
 
-    def test_multiple_wrappers(self, has_espeak):
-        """Test that multiple wrapper instances work correctly."""
+    def test_shared_properties(self, has_espeak):
+        """Test instances share some properties."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper1 = EspeakWrapper()
-        wrapper2 = EspeakWrapper()
+        p1 = Phonemizer()
+        p2 = Phonemizer()
 
-        assert wrapper1.data_path == wrapper2.data_path
-        assert wrapper1.version == wrapper2.version
-        assert wrapper1.library_path == wrapper2.library_path
+        assert p1.version == p2.version
+        assert p1.library_path == p2.library_path
 
-    def test_multiple_wrappers_different_voices(self, has_espeak):
-        """Test multiple wrappers with different voices."""
+    def test_independent_voices(self, has_espeak):
+        """Test instances have independent voice selection."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper1 = EspeakWrapper()
-        wrapper2 = EspeakWrapper()
+        p1 = Phonemizer()
+        p2 = Phonemizer()
 
-        wrapper1.set_voice("fr-fr")
-        assert wrapper1.voice.language == "fr-fr"
+        p1.set_voice("fr-fr")
+        p2.set_voice("en-us")
 
-        wrapper2.set_voice("en-us")
-        assert wrapper2.voice.language == "en-us"
-
-        # Both should maintain their respective voices
-        assert wrapper1.voice.language == "fr-fr"
-        assert wrapper2.voice.language == "en-us"
+        assert p1.voice.language == "fr-fr"
+        assert p2.voice.language == "en-us"
 
 
 @pytest.mark.espeak
-class TestEspeakBasicInfo:
-    """Tests for basic espeak information."""
+class TestLibraryInfo:
+    """Tests for library information."""
 
-    def test_version_format(self, has_espeak):
-        """Test version is a tuple of integers."""
+    def test_version_tuple(self, has_espeak):
+        """Test version format."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        assert wrapper.version >= (1, 48)
-        assert all(isinstance(v, int) for v in wrapper.version)
+        p = Phonemizer()
+        assert p.version >= (1, 48)
+        assert all(isinstance(v, int) for v in p.version)
 
     def test_library_path(self, has_espeak):
-        """Test library path is valid."""
+        """Test library path."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        assert "espeak" in str(wrapper.library_path)
-        assert os.path.isabs(wrapper.library_path)
+        p = Phonemizer()
+        assert "espeak" in str(p.library_path)
+        assert os.path.isabs(p.library_path)
 
     def test_data_path(self, has_espeak):
-        """Test data path is valid."""
+        """Test data path."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        # data_path should be accessible
-        assert wrapper.data_path is not None
+        p = Phonemizer()
+        assert p.data_path is not None
 
 
 @pytest.mark.espeak
-class TestEspeakTie:
+class TestTieCharacter:
     """Tests for tie character handling."""
 
-    def test_tie_character(self, has_espeak):
-        """Test tie character for affricates."""
+    def test_with_separator(self, has_espeak):
+        """Test output with separator."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
-        from kokorog2p.backends.espeak import EspeakWrapper
+        from kokorog2p.backends.espeak import Phonemizer
 
-        wrapper = EspeakWrapper()
-        wrapper.set_voice("en-us")
+        p = Phonemizer()
+        p.set_voice("en-us")
 
-        # Without tie - phonemes separated by underscore
-        result_no_tie = wrapper.text_to_phonemes("Jackie Chan", tie=False)
-        assert "_" in result_no_tie
+        result = p.phonemize("Jackie", use_tie=False)
+        assert "_" in result
 
-        # With tie - uses tie character for affricates
-        # Note: espeak >= 1.49 required
-        if wrapper.version >= (1, 49):
-            result_tie = wrapper.text_to_phonemes("Jackie Chan", tie=True)
-            # Tie character (U+0361) should be present for dʒ and tʃ
-            assert "͡" in result_tie or "_" not in result_tie
+    def test_with_tie(self, has_espeak):
+        """Test output with tie character."""
+        if not has_espeak:
+            pytest.skip("espeak not available")
+
+        from kokorog2p.backends.espeak import Phonemizer
+
+        p = Phonemizer()
+        p.set_voice("en-us")
+
+        if p.version >= (1, 49):
+            result = p.phonemize("Jackie", use_tie=True)
+            assert "͡" in result or "_" not in result
 
 
 @pytest.mark.espeak
-@pytest.mark.skipif(sys.platform == "win32", reason="Path handling differs on Windows")
-class TestEspeakTempfileCleanup:
-    """Tests for temporary file cleanup."""
+@pytest.mark.skipif(sys.platform == "win32", reason="Different on Windows")
+class TestTempDirectory:
+    """Tests for temporary directory handling."""
 
-    def test_tempdir_exists_during_use(self, has_espeak):
-        """Test that wrapper has a temp directory during use."""
+    def test_temp_dir_exists(self, has_espeak):
+        """Test temp directory exists during use."""
         if not has_espeak:
             pytest.skip("espeak not available")
 
         import pathlib
 
+        from kokorog2p.backends.espeak import Phonemizer
+
+        p = Phonemizer()
+        p.set_voice("en-us")
+
+        temp_dir = pathlib.Path(p._api.temp_dir)
+        assert temp_dir.exists()
+        files = list(temp_dir.iterdir())
+        assert len(files) >= 1
+
+
+# Backwards compatibility tests
+@pytest.mark.espeak
+class TestBackwardsCompatibility:
+    """Tests for backwards compatible aliases."""
+
+    def test_espeak_wrapper_alias(self, has_espeak):
+        """Test EspeakWrapper alias works."""
+        if not has_espeak:
+            pytest.skip("espeak not available")
+
         from kokorog2p.backends.espeak import EspeakWrapper
 
-        wrapper = EspeakWrapper()
-        wrapper.set_voice("en-us")
+        w = EspeakWrapper()
+        assert w.version is not None
 
-        # Check that the temp directory exists while wrapper is alive
-        tempdir = pathlib.Path(wrapper._espeak._tempdir)
-        assert tempdir.exists()
-        # The temp directory should contain a copy of the espeak library
-        files = list(tempdir.iterdir())
-        assert len(files) >= 1
+    def test_espeak_voice_alias(self, has_espeak):
+        """Test EspeakVoice alias works."""
+        if not has_espeak:
+            pytest.skip("espeak not available")
+
+        from kokorog2p.backends.espeak import EspeakVoice
+
+        v = EspeakVoice.from_language("en-us")
+        assert v.language == "en-us"

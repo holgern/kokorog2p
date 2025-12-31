@@ -141,13 +141,15 @@ def is_digit(text: str) -> bool:
 class Lexicon:
     """Dictionary-based G2P lookup with gold and silver tier dictionaries."""
 
-    def __init__(self, british: bool = False) -> None:
+    def __init__(self, british: bool = False, skip_is_known: bool = False) -> None:
         """Initialize the lexicon.
 
         Args:
             british: Whether to use British English dictionaries.
+            skip_is_known: If True, skip is_known checks (useful for benchmarking).
         """
         self.british = british
+        self.skip_is_known = skip_is_known
         self.cap_stresses = (0.5, 2)
         self.golds: Dict[str, Union[str, Dict[str, Optional[str]]]] = {}
         self.silvers: Dict[str, str] = {}
@@ -168,9 +170,9 @@ class Lexicon:
                 assert "DEFAULT" in ps, f"Missing DEFAULT in {word}"
                 for v in ps.values():
                     if v is not None:
-                        assert all(
-                            c in vocab for c in v
-                        ), f"Invalid phoneme in {word}: {v}"
+                        assert all(c in vocab for c in v), (
+                            f"Invalid phoneme in {word}: {v}"
+                        )
 
     @staticmethod
     def _grow_dictionary(d: Dict[str, Any]) -> Dict[str, Any]:

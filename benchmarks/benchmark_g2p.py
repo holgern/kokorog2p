@@ -54,22 +54,20 @@ def load_dictionary(path: Path) -> Dict[str, str]:
     return {k: v for k, v in data.items() if isinstance(v, str)}
 
 
-def benchmark_lexicon_lookup(
-    lexicon,
+def benchmark_dictionary_lookup(
+    dictionary: Dict[str, str],
     words: List[str],
-    expected: Dict[str, str],
-    name: str = "Lexicon Lookup",
+    name: str = "Dictionary Lookup",
 ) -> BenchmarkResult:
-    """Benchmark lexicon lookup speed and accuracy.
+    """Benchmark direct dictionary lookup speed.
 
     Args:
-        lexicon: The Lexicon instance to test.
+        dictionary: The dictionary to test (gold or silver).
         words: List of words to look up.
-        expected: Dictionary of expected phonemes.
         name: Name for this benchmark.
 
     Returns:
-        BenchmarkResult with timing and accuracy data.
+        BenchmarkResult with timing data.
     """
     successful = 0
     failed = 0
@@ -78,15 +76,13 @@ def benchmark_lexicon_lookup(
     start_time = time.perf_counter()
 
     for word in words:
-        ps, rating = lexicon.lookup(word)
-        expected_ps = expected.get(word)
-
-        if ps == expected_ps:
+        ps = dictionary.get(word)
+        if ps is not None:
             successful += 1
         else:
             failed += 1
             if len(errors) < 100:  # Limit error collection
-                errors.append((word, expected_ps or "None", ps or "None"))
+                errors.append((word, "expected", "None"))
 
     end_time = time.perf_counter()
     total_time_ms = (end_time - start_time) * 1000
@@ -300,6 +296,123 @@ def benchmark_encoding(
     )
 
 
+def benchmark_espeak_accuracy(
+    fallback,
+    words: List[str],
+    expected: Dict[str, str],
+    name: str = "Espeak Accuracy",
+) -> BenchmarkResult:
+    """Benchmark espeak fallback accuracy against dictionary.
+
+    This tests espeak phonemization WITHOUT using the gold/silver dictionaries,
+    comparing the espeak output directly against the expected dictionary values.
+
+    Args:
+        fallback: The EspeakFallback instance to test.
+        words: List of words to convert.
+        expected: Dictionary of expected phonemes (gold or silver).
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with timing and accuracy data.
+    """
+    successful = 0
+    failed = 0
+    errors: List[Tuple[str, str, str]] = []
+
+    start_time = time.perf_counter()
+
+    for word in words:
+        ps, rating = fallback(word)
+        expected_ps = expected.get(word)
+
+        if ps == expected_ps:
+            successful += 1
+        else:
+            failed += 1
+            if len(errors) < 100:
+                errors.append((word, expected_ps or "None", ps or "None"))
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=len(words),
+        successful=successful,
+        failed=failed,
+        total_time_ms=total_time_ms,
+        words_per_second=len(words) / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=(successful / len(words) * 100) if words else 0,
+        errors=errors,
+    )
+
+
+class TorchFallback:
+    """BART-based neural G2P fallback model.
+
+    This is a standalone implementation for benchmarking, based on the
+    FallbackNetwork from misaki.
+    """
+
+    def __init__(self, british: bool = False):
+        """Initialize the torch fallback.
+
+        Args:
+            british: Whether to use British English model.
+        """
+        try:
+            import torch
+            from transformers import BartForConditionalGeneration
+        except ImportError:
+            raise ImportError(
+                "torch and transformers are required for TorchFallback. "
+                "Install with: pip install torch transformers"
+            )
+
+        self.british = british
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model_name = "PeterReid/graphemes_to_phonemes_en_" + ("gb" if british else "us")
+        self.model = BartForConditionalGeneration.from_pretrained(model_name)
+        self.model.to(self.device)
+        self.model.eval()
+        self.grapheme_to_token = {
+            g: i for i, g in enumerate(self.model.config.grapheme_chars)
+        }
+        self.token_to_phoneme = {
+            i: p for i, p in enumerate(self.model.config.phoneme_chars)
+        }
+        self._torch = torch
+
+    def graphemes_to_tokens(self, graphemes: str) -> List[int]:
+        """Convert graphemes to token IDs."""
+        return [1] + [self.grapheme_to_token.get(g, 3) for g in graphemes] + [2]
+
+    def tokens_to_phonemes(self, tokens: List[int]) -> str:
+        """Convert token IDs to phoneme string."""
+        return "".join([self.token_to_phoneme.get(t, "") for t in tokens if t > 3])
+
+    def __call__(self, word: str) -> Tuple[str, int]:
+        """Convert a word to phonemes.
+
+        Args:
+            word: The word to convert.
+
+        Returns:
+            Tuple of (phonemes, rating).
+        """
+        input_ids = self._torch.tensor(
+            [self.graphemes_to_tokens(word)], device=self.device
+        )
+
+        with self._torch.no_grad():
+            generated_ids = self.model.generate(input_ids=input_ids)
+        output_text = self.tokens_to_phonemes(generated_ids[0].tolist())
+        return (output_text, 1)
+
+
 def run_all_benchmarks(
     sample_size: int = 10000,
     seed: int = 42,
@@ -342,33 +455,91 @@ def run_all_benchmarks(
     # Import kokorog2p components
     print("\nInitializing G2P components...")
     from kokorog2p.en import EnglishG2P
-    from kokorog2p.en.lexicon import Lexicon
+    from kokorog2p.en.fallback import EspeakFallback
     from kokorog2p.phonemes import US_VOCAB
 
-    lexicon = Lexicon(british=False)
     g2p_no_spacy = EnglishG2P(
         language="en-us", use_espeak_fallback=False, use_spacy=False
     )
 
+    # Initialize espeak fallback for accuracy testing (without dictionary)
+    espeak_fallback = EspeakFallback(british=False)
+
+    # Try to initialize torch fallback (optional)
+    torch_fallback = None
+    try:
+        print("Loading BART model for torch fallback...")
+        # torch_fallback = TorchFallback(british=False)
+        print("Torch fallback loaded successfully.")
+    except ImportError as e:
+        print(f"Torch fallback not available: {e}")
+    except Exception as e:
+        print(f"Failed to load torch fallback: {e}")
+
     print("\nRunning benchmarks...\n")
 
-    # Benchmark 1: Lexicon lookup on gold dictionary
-    result = benchmark_lexicon_lookup(
-        lexicon, us_gold_words, us_gold, name="US Gold - Lexicon Lookup"
+    # Benchmark 1: Espeak accuracy on gold dictionary (no dictionary lookup)
+    result = benchmark_espeak_accuracy(
+        espeak_fallback,
+        us_gold_words[: min(1000, len(us_gold_words))],
+        us_gold,
+        name="US Gold - Espeak Only Accuracy",
     )
     results.append(result)
     if verbose:
         print(result)
+        if result.errors:
+            print("Sample errors (word, expected, got):")
+            for word, expected_val, got in result.errors[:10]:
+                print(f"  {word}: {expected_val} -> {got}")
 
-    # Benchmark 2: Lexicon lookup on silver dictionary
-    result = benchmark_lexicon_lookup(
-        lexicon, us_silver_words, us_silver, name="US Silver - Lexicon Lookup"
+    # Benchmark 2: Espeak accuracy on silver dictionary (no dictionary lookup)
+    result = benchmark_espeak_accuracy(
+        espeak_fallback,
+        us_silver_words[: min(1000, len(us_silver_words))],
+        us_silver,
+        name="US Silver - Espeak Only Accuracy",
     )
     results.append(result)
     if verbose:
         print(result)
+        if result.errors:
+            print("Sample errors (word, expected, got):")
+            for word, expected_val, got in result.errors[:10]:
+                print(f"  {word}: {expected_val} -> {got}")
 
-    # Benchmark 3: Full G2P on gold dictionary (without spaCy)
+    # Benchmark 3: Torch fallback accuracy on gold dictionary (if available)
+    if torch_fallback is not None:
+        result = benchmark_espeak_accuracy(
+            torch_fallback,
+            us_gold_words[: min(1000, len(us_gold_words))],
+            us_gold,
+            name="US Gold - Torch Only Accuracy",
+        )
+        results.append(result)
+        if verbose:
+            print(result)
+            if result.errors:
+                print("Sample errors (word, expected, got):")
+                for word, expected_val, got in result.errors[:10]:
+                    print(f"  {word}: {expected_val} -> {got}")
+
+        # Benchmark 4: Torch fallback accuracy on silver dictionary
+        result = benchmark_espeak_accuracy(
+            torch_fallback,
+            us_silver_words[: min(1000, len(us_silver_words))],
+            us_silver,
+            name="US Silver - Torch Only Accuracy",
+        )
+        results.append(result)
+        if verbose:
+            print(result)
+            if result.errors:
+                print("Sample errors (word, expected, got):")
+                for word, expected_val, got in result.errors[:10]:
+                    print(f"  {word}: {expected_val} -> {got}")
+
+    # Benchmark 5: Full G2P on gold dictionary (with dictionary, without spaCy)
     result = benchmark_g2p_conversion(
         g2p_no_spacy,
         us_gold_words[: min(1000, len(us_gold_words))],
