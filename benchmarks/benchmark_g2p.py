@@ -1,0 +1,465 @@
+"""Benchmarks for kokorog2p G2P conversion.
+
+This module provides benchmarks to measure:
+1. Dictionary lookup speed
+2. G2P conversion accuracy (comparing output to dictionary)
+3. Vocabulary coverage validation
+4. End-to-end phonemization throughput
+
+Run with: python -m kokorog2p.benchmarks.benchmark_g2p
+"""
+
+import json
+import time
+import random
+import statistics
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass, field
+
+
+@dataclass
+class BenchmarkResult:
+    """Results from a benchmark run."""
+
+    name: str
+    total_words: int
+    successful: int
+    failed: int
+    total_time_ms: float
+    words_per_second: float
+    accuracy_percent: float
+    errors: List[Tuple[str, str, str]] = field(
+        default_factory=list
+    )  # (word, expected, got)
+
+    def __str__(self) -> str:
+        return (
+            f"\n{'=' * 60}\n"
+            f"Benchmark: {self.name}\n"
+            f"{'=' * 60}\n"
+            f"Total words:      {self.total_words:,}\n"
+            f"Successful:       {self.successful:,}\n"
+            f"Failed:           {self.failed:,}\n"
+            f"Accuracy:         {self.accuracy_percent:.2f}%\n"
+            f"Total time:       {self.total_time_ms:.2f} ms\n"
+            f"Words/second:     {self.words_per_second:,.0f}\n"
+        )
+
+
+def load_dictionary(path: Path) -> Dict[str, str]:
+    """Load a dictionary JSON file."""
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    # Filter out dict entries (heteronyms) - keep only simple str -> str mappings
+    return {k: v for k, v in data.items() if isinstance(v, str)}
+
+
+def benchmark_lexicon_lookup(
+    lexicon,
+    words: List[str],
+    expected: Dict[str, str],
+    name: str = "Lexicon Lookup",
+) -> BenchmarkResult:
+    """Benchmark lexicon lookup speed and accuracy.
+
+    Args:
+        lexicon: The Lexicon instance to test.
+        words: List of words to look up.
+        expected: Dictionary of expected phonemes.
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with timing and accuracy data.
+    """
+    successful = 0
+    failed = 0
+    errors: List[Tuple[str, str, str]] = []
+
+    start_time = time.perf_counter()
+
+    for word in words:
+        ps, rating = lexicon.lookup(word)
+        expected_ps = expected.get(word)
+
+        if ps == expected_ps:
+            successful += 1
+        else:
+            failed += 1
+            if len(errors) < 100:  # Limit error collection
+                errors.append((word, expected_ps or "None", ps or "None"))
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=len(words),
+        successful=successful,
+        failed=failed,
+        total_time_ms=total_time_ms,
+        words_per_second=len(words) / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=(successful / len(words) * 100) if words else 0,
+        errors=errors,
+    )
+
+
+def benchmark_g2p_conversion(
+    g2p,
+    words: List[str],
+    expected: Dict[str, str],
+    name: str = "G2P Conversion",
+) -> BenchmarkResult:
+    """Benchmark full G2P conversion speed and accuracy.
+
+    Args:
+        g2p: The G2P instance to test.
+        words: List of words to convert.
+        expected: Dictionary of expected phonemes.
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with timing and accuracy data.
+    """
+    successful = 0
+    failed = 0
+    errors: List[Tuple[str, str, str]] = []
+
+    start_time = time.perf_counter()
+
+    for word in words:
+        tokens = g2p(word)
+        ps = tokens[0].phonemes if tokens else None
+        expected_ps = expected.get(word)
+
+        if ps == expected_ps:
+            successful += 1
+        else:
+            failed += 1
+            if len(errors) < 100:
+                errors.append((word, expected_ps or "None", ps or "None"))
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=len(words),
+        successful=successful,
+        failed=failed,
+        total_time_ms=total_time_ms,
+        words_per_second=len(words) / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=(successful / len(words) * 100) if words else 0,
+        errors=errors,
+    )
+
+
+def benchmark_sentence_throughput(
+    g2p,
+    sentences: List[str],
+    name: str = "Sentence Throughput",
+) -> BenchmarkResult:
+    """Benchmark sentence phonemization throughput.
+
+    Args:
+        g2p: The G2P instance to test.
+        sentences: List of sentences to convert.
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with timing data.
+    """
+    total_words = 0
+
+    start_time = time.perf_counter()
+
+    for sentence in sentences:
+        tokens = g2p(sentence)
+        total_words += len([t for t in tokens if t.is_word])
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=total_words,
+        successful=total_words,
+        failed=0,
+        total_time_ms=total_time_ms,
+        words_per_second=total_words / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=100.0,  # No accuracy check for throughput
+    )
+
+
+def benchmark_vocab_validation(
+    phonemes_dict: Dict[str, str],
+    vocab: frozenset,
+    name: str = "Vocab Validation",
+) -> BenchmarkResult:
+    """Validate that all phonemes in dictionary are in vocabulary.
+
+    Args:
+        phonemes_dict: Dictionary of word -> phonemes.
+        vocab: Set of valid phoneme characters.
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with validation data.
+    """
+    successful = 0
+    failed = 0
+    errors: List[Tuple[str, str, str]] = []
+
+    start_time = time.perf_counter()
+
+    for word, ps in phonemes_dict.items():
+        invalid_chars = [c for c in ps if c not in vocab]
+        if not invalid_chars:
+            successful += 1
+        else:
+            failed += 1
+            if len(errors) < 100:
+                errors.append((word, ps, f"Invalid: {invalid_chars}"))
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=len(phonemes_dict),
+        successful=successful,
+        failed=failed,
+        total_time_ms=total_time_ms,
+        words_per_second=len(phonemes_dict) / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=(successful / len(phonemes_dict) * 100)
+        if phonemes_dict
+        else 0,
+        errors=errors,
+    )
+
+
+def benchmark_encoding(
+    phonemes_dict: Dict[str, str],
+    name: str = "Vocab Encoding",
+) -> BenchmarkResult:
+    """Benchmark phoneme-to-token encoding speed.
+
+    Args:
+        phonemes_dict: Dictionary of word -> phonemes.
+        name: Name for this benchmark.
+
+    Returns:
+        BenchmarkResult with timing and validation data.
+    """
+    from kokorog2p.vocab import encode, validate_for_kokoro
+
+    successful = 0
+    failed = 0
+    errors: List[Tuple[str, str, str]] = []
+
+    start_time = time.perf_counter()
+
+    for word, ps in phonemes_dict.items():
+        is_valid, invalid = validate_for_kokoro(ps)
+        if is_valid:
+            ids = encode(ps)
+            if ids:  # Non-empty encoding
+                successful += 1
+            else:
+                failed += 1
+                if len(errors) < 100:
+                    errors.append((word, ps, "Empty encoding"))
+        else:
+            failed += 1
+            if len(errors) < 100:
+                errors.append((word, ps, f"Invalid chars: {invalid}"))
+
+    end_time = time.perf_counter()
+    total_time_ms = (end_time - start_time) * 1000
+
+    return BenchmarkResult(
+        name=name,
+        total_words=len(phonemes_dict),
+        successful=successful,
+        failed=failed,
+        total_time_ms=total_time_ms,
+        words_per_second=len(phonemes_dict) / (total_time_ms / 1000)
+        if total_time_ms > 0
+        else 0,
+        accuracy_percent=(successful / len(phonemes_dict) * 100)
+        if phonemes_dict
+        else 0,
+        errors=errors,
+    )
+
+
+def run_all_benchmarks(
+    sample_size: int = 10000,
+    seed: int = 42,
+    verbose: bool = True,
+) -> List[BenchmarkResult]:
+    """Run all benchmarks.
+
+    Args:
+        sample_size: Number of words to sample for each benchmark.
+        seed: Random seed for reproducibility.
+        verbose: Whether to print results.
+
+    Returns:
+        List of BenchmarkResult objects.
+    """
+    random.seed(seed)
+    results: List[BenchmarkResult] = []
+
+    # Get data directory
+    data_dir = Path(__file__).parent.parent / "kokorog2p" / "en" / "data"
+    if not data_dir.exists():
+        # Try relative to current file
+        data_dir = Path(__file__).parent.parent / "en" / "data"
+
+    print(f"Loading dictionaries from {data_dir}...")
+
+    # Load US dictionaries
+    us_gold = load_dictionary(data_dir / "us_gold.json")
+    us_silver = load_dictionary(data_dir / "us_silver.json")
+
+    print(f"US Gold: {len(us_gold):,} entries")
+    print(f"US Silver: {len(us_silver):,} entries")
+
+    # Sample words
+    us_gold_words = random.sample(list(us_gold.keys()), min(sample_size, len(us_gold)))
+    us_silver_words = random.sample(
+        list(us_silver.keys()), min(sample_size, len(us_silver))
+    )
+
+    # Import kokorog2p components
+    print("\nInitializing G2P components...")
+    from kokorog2p.en.lexicon import Lexicon
+    from kokorog2p.en import EnglishG2P
+    from kokorog2p.phonemes import US_VOCAB
+
+    lexicon = Lexicon(british=False)
+    g2p_no_spacy = EnglishG2P(
+        language="en-us", use_espeak_fallback=False, use_spacy=False
+    )
+
+    print("\nRunning benchmarks...\n")
+
+    # Benchmark 1: Lexicon lookup on gold dictionary
+    result = benchmark_lexicon_lookup(
+        lexicon, us_gold_words, us_gold, name="US Gold - Lexicon Lookup"
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Benchmark 2: Lexicon lookup on silver dictionary
+    result = benchmark_lexicon_lookup(
+        lexicon, us_silver_words, us_silver, name="US Silver - Lexicon Lookup"
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Benchmark 3: Full G2P on gold dictionary (without spaCy)
+    result = benchmark_g2p_conversion(
+        g2p_no_spacy,
+        us_gold_words[: min(1000, len(us_gold_words))],
+        us_gold,
+        name="US Gold - G2P (no spaCy)",
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Benchmark 4: Vocabulary validation
+    result = benchmark_vocab_validation(
+        us_gold, US_VOCAB, name="US Gold - Vocab Validation"
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Benchmark 5: Encoding validation
+    result = benchmark_encoding(
+        {k: us_gold[k] for k in us_gold_words}, name="US Gold - Kokoro Encoding"
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Benchmark 6: Sentence throughput
+    sample_sentences = [
+        "The quick brown fox jumps over the lazy dog.",
+        "Hello world, how are you doing today?",
+        "This is a test of the text to speech system.",
+        "Natural language processing is fascinating.",
+        "The weather today is sunny with a chance of rain.",
+    ] * 200  # 1000 sentences
+
+    result = benchmark_sentence_throughput(
+        g2p_no_spacy, sample_sentences, name="Sentence Throughput (no spaCy)"
+    )
+    results.append(result)
+    if verbose:
+        print(result)
+
+    # Summary
+    if verbose:
+        print("\n" + "=" * 60)
+        print("SUMMARY")
+        print("=" * 60)
+        for r in results:
+            print(
+                f"{r.name:40} | {r.accuracy_percent:6.2f}% | {r.words_per_second:10,.0f} words/sec"
+            )
+
+    return results
+
+
+def main():
+    """Run benchmarks from command line."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run kokorog2p benchmarks")
+    parser.add_argument(
+        "--sample-size",
+        "-n",
+        type=int,
+        default=10000,
+        help="Number of words to sample (default: 10000)",
+    )
+    parser.add_argument(
+        "--seed", "-s", type=int, default=42, help="Random seed (default: 42)"
+    )
+    parser.add_argument(
+        "--quiet", "-q", action="store_true", help="Suppress verbose output"
+    )
+
+    args = parser.parse_args()
+
+    results = run_all_benchmarks(
+        sample_size=args.sample_size,
+        seed=args.seed,
+        verbose=not args.quiet,
+    )
+
+    # Return non-zero if any benchmark has <95% accuracy
+    critical_benchmarks = [
+        r for r in results if "Validation" in r.name or "Encoding" in r.name
+    ]
+    if any(r.accuracy_percent < 95 for r in critical_benchmarks):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())
