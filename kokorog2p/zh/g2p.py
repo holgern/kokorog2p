@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0
 """
 
 import re
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
@@ -152,7 +152,7 @@ class ChineseG2P(G2PBase):
             is_zh = not is_zh
         return result.replace(chr(815), "")
 
-    def __call__(self, text: str) -> List[GToken]:
+    def __call__(self, text: str) -> list[GToken]:
         """Convert text to tokens with phonemes.
 
         Args:
@@ -180,7 +180,7 @@ class ChineseG2P(G2PBase):
 
     def _phonemize_internal(
         self, text: str, en_callable=None
-    ) -> Tuple[str, Optional[List]]:
+    ) -> tuple[str, Optional[list]]:
         """Internal phonemization logic.
 
         Args:

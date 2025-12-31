@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 import ctypes
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

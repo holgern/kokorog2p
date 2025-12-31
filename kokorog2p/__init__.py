@@ -182,7 +182,7 @@ def tokenize(
     language: str = "en-us",
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
-) -> List[GToken]:
+) -> list[GToken]:
     """Convert text to a list of tokens with phonemes.
 
     Args:

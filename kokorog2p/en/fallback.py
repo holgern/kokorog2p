@@ -1,6 +1,6 @@
 """Espeak fallback for OOV words with IPA to Kokoro conversion."""
 
-from typing import Optional, Tuple
+from typing import Optional
 
 from kokorog2p.phonemes import from_espeak
 
@@ -27,7 +27,7 @@ class EspeakFallback:
             self._backend = EspeakBackend(language=language)
         return self._backend
 
-    def __call__(self, word: str) -> Tuple[Optional[str], int]:
+    def __call__(self, word: str) -> tuple[Optional[str], int]:
         """Get phonemes for a word using espeak.
 
         Args:

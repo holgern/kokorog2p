@@ -15,7 +15,8 @@ All other punctuation is either normalized or removed.
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Final, Pattern, Union
+from re import Pattern
+from typing import Final, Union
 
 # =============================================================================
 # Kokoro-supported punctuation
@@ -66,8 +67,6 @@ PUNCTUATION_NORMALIZATION: Final[dict[str, str]] = {
     "．．．": "…",  # fullwidth
     "・・・": "…",  # Japanese
     # Quotes → straight quote or curly
-    "'": '"',  # single quote → double
-    "'": '"',  # right single quote
     "'": '"',  # left single quote
     "‚": '"',  # single low-9 quote
     "‛": '"',  # single high-reversed-9 quote

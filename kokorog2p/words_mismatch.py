@@ -18,8 +18,8 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Final, Pattern
-
+from re import Pattern
+from typing import Final
 
 # =============================================================================
 # Types and constants

@@ -193,12 +193,12 @@ class TestMainAPI:
         assert g2p1 is g2p2
 
         # Different options should create different instances
-        g2p3 = get_g2p("en-us", use_espeak_fallback=True, use_spacy=False)
+        get_g2p("en-us", use_espeak_fallback=True, use_spacy=False)
         # Note: Can't test this without espeak, but the cache key is different
 
     def test_get_g2p_unsupported_language(self):
         """Test unsupported language falls back to EspeakOnlyG2P."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
         from kokorog2p.espeak_g2p import EspeakOnlyG2P
 
         clear_cache()

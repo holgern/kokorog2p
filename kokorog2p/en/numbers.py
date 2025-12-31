@@ -7,7 +7,7 @@ Based on misaki by hexgrad, adapted for kokorog2p.
 """
 
 import re
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Optional
 
 # Ordinal suffixes
 ORDINALS = frozenset(["st", "nd", "rd", "th"])
@@ -48,11 +48,11 @@ class NumberConverter:
         self,
         lookup_fn: Callable[
             [str, Optional[str], Optional[float], Optional[object]],
-            Tuple[Optional[str], Optional[int]],
+            tuple[Optional[str], Optional[int]],
         ],
         stem_s_fn: Callable[
             [str, Optional[str], Optional[float], Optional[object]],
-            Tuple[Optional[str], Optional[int]],
+            tuple[Optional[str], Optional[int]],
         ],
     ) -> None:
         """Initialize the number converter.
@@ -80,7 +80,7 @@ class NumberConverter:
         currency: Optional[str] = None,
         is_head: bool = True,
         num_flags: Optional[set] = None,
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Convert a number to its word representation.
 
         Args:
@@ -100,7 +100,7 @@ class NumberConverter:
         suffix = suffix_match.group() if suffix_match else None
         word = word[: -len(suffix)] if suffix else word
 
-        result: List[Tuple[str, int]] = []
+        result: list[tuple[str, int]] = []
 
         # Handle negative numbers
         if word.startswith("-"):

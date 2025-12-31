@@ -7,7 +7,7 @@ Copyright 2024 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from kokorog2p.backends.espeak.wrapper import Phonemizer
 from kokorog2p.phonemes import from_espeak
@@ -82,9 +82,9 @@ class EspeakBackend:
 
     def phonemize_list(
         self,
-        texts: List[str],
+        texts: list[str],
         convert_to_kokoro: bool = True,
-    ) -> List[str]:
+    ) -> list[str]:
         """Convert multiple texts to phonemes.
 
         Args:

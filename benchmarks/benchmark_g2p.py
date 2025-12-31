@@ -14,7 +14,6 @@ import random
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 @dataclass
@@ -28,7 +27,7 @@ class BenchmarkResult:
     total_time_ms: float
     words_per_second: float
     accuracy_percent: float
-    errors: List[Tuple[str, str, str]] = field(
+    errors: list[tuple[str, str, str]] = field(
         default_factory=list
     )  # (word, expected, got)
 
@@ -46,7 +45,7 @@ class BenchmarkResult:
         )
 
 
-def load_dictionary(path: Path) -> Dict[str, str]:
+def load_dictionary(path: Path) -> dict[str, str]:
     """Load a dictionary JSON file."""
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
@@ -55,8 +54,8 @@ def load_dictionary(path: Path) -> Dict[str, str]:
 
 
 def benchmark_dictionary_lookup(
-    dictionary: Dict[str, str],
-    words: List[str],
+    dictionary: dict[str, str],
+    words: list[str],
     name: str = "Dictionary Lookup",
 ) -> BenchmarkResult:
     """Benchmark direct dictionary lookup speed.
@@ -71,7 +70,7 @@ def benchmark_dictionary_lookup(
     """
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -103,8 +102,8 @@ def benchmark_dictionary_lookup(
 
 def benchmark_g2p_conversion(
     g2p,
-    words: List[str],
-    expected: Dict[str, str],
+    words: list[str],
+    expected: dict[str, str],
     name: str = "G2P Conversion",
 ) -> BenchmarkResult:
     """Benchmark full G2P conversion speed and accuracy.
@@ -120,7 +119,7 @@ def benchmark_g2p_conversion(
     """
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -155,7 +154,7 @@ def benchmark_g2p_conversion(
 
 def benchmark_sentence_throughput(
     g2p,
-    sentences: List[str],
+    sentences: list[str],
     name: str = "Sentence Throughput",
 ) -> BenchmarkResult:
     """Benchmark sentence phonemization throughput.
@@ -193,7 +192,7 @@ def benchmark_sentence_throughput(
 
 
 def benchmark_vocab_validation(
-    phonemes_dict: Dict[str, str],
+    phonemes_dict: dict[str, str],
     vocab: frozenset,
     name: str = "Vocab Validation",
 ) -> BenchmarkResult:
@@ -209,7 +208,7 @@ def benchmark_vocab_validation(
     """
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -242,7 +241,7 @@ def benchmark_vocab_validation(
 
 
 def benchmark_encoding(
-    phonemes_dict: Dict[str, str],
+    phonemes_dict: dict[str, str],
     name: str = "Vocab Encoding",
 ) -> BenchmarkResult:
     """Benchmark phoneme-to-token encoding speed.
@@ -258,7 +257,7 @@ def benchmark_encoding(
 
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -298,8 +297,8 @@ def benchmark_encoding(
 
 def benchmark_espeak_accuracy(
     fallback,
-    words: List[str],
-    expected: Dict[str, str],
+    words: list[str],
+    expected: dict[str, str],
     name: str = "Espeak Accuracy",
 ) -> BenchmarkResult:
     """Benchmark espeak fallback accuracy against dictionary.
@@ -318,7 +317,7 @@ def benchmark_espeak_accuracy(
     """
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -386,15 +385,15 @@ class TorchFallback:
         }
         self._torch = torch
 
-    def graphemes_to_tokens(self, graphemes: str) -> List[int]:
+    def graphemes_to_tokens(self, graphemes: str) -> list[int]:
         """Convert graphemes to token IDs."""
         return [1] + [self.grapheme_to_token.get(g, 3) for g in graphemes] + [2]
 
-    def tokens_to_phonemes(self, tokens: List[int]) -> str:
+    def tokens_to_phonemes(self, tokens: list[int]) -> str:
         """Convert token IDs to phoneme string."""
         return "".join([self.token_to_phoneme.get(t, "") for t in tokens if t > 3])
 
-    def __call__(self, word: str) -> Tuple[str, int]:
+    def __call__(self, word: str) -> tuple[str, int]:
         """Convert a word to phonemes.
 
         Args:
@@ -417,7 +416,7 @@ def run_all_benchmarks(
     sample_size: int = 10000,
     seed: int = 42,
     verbose: bool = True,
-) -> List[BenchmarkResult]:
+) -> list[BenchmarkResult]:
     """Run all benchmarks.
 
     Args:
@@ -429,7 +428,7 @@ def run_all_benchmarks(
         List of BenchmarkResult objects.
     """
     random.seed(seed)
-    results: List[BenchmarkResult] = []
+    results: list[BenchmarkResult] = []
 
     # Get data directory
     data_dir = Path(__file__).parent.parent / "kokorog2p" / "en" / "data"

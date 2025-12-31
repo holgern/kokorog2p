@@ -18,7 +18,7 @@ import sys
 import tempfile
 import weakref
 from pathlib import Path
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from kokorog2p.backends.espeak.voice import VoiceStruct
 
@@ -201,7 +201,7 @@ class EspeakLibrary:
         """Temporary directory containing library copy."""
         return self._temp_dir
 
-    def get_info(self) -> Tuple[str, str]:
+    def get_info(self) -> tuple[str, str]:
         """Get espeak version and data path.
 
         Returns:

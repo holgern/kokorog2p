@@ -1,6 +1,6 @@
 """English G2P (Grapheme-to-Phoneme) converter."""
 
-from typing import List, Optional
+from typing import Optional
 
 from kokorog2p.base import G2PBase
 from kokorog2p.en.fallback import EspeakFallback
@@ -70,7 +70,7 @@ class EnglishG2P(G2PBase):
             self._nlp = spacy.load(name, enable=["tok2vec", "tagger"])
         return self._nlp
 
-    def __call__(self, text: str) -> List[GToken]:
+    def __call__(self, text: str) -> list[GToken]:
         """Convert text to a list of tokens with phonemes.
 
         Args:
@@ -121,7 +121,7 @@ class EnglishG2P(G2PBase):
 
         return tokens
 
-    def _tokenize_spacy(self, text: str) -> List[GToken]:
+    def _tokenize_spacy(self, text: str) -> list[GToken]:
         """Tokenize text using spaCy.
 
         Args:
@@ -131,7 +131,7 @@ class EnglishG2P(G2PBase):
             List of GToken objects.
         """
         doc = self.nlp(text)  # type: ignore
-        tokens: List[GToken] = []
+        tokens: list[GToken] = []
 
         for tk in doc:  # type: ignore
             token = GToken(
@@ -161,7 +161,7 @@ class EnglishG2P(G2PBase):
 
         return tokens
 
-    def _tokenize_simple(self, text: str) -> List[GToken]:
+    def _tokenize_simple(self, text: str) -> list[GToken]:
         """Simple tokenization without spaCy.
 
         Args:
@@ -172,7 +172,7 @@ class EnglishG2P(G2PBase):
         """
         import re
 
-        tokens: List[GToken] = []
+        tokens: list[GToken] = []
         # Simple word/punct split
         for match in re.finditer(r"(\w+|[^\w\s]+|\s+)", text):
             word = match.group()

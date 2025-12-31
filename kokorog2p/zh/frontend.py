@@ -20,7 +20,7 @@ Copyright 2024 kokorog2p contributors
 """
 
 import re
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import jieba.posseg as psg
 from pypinyin import Style, lazy_pinyin, load_phrases_dict, load_single_dict
@@ -223,7 +223,7 @@ class ZHFrontend:
         # 调整字的拼音顺序
         load_single_dict({ord("地"): "de,di4"})
 
-    def _get_initials_finals(self, word: str) -> Tuple[List[str], List[str]]:
+    def _get_initials_finals(self, word: str) -> tuple[list[str], list[str]]:
         """Get word initial and final by pypinyin."""
         initials = []
         finals = []
@@ -253,11 +253,11 @@ class ZHFrontend:
 
     def _merge_erhua(
         self,
-        initials: List[str],
-        finals: List[str],
+        initials: list[str],
+        finals: list[str],
         word: str,
         pos: str,
-    ) -> Tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Do erhua (儿化音) processing."""
         # fix er1
         for i, phn in enumerate(finals):
@@ -296,7 +296,7 @@ class ZHFrontend:
 
     def __call__(
         self, text: str, with_erhua: bool = True
-    ) -> Tuple[str, Optional[List[GToken]]]:
+    ) -> tuple[str, Optional[list[GToken]]]:
         """Convert text to phonemes.
 
         Args:

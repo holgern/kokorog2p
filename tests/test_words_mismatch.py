@@ -10,23 +10,23 @@ Tests cover:
 
 import logging
 import re
+
 import pytest
 
 from kokorog2p.words_mismatch import (
-    MismatchMode,
+    BaseMismatchProcessor,
+    IgnoreMismatch,
     MismatchInfo,
+    MismatchMode,
     MismatchStats,
+    RemoveMismatch,
+    WarnMismatch,
+    check_word_alignment,
     count_words,
     count_words_batch,
     detect_mismatches,
     get_mismatch_processor,
-    check_word_alignment,
-    BaseMismatchProcessor,
-    IgnoreMismatch,
-    WarnMismatch,
-    RemoveMismatch,
 )
-
 
 # =============================================================================
 # Test word counting

@@ -8,7 +8,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
-from typing import Any, Dict, Final, List, Optional, Tuple, Union
+from typing import Any, Final, Optional, Union
 
 from kokorog2p.en import data
 from kokorog2p.phonemes import GB_VOCAB, US_VOCAB
@@ -18,7 +18,7 @@ from kokorog2p.phonemes import GB_VOCAB, US_VOCAB
 # =============================================================================
 
 # Valid character ordinals for lexicon lookup
-LEXICON_ORDS: Final[List[int]] = [39, 45, *range(65, 91), *range(97, 123)]
+LEXICON_ORDS: Final[list[int]] = [39, 45, *range(65, 91), *range(97, 123)]
 
 # Consonants
 CONSONANTS: Final[frozenset[str]] = frozenset("bdfhjklmnpstvwzðŋɡɹɾʃʒʤʧθ")
@@ -36,11 +36,11 @@ SECONDARY_STRESS: Final[str] = "ˌ"
 STRESSES: Final[str] = SECONDARY_STRESS + PRIMARY_STRESS
 
 # Symbol mappings
-ADD_SYMBOLS: Final[Dict[str, str]] = {".": "dot", "/": "slash"}
-SYMBOLS: Final[Dict[str, str]] = {"%": "percent", "&": "and", "+": "plus", "@": "at"}
+ADD_SYMBOLS: Final[dict[str, str]] = {".": "dot", "/": "slash"}
+SYMBOLS: Final[dict[str, str]] = {"%": "percent", "&": "and", "+": "plus", "@": "at"}
 
 # Currency symbols
-CURRENCIES: Final[Dict[str, Tuple[str, str]]] = {
+CURRENCIES: Final[dict[str, tuple[str, str]]] = {
     "$": ("dollar", "cent"),
     "£": ("pound", "pence"),
     "€": ("euro", "cent"),
@@ -50,7 +50,7 @@ CURRENCIES: Final[Dict[str, Tuple[str, str]]] = {
 ORDINALS: Final[frozenset[str]] = frozenset(["st", "nd", "rd", "th"])
 
 # Greek letter mappings (uppercase and lowercase)
-GREEK_LETTERS: Final[Dict[str, str]] = {
+GREEK_LETTERS: Final[dict[str, str]] = {
     "Α": "alpha",
     "α": "alpha",
     "Β": "beta",
@@ -204,8 +204,8 @@ class Lexicon:
         self.british = british
         self.skip_is_known = skip_is_known
         self.cap_stresses = (0.5, 2)
-        self.golds: Dict[str, Union[str, Dict[str, Optional[str]]]] = {}
-        self.silvers: Dict[str, str] = {}
+        self.golds: dict[str, Union[str, dict[str, Optional[str]]]] = {}
+        self.silvers: dict[str, str] = {}
 
         # Load dictionaries
         prefix = "gb" if british else "us"
@@ -223,12 +223,12 @@ class Lexicon:
                 assert "DEFAULT" in ps, f"Missing DEFAULT in {word}"
                 for v in ps.values():
                     if v is not None:
-                        assert all(c in vocab for c in v), (
-                            f"Invalid phoneme in {word}: {v}"
-                        )
+                        assert all(
+                            c in vocab for c in v
+                        ), f"Invalid phoneme in {word}: {v}"
 
     @staticmethod
-    def _grow_dictionary(d: Dict[str, Any]) -> Dict[str, Any]:
+    def _grow_dictionary(d: dict[str, Any]) -> dict[str, Any]:
         """Expand dictionary with capitalization variants.
 
         Args:
@@ -237,7 +237,7 @@ class Lexicon:
         Returns:
             Expanded dictionary with capitalized variants.
         """
-        e: Dict[str, Any] = {}
+        e: dict[str, Any] = {}
         for k, v in d.items():
             if len(k) < 2:
                 continue
@@ -276,7 +276,7 @@ class Lexicon:
             return True
         return word[1:] == word[1:].upper()
 
-    def get_NNP(self, word: str) -> Tuple[Optional[str], Optional[int]]:
+    def get_NNP(self, word: str) -> tuple[Optional[str], Optional[int]]:
         """Get phonemes for a proper noun by spelling."""
         ps = [self.golds.get(c.upper()) for c in word if c.isalpha()]
         if None in ps:
@@ -293,7 +293,7 @@ class Lexicon:
         tag: Optional[str] = None,
         stress: Optional[float] = None,
         ctx: Optional[TokenContext] = None,
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Look up a word in the lexicon.
 
         Args:
@@ -336,7 +336,7 @@ class Lexicon:
         tag: Optional[str],
         stress: Optional[float],
         ctx: Optional[TokenContext],
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Handle special case words with context-dependent pronunciations."""
         if tag == "ADD" and word in ADD_SYMBOLS:
             return self.lookup(ADD_SYMBOLS[word], None, -0.5, ctx)
@@ -414,7 +414,7 @@ class Lexicon:
         tag: Optional[str],
         stress: Optional[float],
         ctx: Optional[TokenContext],
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Handle -s suffix."""
         if len(word) < 3 or not word.endswith("s"):
             return (None, None)
@@ -458,7 +458,7 @@ class Lexicon:
         tag: Optional[str],
         stress: Optional[float],
         ctx: Optional[TokenContext],
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Handle -ed suffix."""
         if len(word) < 4 or not word.endswith("d"):
             return (None, None)
@@ -493,7 +493,7 @@ class Lexicon:
         tag: Optional[str],
         stress: Optional[float],
         ctx: Optional[TokenContext],
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Handle -ing suffix."""
         if len(word) < 5 or not word.endswith("ing"):
             return (None, None)
@@ -518,7 +518,7 @@ class Lexicon:
         tag: Optional[str],
         stress: Optional[float],
         ctx: Optional[TokenContext],
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Get phonemes for a word, trying various strategies."""
         # Check special cases first
         ps, rating = self.get_special_case(word, tag, stress, ctx)
@@ -616,7 +616,7 @@ class Lexicon:
         tag: Optional[str] = None,
         stress: Optional[float] = None,
         ctx: Optional[TokenContext] = None,
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Look up phonemes for a word.
 
         Args:
@@ -661,7 +661,7 @@ class Lexicon:
         word: str,
         currency: Optional[str],
         is_head: bool,
-    ) -> Tuple[Optional[str], Optional[int]]:
+    ) -> tuple[Optional[str], Optional[int]]:
         """Convert a number to phonemes using num2words.
 
         Args:

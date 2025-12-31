@@ -13,16 +13,14 @@ import functools
 import os
 import pathlib
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
-from kokorog2p.backends.espeak.api import EspeakLibrary, PHONEMES_IPA
+from kokorog2p.backends.espeak.api import PHONEMES_IPA, EspeakLibrary
 from kokorog2p.backends.espeak.voice import (
     Voice,
-    VoiceStruct,
     struct_to_voice,
     voice_to_struct,
 )
-
 
 # Environment variable for custom library path
 ENV_LIBRARY_PATH = "KOKOROG2P_ESPEAK_LIBRARY"
@@ -127,7 +125,7 @@ class Phonemizer:
         Raises:
             RuntimeError: If espeak-ng library cannot be loaded.
         """
-        self._version: Optional[Tuple[int, ...]] = None
+        self._version: Optional[tuple[int, ...]] = None
         self._data_path: Optional[Path] = None
         self._current_voice: Optional[Voice] = None
 
@@ -156,7 +154,7 @@ class Phonemizer:
         """
         cls._custom_data = path
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         """Support pickling for multiprocessing."""
         return {
             "version": self._version,
@@ -164,7 +162,7 @@ class Phonemizer:
             "voice": self._current_voice,
         }
 
-    def __setstate__(self, state: Dict[str, Any]) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """Restore from pickle."""
         self.__init__()
         self._version = state["version"]
@@ -174,7 +172,7 @@ class Phonemizer:
             self.set_voice(self._current_voice.language)
 
     @property
-    def version(self) -> Tuple[int, ...]:
+    def version(self) -> tuple[int, ...]:
         """Get espeak version as tuple of integers."""
         if self._version is None:
             version_str, data_str = self._api.get_info()
@@ -205,7 +203,7 @@ class Phonemizer:
         return self._current_voice
 
     @functools.cache
-    def list_voices(self, filter_name: Optional[str] = None) -> List[Voice]:
+    def list_voices(self, filter_name: Optional[str] = None) -> list[Voice]:
         """List available voices.
 
         Args:
@@ -223,7 +221,7 @@ class Phonemizer:
         # Get voices from library
         voice_ptrs = self._api.list_voices(voice_filter)
 
-        voices: List[Voice] = []
+        voices: list[Voice] = []
         idx = 0
         while voice_ptrs[idx]:
             struct = voice_ptrs[idx].contents
@@ -252,7 +250,7 @@ class Phonemizer:
             }
         else:
             # Regular espeak voices - map language to identifier
-            available: Dict[str, str] = {}
+            available: dict[str, str] = {}
             for v in self.list_voices():
                 if v.language and v.language not in available:
                     available[v.language] = v.identifier

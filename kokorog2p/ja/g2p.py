@@ -9,7 +9,7 @@ Copyright 2024 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
@@ -300,7 +300,7 @@ class JapaneseG2P(G2PBase):
         return self._cutlet
 
     @staticmethod
-    def pron2moras(pron: str) -> List[str]:
+    def pron2moras(pron: str) -> list[str]:
         """Convert pronunciation to mora list."""
         moras = []
         for k in pron:
@@ -312,7 +312,7 @@ class JapaneseG2P(G2PBase):
                 moras.append(k)
         return moras
 
-    def __call__(self, text: str) -> List[GToken]:
+    def __call__(self, text: str) -> list[GToken]:
         """Convert text to tokens with phonemes.
 
         Args:
@@ -340,7 +340,7 @@ class JapaneseG2P(G2PBase):
         token.rating = "ja" if phonemes else None
         return [token]
 
-    def _phonemize_internal(self, text: str) -> Tuple[str, Optional[List[GToken]]]:
+    def _phonemize_internal(self, text: str) -> tuple[str, Optional[list[GToken]]]:
         """Internal phonemization logic.
 
         Args:
@@ -355,10 +355,10 @@ class JapaneseG2P(G2PBase):
         # Use pyopenjtalk
         return self._phonemize_pyopenjtalk(text)
 
-    def _phonemize_pyopenjtalk(self, text: str) -> Tuple[str, Optional[List[GToken]]]:
+    def _phonemize_pyopenjtalk(self, text: str) -> tuple[str, Optional[list[GToken]]]:
         """Phonemize using pyopenjtalk."""
         tokens = []
-        last_a, last_p = 0, ""
+        last_a, _last_p = 0, ""
         acc, mcount = None, 0
 
         for word in self.pyopenjtalk.run_frontend(text):

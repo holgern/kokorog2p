@@ -11,7 +11,7 @@ import importlib.resources
 import re
 import unicodedata
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import jaconv
 import mojimoji
@@ -296,7 +296,7 @@ class Cutlet:
         self.table = dict(HEPBURN)  # make a copy so we can modify it
         self.exceptions = {}
 
-    def __call__(self, text: str) -> Tuple[str, None]:
+    def __call__(self, text: str) -> tuple[str, None]:
         """Build a complete string from input text."""
         if not text:
             return "", None
@@ -332,7 +332,7 @@ class Cutlet:
             for t in re.findall(r"\d+|\D+", text)
         )
 
-    def _romaji_tokens(self, words: List[Word]) -> List[Token]:
+    def _romaji_tokens(self, words: list[Word]) -> list[Token]:
         """Build a list of tokens from input nodes."""
         groups = []
         i = 0
@@ -368,7 +368,7 @@ class Cutlet:
             for g in groups
         ]
         out = []
-        for wi, word in enumerate(words):
+        for _wi, word in enumerate(words):
             po = out[-1] if out else None
             roma = self._romaji_word(word)
             tok = Token(roma, False)

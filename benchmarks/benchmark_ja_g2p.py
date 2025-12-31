@@ -13,9 +13,6 @@ import random
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple
-
-from dataclasses import dataclass, field
 
 
 @dataclass
@@ -29,7 +26,7 @@ class BenchmarkResult:
     total_time_ms: float
     words_per_second: float
     accuracy_percent: float
-    errors: List[Tuple[str, str, str]] = field(
+    errors: list[tuple[str, str, str]] = field(
         default_factory=list
     )  # (word, expected, got)
 
@@ -47,7 +44,7 @@ class BenchmarkResult:
         )
 
 
-def load_word_list(path: Path) -> List[str]:
+def load_word_list(path: Path) -> list[str]:
     """Load a word list from a text file.
 
     Args:
@@ -62,7 +59,7 @@ def load_word_list(path: Path) -> List[str]:
 
 def benchmark_g2p_throughput(
     g2p,
-    words: List[str],
+    words: list[str],
     name: str = "G2P Throughput",
 ) -> BenchmarkResult:
     """Benchmark G2P conversion throughput for Japanese words.
@@ -77,7 +74,7 @@ def benchmark_g2p_throughput(
     """
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -114,7 +111,7 @@ def benchmark_g2p_throughput(
 
 def benchmark_sentence_throughput(
     g2p,
-    sentences: List[str],
+    sentences: list[str],
     name: str = "Sentence Throughput",
 ) -> BenchmarkResult:
     """Benchmark sentence phonemization throughput for Japanese.
@@ -156,7 +153,7 @@ def benchmark_sentence_throughput(
 
 def benchmark_vocab_validation(
     g2p,
-    words: List[str],
+    words: list[str],
     name: str = "Vocab Validation",
 ) -> BenchmarkResult:
     """Validate that all generated phonemes are in Kokoro vocabulary.
@@ -173,7 +170,7 @@ def benchmark_vocab_validation(
 
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -225,7 +222,7 @@ def benchmark_vocab_validation(
 
 def benchmark_encoding(
     g2p,
-    words: List[str],
+    words: list[str],
     name: str = "Kokoro Encoding",
 ) -> BenchmarkResult:
     """Benchmark phoneme-to-token encoding speed for Japanese.
@@ -242,7 +239,7 @@ def benchmark_encoding(
 
     successful = 0
     failed = 0
-    errors: List[Tuple[str, str, str]] = []
+    errors: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -292,7 +289,7 @@ def benchmark_encoding(
 
 def benchmark_phoneme_output(
     g2p,
-    words: List[str],
+    words: list[str],
     name: str = "Phoneme Output Sample",
 ) -> BenchmarkResult:
     """Sample phoneme outputs for inspection.
@@ -308,7 +305,7 @@ def benchmark_phoneme_output(
     Returns:
         BenchmarkResult with sample outputs in errors field.
     """
-    samples: List[Tuple[str, str, str]] = []
+    samples: list[tuple[str, str, str]] = []
 
     start_time = time.perf_counter()
 
@@ -338,7 +335,7 @@ def run_all_benchmarks(
     sample_size: int = 5000,
     seed: int = 42,
     verbose: bool = True,
-) -> List[BenchmarkResult]:
+) -> list[BenchmarkResult]:
     """Run all Japanese G2P benchmarks.
 
     Args:
@@ -350,7 +347,7 @@ def run_all_benchmarks(
         List of BenchmarkResult objects.
     """
     random.seed(seed)
-    results: List[BenchmarkResult] = []
+    results: list[BenchmarkResult] = []
 
     # Get data directory
     data_dir = Path(__file__).parent.parent / "kokorog2p" / "ja" / "data"
@@ -482,7 +479,8 @@ def run_all_benchmarks(
         print("=" * 60)
         for r in results:
             print(
-                f"{r.name:45} | {r.accuracy_percent:6.2f}% | {r.words_per_second:10,.0f} words/sec"
+                f"{r.name:45} | {r.accuracy_percent:6.2f}% "
+                f"| {r.words_per_second:10,.0f} words/sec"
             )
 
     return results

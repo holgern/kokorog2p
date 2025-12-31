@@ -8,21 +8,19 @@ Tests cover:
 5. Kokoro vocabulary compliance
 """
 
-import pytest
 import re
 
+import pytest
+
 from kokorog2p.punctuation import (
-    Punctuation,
-    Position,
-    MarkIndex,
     KOKORO_PUNCTUATION,
-    PUNCTUATION_NORMALIZATION,
-    REMOVE_PUNCTUATION,
-    normalize_punctuation,
+    MarkIndex,
+    Position,
+    Punctuation,
     filter_punctuation,
     is_kokoro_punctuation,
+    normalize_punctuation,
 )
-
 
 # =============================================================================
 # Test Kokoro punctuation constants

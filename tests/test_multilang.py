@@ -6,7 +6,6 @@ are not available.
 
 import pytest
 
-
 # =============================================================================
 # Helper Functions
 # =============================================================================
@@ -96,7 +95,7 @@ class TestGetG2PFallback:
 
     def test_unknown_language_uses_fallback(self):
         """Test that unknown languages use EspeakOnlyG2P."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
         from kokorog2p.espeak_g2p import EspeakOnlyG2P
 
         clear_cache()
@@ -105,7 +104,7 @@ class TestGetG2PFallback:
 
     def test_french_uses_fallback(self):
         """Test French uses EspeakOnlyG2P."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
         from kokorog2p.espeak_g2p import EspeakOnlyG2P
 
         clear_cache()
@@ -185,8 +184,8 @@ class TestChineseG2P:
     )
     def test_call_returns_tokens(self):
         """Test that calling returns GToken list."""
-        from kokorog2p.zh import ChineseG2P
         from kokorog2p.token import GToken
+        from kokorog2p.zh import ChineseG2P
 
         g2p = ChineseG2P()
         tokens = g2p("你好世界")
@@ -203,7 +202,7 @@ class TestChineseG2P:
 
     def test_get_g2p_chinese(self):
         """Test get_g2p returns ChineseG2P for Chinese."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
         from kokorog2p.zh import ChineseG2P
 
         clear_cache()
@@ -295,7 +294,7 @@ class TestJapaneseG2P:
 
     def test_get_g2p_japanese(self):
         """Test get_g2p returns JapaneseG2P for Japanese."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
         from kokorog2p.ja import JapaneseG2P
 
         clear_cache()

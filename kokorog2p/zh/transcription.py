@@ -8,11 +8,11 @@ Licensed under the Apache License, Version 2.0
 """
 
 import itertools
-from typing import Dict, Generator, List, Optional, Tuple
+from collections.abc import Generator
+from typing import Optional
 
 from ordered_set import OrderedSet
 from pypinyin.contrib.tone_convert import to_finals, to_initials, to_normal, to_tone3
-
 
 # References:
 # https://en.wikipedia.org/wiki/Help:IPA/Mandarin
@@ -23,7 +23,7 @@ from pypinyin.contrib.tone_convert import to_finals, to_initials, to_normal, to_
 # Lin, Yen-Hwei. 2007. The Sounds of Chinese. Cambridge, UK ; New York: Cambridge University Press.
 
 
-INITIAL_MAPPING: Dict[str, List[Tuple[str, ...]]] = {
+INITIAL_MAPPING: dict[str, list[tuple[str, ...]]] = {
     "b": [("p",)],
     "c": [("ʦʰ",)],  # tsʰ
     "ch": [("\uab67ʰ",)],  # ʈʂʰ
@@ -55,7 +55,7 @@ INITIALS = INITIAL_MAPPING.keys()
 # Note: Syllabic consonants may also arise as a result of weak syllable reduction.
 # Syllabic nasal consonants are also heard in certain interjections;
 # pronunciations of such words include [m], [n], [ŋ], [hm], [hŋ].
-SYLLABIC_CONSONANT_MAPPINGS: Dict[str, List[Tuple[str, ...]]] = {
+SYLLABIC_CONSONANT_MAPPINGS: dict[str, list[tuple[str, ...]]] = {
     "hm": [("h", "m0")],
     "hng": [("h", "ŋ0")],
     "m": [("m0",)],
@@ -65,7 +65,7 @@ SYLLABIC_CONSONANT_MAPPINGS: Dict[str, List[Tuple[str, ...]]] = {
 
 SYLLABIC_CONSONANTS = SYLLABIC_CONSONANT_MAPPINGS.keys()
 
-INTERJECTION_MAPPINGS: Dict[str, List[Tuple[str, ...]]] = {
+INTERJECTION_MAPPINGS: dict[str, list[tuple[str, ...]]] = {
     "io": [("j", "ɔ0")],  # /
     "ê": [("ɛ0",)],  # /
     # Note: In a small number of independent words or morphemes pronounced [ɚ] or [aɚ̯],
@@ -83,7 +83,7 @@ INTERJECTIONS = INTERJECTION_MAPPINGS.keys()
 # Duanmu (2000, p. 37) and Lin (2007, p. 68f)
 # Diphtongs from Duanmu (2007, p. 40): au, əu, əi, ai
 # Diphthongs from Lin (2007, p. 68f): au̯, ou̯, ei̯, ai̯
-FINAL_MAPPING: Dict[str, List[Tuple[str, ...]]] = {
+FINAL_MAPPING: dict[str, list[tuple[str, ...]]] = {
     "a": [("a0",)],  # /
     "ai": [("ai̯0",)],  # aɪ̯
     "an": [("a0", "n")],  # an
@@ -136,7 +136,7 @@ FINALS = FINAL_MAPPING.keys()
 #       in zhi, chi, shi, ri ([ʈʂɻ̩ ʈʂʰɻ̩ ʂɻ̩ ɻɻ̩]).
 # Duanmu (2007, p. 34f)
 # Lin (2007, p. 72)
-FINAL_MAPPING_AFTER_ZH_CH_SH_R: Dict[str, List[Tuple[str, ...]]] = {
+FINAL_MAPPING_AFTER_ZH_CH_SH_R: dict[str, list[tuple[str, ...]]] = {
     "i": [("ɻ̩0",), ("ʐ̩0",)],  # ʅ
 }
 
@@ -144,7 +144,7 @@ FINAL_MAPPING_AFTER_ZH_CH_SH_R: Dict[str, List[Tuple[str, ...]]] = {
 #       in zi, ci, si ([tsɹ̩ tsʰɹ̩ sɹ̩]);
 # Duanmu (2007, p. 34f)
 # Lin (2007, p. 72)
-FINAL_MAPPING_AFTER_Z_C_S: Dict[str, List[Tuple[str, ...]]] = {
+FINAL_MAPPING_AFTER_Z_C_S: dict[str, list[tuple[str, ...]]] = {
     "i": [("ɹ̩0",), ("z̩0",)],  # ɿ
 }
 
@@ -240,8 +240,8 @@ def get_finals(normal_pinyin: str) -> Optional[str]:
 
 
 def apply_tone(
-    variants: List[Tuple[str, ...]], tone: int
-) -> Generator[Tuple[str, ...], None, None]:
+    variants: list[tuple[str, ...]], tone: int
+) -> Generator[tuple[str, ...], None, None]:
     """Apply tone markers to IPA variants."""
     tone_ipa = TONE_MAPPING[tone]
     yield from (
@@ -250,7 +250,7 @@ def apply_tone(
     )
 
 
-def pinyin_to_ipa(pinyin: str) -> OrderedSet[Tuple[str, ...]]:
+def pinyin_to_ipa(pinyin: str) -> OrderedSet[tuple[str, ...]]:
     """Convert pinyin to IPA transcription.
 
     Args:
@@ -285,7 +285,7 @@ def pinyin_to_ipa(pinyin: str) -> OrderedSet[Tuple[str, ...]]:
         initial_phonemes = INITIAL_MAPPING[pinyin_initial]
         parts.append(initial_phonemes)
 
-    final_phonemes: List[Tuple[str, ...]]
+    final_phonemes: list[tuple[str, ...]]
     if (
         pinyin_initial in {"zh", "ch", "sh", "r"}
         and pinyin_final in FINAL_MAPPING_AFTER_ZH_CH_SH_R
