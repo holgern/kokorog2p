@@ -15,7 +15,7 @@ Example:
     ...     print(f"{token.text} -> {token.phonemes}")
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 # Core classes
 from kokorog2p.token import GToken

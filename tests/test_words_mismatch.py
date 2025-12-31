@@ -145,8 +145,10 @@ class TestMismatchInfo:
 
     def test_frozen(self):
         """MismatchInfo should be frozen."""
+        from dataclasses import FrozenInstanceError
+
         info = MismatchInfo(line_num=0, expected=2, actual=3)
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             info.line_num = 1
 
 

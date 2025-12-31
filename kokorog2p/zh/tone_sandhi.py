@@ -19,7 +19,6 @@ limitations under the License.
 Copyright 2024 kokorog2p contributors
 """
 
-
 import jieba
 from pypinyin import Style, lazy_pinyin
 
@@ -686,7 +685,7 @@ class ToneSandhi:
         seg = new_seg
         new_seg = []
         # function 2
-        for i, (word, pos) in enumerate(seg):
+        for _i, (word, pos) in enumerate(seg):
             if new_seg and new_seg[-1][0] == YI and pos not in X_ENG:
                 new_seg[-1] = (new_seg[-1][0] + word, new_seg[-1][1])
             else:

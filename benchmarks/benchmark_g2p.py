@@ -365,11 +365,11 @@ class TorchFallback:
         try:
             import torch
             from transformers import BartForConditionalGeneration
-        except ImportError:
+        except ImportError as e:
             raise ImportError(
                 "torch and transformers are required for TorchFallback. "
                 "Install with: pip install torch transformers"
-            )
+            ) from e
 
         self.british = british
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -410,6 +410,28 @@ class TorchFallback:
             generated_ids = self.model.generate(input_ids=input_ids)
         output_text = self.tokens_to_phonemes(generated_ids[0].tolist())
         return (output_text, 1)
+
+
+def _print_result_with_errors(result: BenchmarkResult, verbose: bool) -> None:
+    """Print benchmark result with sample errors if verbose."""
+    if verbose:
+        print(result)
+        if result.errors:
+            print("Sample errors (word, expected, got):")
+            for word, expected_val, got in result.errors[:10]:
+                print(f"  {word}: {expected_val} -> {got}")
+
+
+def _print_summary(results: list[BenchmarkResult]) -> None:
+    """Print benchmark summary."""
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    for r in results:
+        print(
+            f"{r.name:40} | {r.accuracy_percent:6.2f}% "
+            f"| {r.words_per_second:10,.0f} words/sec"
+        )
 
 
 def run_all_benchmarks(
@@ -485,12 +507,7 @@ def run_all_benchmarks(
         name="US Gold - Espeak Only Accuracy",
     )
     results.append(result)
-    if verbose:
-        print(result)
-        if result.errors:
-            print("Sample errors (word, expected, got):")
-            for word, expected_val, got in result.errors[:10]:
-                print(f"  {word}: {expected_val} -> {got}")
+    _print_result_with_errors(result, verbose)
 
     # Benchmark 2: Espeak accuracy on silver dictionary (no dictionary lookup)
     result = benchmark_espeak_accuracy(
@@ -500,12 +517,7 @@ def run_all_benchmarks(
         name="US Silver - Espeak Only Accuracy",
     )
     results.append(result)
-    if verbose:
-        print(result)
-        if result.errors:
-            print("Sample errors (word, expected, got):")
-            for word, expected_val, got in result.errors[:10]:
-                print(f"  {word}: {expected_val} -> {got}")
+    _print_result_with_errors(result, verbose)
 
     # Benchmark 3: Torch fallback accuracy on gold dictionary (if available)
     if torch_fallback is not None:
@@ -516,12 +528,7 @@ def run_all_benchmarks(
             name="US Gold - Torch Only Accuracy",
         )
         results.append(result)
-        if verbose:
-            print(result)
-            if result.errors:
-                print("Sample errors (word, expected, got):")
-                for word, expected_val, got in result.errors[:10]:
-                    print(f"  {word}: {expected_val} -> {got}")
+        _print_result_with_errors(result, verbose)
 
         # Benchmark 4: Torch fallback accuracy on silver dictionary
         result = benchmark_espeak_accuracy(
@@ -531,12 +538,7 @@ def run_all_benchmarks(
             name="US Silver - Torch Only Accuracy",
         )
         results.append(result)
-        if verbose:
-            print(result)
-            if result.errors:
-                print("Sample errors (word, expected, got):")
-                for word, expected_val, got in result.errors[:10]:
-                    print(f"  {word}: {expected_val} -> {got}")
+        _print_result_with_errors(result, verbose)
 
     # Benchmark 5: Full G2P on gold dictionary (with dictionary, without spaCy)
     result = benchmark_g2p_conversion(
@@ -583,13 +585,7 @@ def run_all_benchmarks(
 
     # Summary
     if verbose:
-        print("\n" + "=" * 60)
-        print("SUMMARY")
-        print("=" * 60)
-        for r in results:
-            print(
-                f"{r.name:40} | {r.accuracy_percent:6.2f}% | {r.words_per_second:10,.0f} words/sec"
-            )
+        _print_summary(results)
 
     return results
 

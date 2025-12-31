@@ -147,8 +147,10 @@ class EspeakLibrary:
             )
             if result <= 0:
                 raise RuntimeError("espeak_Initialize returned error")
-        except AttributeError:
-            raise RuntimeError("Invalid espeak library - missing espeak_Initialize")
+        except AttributeError as e:
+            raise RuntimeError(
+                "Invalid espeak library - missing espeak_Initialize"
+            ) from e
 
         # Update finalizer with the loaded library
         if sys.platform != "win32":

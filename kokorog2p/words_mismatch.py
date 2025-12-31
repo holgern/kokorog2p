@@ -332,9 +332,9 @@ def get_mismatch_processor(
     if isinstance(mode, str):
         try:
             mode = MismatchMode(mode.lower())
-        except ValueError:
+        except ValueError as e:
             valid = ", ".join(m.value for m in MismatchMode)
-            raise ValueError(f"Invalid mode '{mode}', must be one of: {valid}")
+            raise ValueError(f"Invalid mode '{mode}', must be one of: {valid}") from e
 
     processors = {
         MismatchMode.IGNORE: IgnoreMismatch,

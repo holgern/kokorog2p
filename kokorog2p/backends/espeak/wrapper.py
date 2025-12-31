@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import ctypes.util
-import functools
 import os
 import pathlib
 from pathlib import Path
@@ -66,7 +65,8 @@ def find_espeak_library() -> str:
         return lib_name
 
     raise RuntimeError(
-        "Could not find espeak-ng library. Install espeak-ng or espeakng-loader package."
+        "Could not find espeak-ng library. "
+        "Install espeak-ng or espeakng-loader package."
     )
 
 
@@ -202,7 +202,6 @@ class Phonemizer:
         """Get the currently selected voice."""
         return self._current_voice
 
-    @functools.cache
     def list_voices(self, filter_name: Optional[str] = None) -> list[Voice]:
         """List available voices.
 

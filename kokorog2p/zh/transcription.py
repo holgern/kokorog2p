@@ -19,8 +19,10 @@ from pypinyin.contrib.tone_convert import to_finals, to_initials, to_normal, to_
 # https://en.wikipedia.org/wiki/Standard_Chinese_phonology
 # https://en.wikipedia.org/wiki/Pinyin
 # https://de.wikipedia.org/wiki/Pinyin
-# Duanmu, San. 2007. The Phonology of Standard Chinese. 2nd ed. Oxford ; New York: Oxford University Press.
-# Lin, Yen-Hwei. 2007. The Sounds of Chinese. Cambridge, UK ; New York: Cambridge University Press.
+# Duanmu, San. 2007. The Phonology of Standard Chinese. 2nd ed.
+# Oxford ; New York: Oxford University Press.
+# Lin, Yen-Hwei. 2007. The Sounds of Chinese.
+# Cambridge, UK ; New York: Cambridge University Press.
 
 
 INITIAL_MAPPING: dict[str, list[tuple[str, ...]]] = {
@@ -211,7 +213,8 @@ def get_initials(normal_pinyin: str) -> Optional[str]:
     # in case pypinyin returns unexpected result
     if pinyin_initial not in INITIAL_MAPPING:
         raise ValueError(
-            f"Parameter 'normal_pinyin': Initial '{pinyin_initial}' couldn't be detected!"
+            f"Parameter 'normal_pinyin': Initial '{pinyin_initial}' "
+            "couldn't be detected!"
         )
 
     return pinyin_initial

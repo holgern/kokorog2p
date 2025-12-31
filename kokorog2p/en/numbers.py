@@ -74,6 +74,170 @@ class NumberConverter:
             self._num2words = num2words
         return self._num2words
 
+    def _extend_num(
+        self,
+        num: str,
+        result: list[tuple[str, int]],
+        num_flags: set,
+        first: bool = True,
+        escape: bool = False,
+    ) -> None:
+        """Extend result with words for a number."""
+        if escape:
+            splits = re.split(r"[^a-z]+", num)
+        else:
+            try:
+                splits = re.split(r"[^a-z]+", self.num2words(int(num)))
+            except (ValueError, OverflowError):
+                splits = [num]
+
+        for i, w in enumerate(splits):
+            if not w:
+                continue
+            if w != "and" or "&" in num_flags:
+                if (
+                    first
+                    and i == 0
+                    and len(splits) > 1
+                    and w == "one"
+                    and "a" in num_flags
+                ):
+                    result.append(("ə", 4))
+                else:
+                    ps = self.lookup(w, None, -2 if w == "point" else None, None)
+                    if ps[0]:
+                        result.append(ps)  # type: ignore
+            elif w == "and" and "n" in num_flags and result:
+                # Contract "and" to "n" sound
+                last_ps, last_rating = result[-1]
+                result[-1] = (last_ps + "ən", last_rating)
+
+    def _convert_ordinal(
+        self, word: str, result: list[tuple[str, int]], num_flags: set
+    ) -> bool:
+        """Convert ordinal number (1st, 2nd, etc.). Returns True if handled."""
+        try:
+            ordinal_word = self.num2words(int(word), to="ordinal")
+            self._extend_num(ordinal_word, result, num_flags, escape=True)
+            return True
+        except (ValueError, OverflowError):
+            return False
+
+    def _convert_year(
+        self, word: str, result: list[tuple[str, int]], num_flags: set
+    ) -> bool:
+        """Convert 4-digit year. Returns True if handled."""
+        try:
+            year_word = self.num2words(int(word), to="year")
+            self._extend_num(year_word, result, num_flags, escape=True)
+            return True
+        except (ValueError, OverflowError):
+            return False
+
+    def _convert_phone_sequence(
+        self, word: str, result: list[tuple[str, int]], num_flags: set
+    ) -> None:
+        """Convert phone numbers and sequences (not at head, no decimal)."""
+        num = word.replace(",", "")
+        if num[0] == "0" or len(num) > 3:
+            # Read digit by digit
+            for n in num:
+                self._extend_num(n, result, num_flags, first=False)
+        elif len(num) == 3 and not num.endswith("00"):
+            # Three-digit numbers like "305" -> "three oh five"
+            self._extend_num(num[0], result, num_flags)
+            if num[1] == "0":
+                o_ps = self.lookup("O", None, -2, None)
+                if o_ps[0]:
+                    result.append(o_ps)  # type: ignore
+                self._extend_num(num[2], result, num_flags, first=False)
+            else:
+                self._extend_num(num[1:], result, num_flags, first=False)
+        else:
+            self._extend_num(num, result, num_flags)
+
+    def _convert_dotted_sequence(
+        self, word: str, result: list[tuple[str, int]], num_flags: set, is_head: bool
+    ) -> None:
+        """Convert IP addresses and version numbers (multiple dots)."""
+        first = True
+        for num in word.replace(",", "").split("."):
+            if not num:
+                pass
+            elif num[0] == "0" or (len(num) != 2 and any(n != "0" for n in num[1:])):
+                for n in num:
+                    self._extend_num(n, result, num_flags, first=False)
+            else:
+                self._extend_num(num, result, num_flags, first=first)
+            first = False
+
+    def _convert_currency(
+        self, word: str, currency: str, result: list[tuple[str, int]], num_flags: set
+    ) -> None:
+        """Convert currency amounts."""
+        pairs = []
+        parts = word.replace(",", "").split(".")
+        currency_names = CURRENCIES[currency]
+        for i, part in enumerate(parts):
+            if part:
+                pairs.append(
+                    (
+                        int(part),
+                        currency_names[i] if i < len(currency_names) else "",
+                    )
+                )
+
+        # Remove zero amounts
+        if len(pairs) > 1:
+            if pairs[1][0] == 0:
+                pairs = pairs[:1]
+            elif pairs[0][0] == 0:
+                pairs = pairs[1:]
+
+        for i, (num, unit) in enumerate(pairs):
+            if i > 0:
+                and_ps = self.lookup("and", None, None, None)
+                if and_ps[0]:
+                    result.append(and_ps)  # type: ignore
+            self._extend_num(str(num), result, num_flags, first=i == 0)
+
+            # Add currency unit (pluralized if needed)
+            if unit:
+                if abs(num) != 1 and unit != "pence":
+                    unit_ps = self.stem_s(unit + "s", None, None, None)
+                else:
+                    unit_ps = self.lookup(unit, None, None, None)
+                if unit_ps[0]:
+                    result.append(unit_ps)  # type: ignore
+
+    def _convert_regular_number(
+        self,
+        word: str,
+        suffix: Optional[str],
+        result: list[tuple[str, int]],
+        num_flags: set,
+    ) -> bool:
+        """Convert regular numbers. Returns True if handled."""
+        try:
+            if is_digit(word):
+                word_text = self.num2words(int(word), to="cardinal")
+            elif "." not in word:
+                to_type = "ordinal" if suffix in ORDINALS else "cardinal"
+                word_text = self.num2words(int(word.replace(",", "")), to=to_type)
+            else:
+                word = word.replace(",", "")
+                if word[0] == ".":
+                    # Decimal starting with point: ".5" -> "point five"
+                    word_text = "point " + " ".join(
+                        self.num2words(int(n)) for n in word[1:]
+                    )
+                else:
+                    word_text = self.num2words(float(word))
+            self._extend_num(word_text, result, num_flags, escape=True)
+            return True
+        except (ValueError, OverflowError):
+            return False
+
     def convert(
         self,
         word: str,
@@ -109,43 +273,9 @@ class NumberConverter:
                 result.append(minus_ps)  # type: ignore
             word = word[1:]
 
-        def extend_num(num: str, first: bool = True, escape: bool = False) -> None:
-            """Extend result with words for a number."""
-            if escape:
-                splits = re.split(r"[^a-z]+", num)
-            else:
-                try:
-                    splits = re.split(r"[^a-z]+", self.num2words(int(num)))
-                except (ValueError, OverflowError):
-                    splits = [num]
-
-            for i, w in enumerate(splits):
-                if not w:
-                    continue
-                if w != "and" or "&" in num_flags:
-                    if (
-                        first
-                        and i == 0
-                        and len(splits) > 1
-                        and w == "one"
-                        and "a" in num_flags
-                    ):
-                        result.append(("ə", 4))
-                    else:
-                        ps = self.lookup(w, None, -2 if w == "point" else None, None)
-                        if ps[0]:
-                            result.append(ps)  # type: ignore
-                elif w == "and" and "n" in num_flags and result:
-                    # Contract "and" to "n" sound
-                    last_ps, last_rating = result[-1]
-                    result[-1] = (last_ps + "ən", last_rating)
-
         # Handle ordinals (1st, 2nd, etc.)
         if is_digit(word) and suffix in ORDINALS:
-            try:
-                ordinal_word = self.num2words(int(word), to="ordinal")
-                extend_num(ordinal_word, escape=True)
-            except (ValueError, OverflowError):
+            if not self._convert_ordinal(word, result, num_flags):
                 return (None, None)
 
         # Handle years (4-digit numbers without currency)
@@ -155,103 +285,24 @@ class NumberConverter:
             and currency not in CURRENCIES
             and is_digit(word)
         ):
-            try:
-                year_word = self.num2words(int(word), to="year")
-                extend_num(year_word, escape=True)
-            except (ValueError, OverflowError):
+            if not self._convert_year(word, result, num_flags):
                 return (None, None)
 
         # Handle phone numbers and sequences (not at head, no decimal)
         elif not is_head and "." not in word:
-            num = word.replace(",", "")
-            if num[0] == "0" or len(num) > 3:
-                # Read digit by digit
-                for n in num:
-                    extend_num(n, first=False)
-            elif len(num) == 3 and not num.endswith("00"):
-                # Three-digit numbers like "305" -> "three oh five"
-                extend_num(num[0])
-                if num[1] == "0":
-                    o_ps = self.lookup("O", None, -2, None)
-                    if o_ps[0]:
-                        result.append(o_ps)  # type: ignore
-                    extend_num(num[2], first=False)
-                else:
-                    extend_num(num[1:], first=False)
-            else:
-                extend_num(num)
+            self._convert_phone_sequence(word, result, num_flags)
 
         # Handle IP addresses and version numbers (multiple dots)
         elif word.count(".") > 1 or not is_head:
-            first = True
-            for num in word.replace(",", "").split("."):
-                if not num:
-                    pass
-                elif num[0] == "0" or (
-                    len(num) != 2 and any(n != "0" for n in num[1:])
-                ):
-                    for n in num:
-                        extend_num(n, first=False)
-                else:
-                    extend_num(num, first=first)
-                first = False
+            self._convert_dotted_sequence(word, result, num_flags, is_head)
 
         # Handle currency amounts
         elif currency in CURRENCIES and is_currency_amount(word):
-            pairs = []
-            parts = word.replace(",", "").split(".")
-            currency_names = CURRENCIES[currency]
-            for i, part in enumerate(parts):
-                if part:
-                    pairs.append(
-                        (
-                            int(part),
-                            currency_names[i] if i < len(currency_names) else "",
-                        )
-                    )
-
-            # Remove zero amounts
-            if len(pairs) > 1:
-                if pairs[1][0] == 0:
-                    pairs = pairs[:1]
-                elif pairs[0][0] == 0:
-                    pairs = pairs[1:]
-
-            for i, (num, unit) in enumerate(pairs):
-                if i > 0:
-                    and_ps = self.lookup("and", None, None, None)
-                    if and_ps[0]:
-                        result.append(and_ps)  # type: ignore
-                extend_num(str(num), first=i == 0)
-
-                # Add currency unit (pluralized if needed)
-                if unit:
-                    if abs(num) != 1 and unit != "pence":
-                        unit_ps = self.stem_s(unit + "s", None, None, None)
-                    else:
-                        unit_ps = self.lookup(unit, None, None, None)
-                    if unit_ps[0]:
-                        result.append(unit_ps)  # type: ignore
+            self._convert_currency(word, currency, result, num_flags)
 
         # Handle regular numbers
         else:
-            try:
-                if is_digit(word):
-                    word_text = self.num2words(int(word), to="cardinal")
-                elif "." not in word:
-                    to_type = "ordinal" if suffix in ORDINALS else "cardinal"
-                    word_text = self.num2words(int(word.replace(",", "")), to=to_type)
-                else:
-                    word = word.replace(",", "")
-                    if word[0] == ".":
-                        # Decimal starting with point: ".5" -> "point five"
-                        word_text = "point " + " ".join(
-                            self.num2words(int(n)) for n in word[1:]
-                        )
-                    else:
-                        word_text = self.num2words(float(word))
-                extend_num(word_text, escape=True)
-            except (ValueError, OverflowError):
+            if not self._convert_regular_number(word, suffix, result, num_flags):
                 return (None, None)
 
         if not result:

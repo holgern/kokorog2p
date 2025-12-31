@@ -602,6 +602,8 @@ class TestMarkIndex:
 
     def test_markindex_frozen(self):
         """MarkIndex should be immutable."""
+        from dataclasses import FrozenInstanceError
+
         mark = MarkIndex(index=0, mark=",", position=Position.MIDDLE)
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             mark.index = 1
