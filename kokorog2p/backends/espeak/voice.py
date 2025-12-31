@@ -4,7 +4,6 @@ Based on phonemizer by Mathieu Bernard, licensed under GPL-3.0.
 """
 
 import ctypes
-from typing import Optional
 
 
 class EspeakVoice:

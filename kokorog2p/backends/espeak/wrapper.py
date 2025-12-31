@@ -235,7 +235,7 @@ class EspeakWrapper:
         """
         return self._voice
 
-    @functools.lru_cache(maxsize=None)
+    @functools.cache
     def available_voices(self, name: Optional[str] = None) -> List[EspeakVoice]:
         """Voices available for phonemization, as a list of `EspeakVoice`."""
         voice_filter = None

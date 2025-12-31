@@ -1,6 +1,7 @@
 """Tests for the English G2P module."""
 
 import pytest
+
 from kokorog2p.token import GToken
 
 
@@ -176,7 +177,7 @@ class TestMainAPI:
 
     def test_import_main_api(self):
         """Test importing main API."""
-        from kokorog2p import phonemize, tokenize, get_g2p, GToken
+        from kokorog2p import get_g2p, phonemize, tokenize
 
         assert callable(phonemize)
         assert callable(tokenize)
@@ -184,7 +185,7 @@ class TestMainAPI:
 
     def test_get_g2p_caching(self):
         """Test G2P instances are cached."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
 
         clear_cache()
         g2p1 = get_g2p("en-us", use_espeak_fallback=False, use_spacy=False)
@@ -204,7 +205,7 @@ class TestMainAPI:
 
     def test_clear_cache(self):
         """Test cache clearing."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
 
         g2p1 = get_g2p("en-us", use_espeak_fallback=False, use_spacy=False)
         clear_cache()
@@ -222,7 +223,7 @@ class TestMainAPI:
 
     def test_tokenize_function(self):
         """Test tokenize convenience function."""
-        from kokorog2p import tokenize, GToken
+        from kokorog2p import GToken, tokenize
 
         tokens = tokenize("hello world", use_espeak_fallback=False, use_spacy=False)
         assert isinstance(tokens, list)

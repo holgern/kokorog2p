@@ -1,21 +1,20 @@
 """Tests for phoneme vocabularies and conversion functions."""
 
-import pytest
 from kokorog2p.phonemes import (
-    US_VOCAB,
+    AFFRICATE_EXPANSIONS,
+    CONSONANTS,
+    DIPHTHONG_EXPANSIONS,
+    GB_ONLY_PHONES,
     GB_VOCAB,
     SHARED_PHONES,
+    STRESS_MARKS,
     US_ONLY_PHONES,
-    GB_ONLY_PHONES,
+    US_VOCAB,
+    VOWELS,
     from_espeak,
+    get_vocab,
     to_espeak,
     validate_phonemes,
-    get_vocab,
-    VOWELS,
-    CONSONANTS,
-    STRESS_MARKS,
-    DIPHTHONG_EXPANSIONS,
-    AFFRICATE_EXPANSIONS,
 )
 
 

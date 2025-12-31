@@ -1,8 +1,6 @@
 """Pytest configuration and fixtures for kokorog2p tests."""
 
 import pytest
-from typing import Generator
-
 
 # =============================================================================
 # Markers

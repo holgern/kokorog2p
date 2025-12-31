@@ -1,17 +1,16 @@
 """Tests for the English lexicon."""
 
-import pytest
 from kokorog2p.en.lexicon import (
-    Lexicon,
-    TokenContext,
-    apply_stress,
-    stress_weight,
-    is_digit,
     CONSONANTS,
-    VOWELS,
     DIPHTHONGS,
     PRIMARY_STRESS,
     SECONDARY_STRESS,
+    VOWELS,
+    Lexicon,
+    TokenContext,
+    apply_stress,
+    is_digit,
+    stress_weight,
 )
 
 

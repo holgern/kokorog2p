@@ -12,7 +12,7 @@ The vocabulary is loaded from the embedded Kokoro model config and provides:
 from functools import lru_cache
 from typing import Final
 
-from kokorog2p.data import load_kokoro_config, get_kokoro_vocab
+from kokorog2p.data import get_kokoro_vocab, load_kokoro_config
 
 # =============================================================================
 # Load vocabulary from embedded config

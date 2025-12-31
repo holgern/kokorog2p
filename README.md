@@ -2,12 +2,14 @@
 
 A unified G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 
-kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It provides:
+kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
+provides:
 
 - **Dictionary-based lookup** with gold/silver tier lexicons for US and British English
 - **espeak-ng integration** as a fallback for out-of-vocabulary words
-- **Automatic IPA to Kokoro phoneme conversion** 
-- **Number and currency handling** (e.g., "$1,234.56" → "one thousand two hundred thirty-four dollars and fifty-six cents")
+- **Automatic IPA to Kokoro phoneme conversion**
+- **Number and currency handling** (e.g., "$1,234.56" → "one thousand two hundred
+  thirty-four dollars and fifty-six cents")
 - **Stress assignment** based on linguistic rules
 
 ## Installation
@@ -62,10 +64,12 @@ for token in tokens:
 kokorog2p uses Kokoro's 45-phoneme vocabulary:
 
 ### Vowels (US)
+
 - Monophthongs: `æ ɑ ə ɚ ɛ ɪ i ʊ u ʌ ɔ`
 - Diphthongs: `aɪ aʊ eɪ oʊ ɔɪ`
 
 ### Consonants
+
 - Stops: `p b t d k ɡ`
 - Fricatives: `f v θ ð s z ʃ ʒ h`
 - Affricates: `tʃ dʒ`
@@ -74,6 +78,7 @@ kokorog2p uses Kokoro's 45-phoneme vocabulary:
 - Glides: `w j`
 
 ### Suprasegmentals
+
 - Primary stress: `ˈ`
 - Secondary stress: `ˌ`
 
@@ -84,5 +89,6 @@ Apache2 License - see [LICENSE](LICENSE) for details.
 ## Credits
 
 kokorog2p consolidates functionality from:
+
 - [misaki](https://github.com/hexgrad/misaki) - G2P engine for Kokoro TTS
 - [phonemizer](https://github.com/bootphon/phonemizer) - espeak-ng wrapper

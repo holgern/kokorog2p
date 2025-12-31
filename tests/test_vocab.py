@@ -1,26 +1,25 @@
 """Tests for the Kokoro vocabulary module."""
 
-import pytest
 from kokorog2p.vocab import (
-    get_vocab,
-    get_vocab_reverse,
-    get_config,
-    encode,
-    decode,
-    validate_for_kokoro,
-    filter_for_kokoro,
-    phonemes_to_ids,
-    ids_to_phonemes,
-    get_english_vocab,
-    is_valid_english_phoneme,
-    vocab_size,
-    list_tokens,
+    GB_ENGLISH_PHONEMES,
     N_TOKENS,
     PAD_IDX,
+    PUNCTUATION,
     UNK_IDX,
     US_ENGLISH_PHONEMES,
-    GB_ENGLISH_PHONEMES,
-    PUNCTUATION,
+    decode,
+    encode,
+    filter_for_kokoro,
+    get_config,
+    get_english_vocab,
+    get_vocab,
+    get_vocab_reverse,
+    ids_to_phonemes,
+    is_valid_english_phoneme,
+    list_tokens,
+    phonemes_to_ids,
+    validate_for_kokoro,
+    vocab_size,
 )
 
 

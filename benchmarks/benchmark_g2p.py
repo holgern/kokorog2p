@@ -10,12 +10,11 @@ Run with: python -m kokorog2p.benchmarks.benchmark_g2p
 """
 
 import json
-import time
 import random
-import statistics
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+import time
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 
 @dataclass
@@ -342,8 +341,8 @@ def run_all_benchmarks(
 
     # Import kokorog2p components
     print("\nInitializing G2P components...")
-    from kokorog2p.en.lexicon import Lexicon
     from kokorog2p.en import EnglishG2P
+    from kokorog2p.en.lexicon import Lexicon
     from kokorog2p.phonemes import US_VOCAB
 
     lexicon = Lexicon(british=False)

@@ -1,11 +1,11 @@
 """English G2P (Grapheme-to-Phoneme) converter."""
 
-from typing import Callable, List, Optional, Union
+from typing import List, Optional
 
 from kokorog2p.base import G2PBase
-from kokorog2p.token import GToken
-from kokorog2p.en.lexicon import Lexicon, TokenContext
 from kokorog2p.en.fallback import EspeakFallback
+from kokorog2p.en.lexicon import Lexicon, TokenContext
+from kokorog2p.token import GToken
 
 
 class EnglishG2P(G2PBase):
@@ -213,7 +213,7 @@ class EnglishG2P(G2PBase):
         self, ctx: TokenContext, phonemes: Optional[str], token: GToken
     ) -> TokenContext:
         """Update context based on processed token."""
-        from kokorog2p.en.lexicon import VOWELS, CONSONANTS
+        from kokorog2p.en.lexicon import CONSONANTS, VOWELS
 
         non_quote_puncts = frozenset(";:,.!?—…")
 

@@ -1,6 +1,5 @@
 """Tests for the GToken dataclass."""
 
-import pytest
 from kokorog2p.token import GToken
 
 

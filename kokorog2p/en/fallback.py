@@ -15,7 +15,7 @@ class EspeakFallback:
             british: Whether to use British English.
         """
         self.british = british
-        self._backend: Optional["EspeakBackend"] = None  # Lazy init  # noqa: F821
+        self._backend: Optional[EspeakBackend] = None  # Lazy init  # noqa: F821
 
     @property
     def backend(self) -> "EspeakBackend":  # noqa: F821
