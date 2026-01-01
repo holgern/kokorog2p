@@ -1,20 +1,33 @@
 """kokorog2p - Unified G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 
 This library provides grapheme-to-phoneme conversion for text-to-speech
-applications, with a focus on high-quality English pronunciation.
+applications, supporting multiple languages including English, German, French,
+Czech, Chinese, and Japanese.
+
+Supported Languages:
+    - English (US/GB): 100k+ dictionary, POS tagging, stress assignment
+    - German: 738k+ dictionary, phonological rules, number handling
+    - French: Gold dictionary, liaison rules, espeak fallback
+    - Czech: Rule-based phonology
+    - Chinese: pypinyin with tone sandhi
+    - Japanese: pyopenjtalk with mora-based phonemes
 
 Example:
     >>> from kokorog2p import phonemize, get_g2p
-    >>> # Simple usage
-    >>> phonemize("Hello world!")
+    >>> # English
+    >>> phonemize("Hello world!", language="en-us")
     'hˈɛlO wˈɜɹld!'
-    >>> # Full control
-    >>> g2p = get_g2p("en-us")
-    >>> tokens = g2p("Hello world!")
+    >>> # German
+    >>> phonemize("Guten Tag!", language="de")
+    'ɡuːtn̩ taːk!'
+    >>> # French
+    >>> phonemize("Bonjour!", language="fr")
+    'bɔ̃ʒuʁ!'
+    >>> # Full control with tokens
+    >>> g2p = get_g2p("de")
+    >>> tokens = g2p("Das Wetter ist schön.")
     >>> for token in tokens:
     ...     print(f"{token.text} -> {token.phonemes}")
-    >>> # Using goruut backend instead of espeak
-    >>> phonemize("Hello world!", backend="goruut")
 """
 
 from typing import Any, Literal, Optional, Union
