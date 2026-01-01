@@ -89,6 +89,35 @@ FROM_ESPEAK: Final[list[tuple[str, str]]] = sorted(
 )
 
 # =============================================================================
+# IPA to Kokoro Mappings (for goruut conversion)
+# =============================================================================
+
+# Goruut to Kokoro phoneme mappings
+# Goruut outputs standard IPA without tie characters for diphthongs/affricates
+_GORUUT_MAPPINGS: Final[dict[str, str]] = {
+    # Diphthongs (no tie character in goruut output)
+    "eɪ": "A",  # eɪ -> A (ay sound, as in "say")
+    "aɪ": "I",  # aɪ -> I (eye sound, as in "my")
+    "aʊ": "W",  # aʊ -> W (ow sound, as in "now")
+    "ɔɪ": "Y",  # ɔɪ -> Y (oy sound, as in "boy")
+    "oʊ": "O",  # oʊ -> O (oh sound US, as in "go")
+    "əʊ": "Q",  # əʊ -> Q (oh sound GB, as in "go")
+    # Affricates (no tie character in goruut output)
+    "tʃ": "ʧ",  # tʃ -> ʧ (ch sound)
+    "dʒ": "ʤ",  # dʒ -> ʤ (j sound)
+    # Consonants
+    "g": "ɡ",  # ASCII g (U+0067) -> IPA ɡ (U+0261)
+    "r": "ɹ",  # r -> ɹ
+    # Vowels
+    "ɐ": "ə",  # near-open central -> schwa
+}
+
+# Pre-sorted mappings for replacement (longest first)
+FROM_GORUUT: Final[list[tuple[str, str]]] = sorted(
+    _GORUUT_MAPPINGS.items(), key=lambda kv: -len(kv[0])
+)
+
+# =============================================================================
 # Kokoro to IPA Mappings (for external use)
 # =============================================================================
 
@@ -163,6 +192,44 @@ def from_espeak(phonemes: str, british: bool = False) -> str:
 
     # Remove tie characters (both Unicode and ASCII)
     result = result.replace("͡", "").replace("^", "")
+
+    return result
+
+
+def from_goruut(phonemes: str, british: bool = False) -> str:
+    """
+    Convert goruut/pygoruut IPA output to Kokoro phonemes.
+
+    Goruut outputs standard IPA without tie characters for diphthongs
+    and affricates, which requires different handling than espeak.
+
+    Args:
+        phonemes: The goruut phoneme string (standard IPA).
+        british: Whether to use British English mappings.
+
+    Returns:
+        Kokoro-compatible phoneme string.
+
+    Example:
+        >>> from_goruut("həlˈoʊ wˈɜɹld", british=False)
+        'həlˈO wˈɜɹld'
+        >>> from_goruut("sˈeɪ", british=False)
+        'sˈA'
+    """
+    result = phonemes
+
+    # Apply standard mappings (longest first to handle diphthongs before monophthongs)
+    for old, new in FROM_GORUUT:
+        result = result.replace(old, new)
+
+    # Apply dialect-specific mappings
+    if british:
+        # British uses Q for GOAT vowel, already handled in FROM_GORUUT
+        # Keep length marks for British
+        pass
+    else:
+        # US English: remove length marks
+        result = result.replace("ː", "")
 
     return result
 

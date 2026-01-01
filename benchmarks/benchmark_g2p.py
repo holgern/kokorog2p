@@ -295,22 +295,25 @@ def benchmark_encoding(
     )
 
 
-def benchmark_espeak_accuracy(
-    fallback,
+def benchmark_backend_accuracy(
+    backend,
     words: list[str],
     expected: dict[str, str],
-    name: str = "Espeak Accuracy",
+    name: str = "Backend Accuracy",
+    is_fallback: bool = True,
 ) -> BenchmarkResult:
-    """Benchmark espeak fallback accuracy against dictionary.
+    """Benchmark backend accuracy against dictionary.
 
-    This tests espeak phonemization WITHOUT using the gold/silver dictionaries,
-    comparing the espeak output directly against the expected dictionary values.
+    This tests backend phonemization WITHOUT using the gold/silver dictionaries,
+    comparing the backend output directly against the expected dictionary values.
 
     Args:
-        fallback: The EspeakFallback instance to test.
+        backend: The backend instance to test (EspeakFallback, GoruutBackend, etc.).
         words: List of words to convert.
         expected: Dictionary of expected phonemes (gold or silver).
         name: Name for this benchmark.
+        is_fallback: If True, backend returns (phonemes, rating) tuple when called.
+                    If False, backend has word_phonemes() method.
 
     Returns:
         BenchmarkResult with timing and accuracy data.
@@ -322,7 +325,13 @@ def benchmark_espeak_accuracy(
     start_time = time.perf_counter()
 
     for word in words:
-        ps, rating = fallback(word)
+        if is_fallback:
+            # Fallback-style: callable returning (phonemes, rating)
+            ps, _rating = backend(word)
+        else:
+            # Backend-style: has word_phonemes() method
+            ps = backend.word_phonemes(word)
+
         expected_ps = expected.get(word)
 
         if ps == expected_ps:
@@ -486,6 +495,19 @@ def run_all_benchmarks(
     # Initialize espeak fallback for accuracy testing (without dictionary)
     espeak_fallback = EspeakFallback(british=False)
 
+    # Try to initialize goruut backend (optional)
+    goruut_backend = None
+    try:
+        from kokorog2p.backends.goruut import GoruutBackend
+
+        if GoruutBackend.is_available():
+            goruut_backend = GoruutBackend(language="en-us")
+            print("Goruut backend loaded successfully.")
+        else:
+            print("Goruut backend not available (pygoruut not installed).")
+    except ImportError as e:
+        print(f"Goruut backend not available: {e}")
+
     # Try to initialize torch fallback (optional)
     torch_fallback = None
     try:
@@ -500,47 +522,74 @@ def run_all_benchmarks(
     print("\nRunning benchmarks...\n")
 
     # Benchmark 1: Espeak accuracy on gold dictionary (no dictionary lookup)
-    result = benchmark_espeak_accuracy(
+    result = benchmark_backend_accuracy(
         espeak_fallback,
         us_gold_words[: min(1000, len(us_gold_words))],
         us_gold,
         name="US Gold - Espeak Only Accuracy",
+        is_fallback=True,
     )
     results.append(result)
     _print_result_with_errors(result, verbose)
 
     # Benchmark 2: Espeak accuracy on silver dictionary (no dictionary lookup)
-    result = benchmark_espeak_accuracy(
+    result = benchmark_backend_accuracy(
         espeak_fallback,
         us_silver_words[: min(1000, len(us_silver_words))],
         us_silver,
         name="US Silver - Espeak Only Accuracy",
+        is_fallback=True,
     )
     results.append(result)
     _print_result_with_errors(result, verbose)
 
     # Benchmark 3: Torch fallback accuracy on gold dictionary (if available)
     if torch_fallback is not None:
-        result = benchmark_espeak_accuracy(
+        result = benchmark_backend_accuracy(
             torch_fallback,
             us_gold_words[: min(1000, len(us_gold_words))],
             us_gold,
             name="US Gold - Torch Only Accuracy",
+            is_fallback=True,
         )
         results.append(result)
         _print_result_with_errors(result, verbose)
 
         # Benchmark 4: Torch fallback accuracy on silver dictionary
-        result = benchmark_espeak_accuracy(
+        result = benchmark_backend_accuracy(
             torch_fallback,
             us_silver_words[: min(1000, len(us_silver_words))],
             us_silver,
             name="US Silver - Torch Only Accuracy",
+            is_fallback=True,
         )
         results.append(result)
         _print_result_with_errors(result, verbose)
 
-    # Benchmark 5: Full G2P on gold dictionary (with dictionary, without spaCy)
+    # Benchmark 5: Goruut accuracy on gold dictionary (if available)
+    if goruut_backend is not None:
+        result = benchmark_backend_accuracy(
+            goruut_backend,
+            us_gold_words[: min(1000, len(us_gold_words))],
+            us_gold,
+            name="US Gold - Goruut Only Accuracy",
+            is_fallback=False,
+        )
+        results.append(result)
+        _print_result_with_errors(result, verbose)
+
+        # Benchmark 6: Goruut accuracy on silver dictionary
+        result = benchmark_backend_accuracy(
+            goruut_backend,
+            us_silver_words[: min(1000, len(us_silver_words))],
+            us_silver,
+            name="US Silver - Goruut Only Accuracy",
+            is_fallback=False,
+        )
+        results.append(result)
+        _print_result_with_errors(result, verbose)
+
+    # Benchmark 7: Full G2P on gold dictionary (with dictionary, without spaCy)
     result = benchmark_g2p_conversion(
         g2p_no_spacy,
         us_gold_words[: min(1000, len(us_gold_words))],
@@ -551,7 +600,7 @@ def run_all_benchmarks(
     if verbose:
         print(result)
 
-    # Benchmark 4: Vocabulary validation
+    # Benchmark 8: Vocabulary validation
     result = benchmark_vocab_validation(
         us_gold, US_VOCAB, name="US Gold - Vocab Validation"
     )
@@ -559,7 +608,7 @@ def run_all_benchmarks(
     if verbose:
         print(result)
 
-    # Benchmark 5: Encoding validation
+    # Benchmark 9: Encoding validation
     result = benchmark_encoding(
         {k: us_gold[k] for k in us_gold_words}, name="US Gold - Kokoro Encoding"
     )
@@ -567,7 +616,7 @@ def run_all_benchmarks(
     if verbose:
         print(result)
 
-    # Benchmark 6: Sentence throughput
+    # Benchmark 10: Sentence throughput (espeak backend)
     sample_sentences = [
         "The quick brown fox jumps over the lazy dog.",
         "Hello world, how are you doing today?",
@@ -577,11 +626,24 @@ def run_all_benchmarks(
     ] * 200  # 1000 sentences
 
     result = benchmark_sentence_throughput(
-        g2p_no_spacy, sample_sentences, name="Sentence Throughput (no spaCy)"
+        g2p_no_spacy, sample_sentences, name="Sentence Throughput (espeak, no spaCy)"
     )
     results.append(result)
     if verbose:
         print(result)
+
+    # Benchmark 11: Sentence throughput with goruut backend (if available)
+    if goruut_backend is not None:
+        from kokorog2p.goruut_g2p import GoruutOnlyG2P
+
+        g2p_goruut = GoruutOnlyG2P(language="en-us")
+
+        result = benchmark_sentence_throughput(
+            g2p_goruut, sample_sentences, name="Sentence Throughput (goruut, no spaCy)"
+        )
+        results.append(result)
+        if verbose:
+            print(result)
 
     # Summary
     if verbose:

@@ -13,9 +13,11 @@ Example:
     >>> tokens = g2p("Hello world!")
     >>> for token in tokens:
     ...     print(f"{token.text} -> {token.phonemes}")
+    >>> # Using goruut backend instead of espeak
+    >>> phonemize("Hello world!", backend="goruut")
 """
 
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 # Core classes
 from kokorog2p.token import GToken
@@ -24,6 +26,7 @@ from kokorog2p.phonemes import (
     US_VOCAB,
     GB_VOCAB,
     from_espeak,
+    from_goruut,
     to_espeak,
     validate_phonemes,
     get_vocab,
@@ -74,11 +77,15 @@ except ImportError:
 # Lazy imports for optional dependencies
 _g2p_cache: dict[str, G2PBase] = {}
 
+# Backend type hint
+BackendType = Literal["espeak", "goruut"]
+
 
 def get_g2p(
     language: str = "en-us",
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
+    backend: BackendType = "espeak",
     **kwargs,
 ) -> G2PBase:
     """Get a G2P instance for the specified language.
@@ -88,8 +95,12 @@ def get_g2p(
 
     Args:
         language: Language code (e.g., 'en-us', 'en-gb', 'zh', 'ja', 'fr', etc.).
-        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words.
-        use_spacy: Whether to use spaCy for tokenization and POS tagging.
+        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words
+            (only applies when backend="espeak").
+        use_spacy: Whether to use spaCy for tokenization and POS tagging
+            (only applies to English).
+        backend: Phonemization backend to use: "espeak" (default) or "goruut".
+            The goruut backend requires pygoruut to be installed.
         **kwargs: Additional arguments passed to the G2P constructor.
 
     Returns:
@@ -97,6 +108,7 @@ def get_g2p(
 
     Raises:
         ValueError: If the language is not supported and no fallback is available.
+        ImportError: If backend="goruut" but pygoruut is not installed.
 
     Example:
         >>> g2p = get_g2p("en-us")
@@ -107,18 +119,26 @@ def get_g2p(
         >>> g2p_ja = get_g2p("ja")
         >>> # French (uses espeak fallback)
         >>> g2p_fr = get_g2p("fr")
+        >>> # Using goruut backend
+        >>> g2p_goruut = get_g2p("en-us", backend="goruut")
     """
     # Normalize language code
     lang = language.lower().replace("_", "-")
 
     # Check cache
-    cache_key = f"{lang}:{use_espeak_fallback}:{use_spacy}"
+    cache_key = f"{lang}:{use_espeak_fallback}:{use_spacy}:{backend}"
     if cache_key in _g2p_cache:
         return _g2p_cache[cache_key]
 
-    # Create G2P instance based on language
+    # Create G2P instance based on language and backend
     g2p: G2PBase
-    if lang.startswith("en"):
+
+    if backend == "goruut":
+        # Use goruut backend for all languages
+        from kokorog2p.goruut_g2p import GoruutOnlyG2P
+
+        g2p = GoruutOnlyG2P(language=language, **kwargs)
+    elif lang.startswith("en"):
         from kokorog2p.en import EnglishG2P
 
         g2p = EnglishG2P(
@@ -150,6 +170,7 @@ def phonemize(
     language: str = "en-us",
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
+    backend: BackendType = "espeak",
 ) -> str:
     """Convert text to phonemes.
 
@@ -159,8 +180,12 @@ def phonemize(
     Args:
         text: Input text to convert.
         language: Language code (e.g., 'en-us', 'en-gb').
-        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words.
-        use_spacy: Whether to use spaCy for tokenization and POS tagging.
+        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words
+            (only applies when backend="espeak").
+        use_spacy: Whether to use spaCy for tokenization and POS tagging
+            (only applies to English with espeak backend).
+        backend: Phonemization backend to use: "espeak" (default) or "goruut".
+            The goruut backend requires pygoruut to be installed.
 
     Returns:
         Phoneme string.
@@ -168,11 +193,15 @@ def phonemize(
     Example:
         >>> phonemize("Hello world!")
         'hˈɛlO wˈɜɹld!'
+        >>> # Using goruut backend
+        >>> phonemize("Hello world!", backend="goruut")
+        'həlˈO wˈɜɹld'
     """
     g2p = get_g2p(
         language=language,
         use_espeak_fallback=use_espeak_fallback,
         use_spacy=use_spacy,
+        backend=backend,
     )
     return g2p.phonemize(text)
 
@@ -182,14 +211,19 @@ def tokenize(
     language: str = "en-us",
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
+    backend: BackendType = "espeak",
 ) -> list[GToken]:
     """Convert text to a list of tokens with phonemes.
 
     Args:
         text: Input text to convert.
         language: Language code (e.g., 'en-us', 'en-gb').
-        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words.
-        use_spacy: Whether to use spaCy for tokenization and POS tagging.
+        use_espeak_fallback: Whether to use espeak for out-of-vocabulary words
+            (only applies when backend="espeak").
+        use_spacy: Whether to use spaCy for tokenization and POS tagging
+            (only applies to English with espeak backend).
+        backend: Phonemization backend to use: "espeak" (default) or "goruut".
+            The goruut backend requires pygoruut to be installed.
 
     Returns:
         List of GToken objects with phonemes assigned.
@@ -203,6 +237,7 @@ def tokenize(
         language=language,
         use_espeak_fallback=use_espeak_fallback,
         use_spacy=use_spacy,
+        backend=backend,
     )
     return g2p(text)
 
@@ -234,6 +269,7 @@ __all__ = [
     "VOWELS",
     "CONSONANTS",
     "from_espeak",
+    "from_goruut",
     "to_espeak",
     "validate_phonemes",
     "get_vocab",

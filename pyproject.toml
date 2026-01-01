@@ -47,6 +47,9 @@ espeak = [
     "espeakng-loader>=0.1.0",
     "dlinfo>=1.2.1",
 ]
+goruut = [
+    "pygoruut>=0.7.0",
+]
 en = [
     "spacy>=3.5.0",
     "num2words>=0.5.12",
@@ -70,7 +73,7 @@ ko = [
     "nltk>=3.8.1",
 ]
 all = [
-    "kokorog2p[espeak,en,zh,ja,ko]",
+    "kokorog2p[espeak,goruut,en,zh,ja,ko]",
 ]
 dev = [
     "pytest>=7.0.0",
