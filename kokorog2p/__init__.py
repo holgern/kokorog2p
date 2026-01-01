@@ -17,7 +17,7 @@ Example:
     >>> phonemize("Hello world!", backend="goruut")
 """
 
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 # Core classes
 from kokorog2p.token import GToken
@@ -86,7 +86,7 @@ def get_g2p(
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
     backend: BackendType = "espeak",
-    **kwargs,
+    **kwargs: Any,
 ) -> G2PBase:
     """Get a G2P instance for the specified language.
 

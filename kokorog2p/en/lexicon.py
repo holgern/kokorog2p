@@ -318,7 +318,7 @@ class Lexicon:
             rating = 3
 
         if isinstance(ps, dict):
-            if ctx and ctx.future_vowel is None and "None" in ps:
+            if ctx and ctx.future_vowel is None and "None" in ps:  # type: ignore[unreachable]
                 tag = "None"
             elif tag not in ps:
                 tag = self.get_parent_tag(tag)

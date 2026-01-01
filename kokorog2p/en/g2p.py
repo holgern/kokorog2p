@@ -64,7 +64,7 @@ class EnglishG2P(G2PBase):
 
             name = "en_core_web_sm"
             if not spacy.util.is_package(name):
-                spacy.cli.download(name)
+                spacy.cli.download(name)  # type: ignore[attr-defined]
             self._nlp = spacy.load(name, enable=["tok2vec", "tagger"])
         return self._nlp
 
@@ -131,7 +131,7 @@ class EnglishG2P(G2PBase):
         doc = self.nlp(text)  # type: ignore
         tokens: list[GToken] = []
 
-        for tk in doc:  # type: ignore
+        for tk in doc:
             token = GToken(
                 text=tk.text,
                 tag=tk.tag_,

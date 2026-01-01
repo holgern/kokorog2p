@@ -258,19 +258,17 @@ class FrenchLexicon:
             return (self.builtin[word_lower], 4)
 
         # Check gold dictionary
-        ps: str | None = self.golds.get(word)
-        if ps is None:
-            ps = self.golds.get(word_lower)
+        ps = self.golds.get(word) or self.golds.get(word_lower)
 
         if ps is None:
             return (None, None)
 
         # Handle heteronyms (dict entries)
         if isinstance(ps, dict):
-            if tag and tag in ps:
-                return (ps[tag], 4)
-            return (ps.get("DEFAULT", list(ps.values())[0]), 4)
-
+            if isinstance(ps, dict):
+                if tag and tag in ps:
+                    return (ps[tag], 4)
+                return (ps.get("DEFAULT", list(ps.values())[0]), 4)
         return (ps, 4)
 
     def expand_abbreviation(self, text: str) -> str:

@@ -1,6 +1,11 @@
 """Espeak fallback for OOV words with IPA to Kokoro conversion."""
 
+from typing import TYPE_CHECKING
+
 from kokorog2p.phonemes import from_espeak
+
+if TYPE_CHECKING:
+    from kokorog2p.backends.espeak import EspeakBackend
 
 
 class EspeakFallback:

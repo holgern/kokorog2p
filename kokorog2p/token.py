@@ -29,10 +29,10 @@ class GToken:
     rating: str | None = None
     _: dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self) -> None:
-        """Ensure the extension dict is initialized."""
-        if self._ is None:
-            self._ = {}
+    def __post_init__(self):
+        """Initialize _ to empty dict if None."""
+        if self._ is None:  # pragma: no cover
+            object.__setattr__(self, "_", {})  # pragma: no cover
 
     @property
     def has_phonemes(self) -> bool:

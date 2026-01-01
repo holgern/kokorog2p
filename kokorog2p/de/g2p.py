@@ -56,13 +56,13 @@ IPA: Final[dict[str, str]] = {
     "ih": "iː",
     "oh": "oː",
     # Diphthongs
-    "ei": "aɪ̯",
-    "ai": "aɪ̯",
-    "ey": "aɪ̯",
-    "ay": "aɪ̯",
-    "au": "aʊ̯",
-    "eu": "ɔʏ̯",
-    "äu": "ɔʏ̯",
+    "ei": "aɪ",
+    "ai": "aɪ",
+    "ey": "aɪ",
+    "ay": "aɪ",
+    "au": "aʊ",
+    "eu": "ɔʏ",
+    "äu": "ɔʏ",
     # Consonants
     "b": "b",
     "c": "k",
@@ -83,7 +83,7 @@ IPA: Final[dict[str, str]] = {
     "v": "f",  # Usually [f] in German
     "w": "v",
     "x": "ks",
-    "z": "t͡s",
+    "z": "ʦ",
     "ß": "s",
     # Digraphs and trigraphs
     "ch": "x",  # Default ach-Laut, ich-Laut handled by rule
@@ -92,16 +92,16 @@ IPA: Final[dict[str, str]] = {
     "ng": "ŋ",
     "nk": "ŋk",
     "ph": "f",
-    "pf": "p͡f",
+    "pf": "pf",
     "qu": "kv",
     "sch": "ʃ",
     "sp": "ʃp",  # Word-initial
     "st": "ʃt",  # Word-initial
     "ss": "s",
     "th": "t",
-    "tz": "t͡s",
-    "tsch": "t͡ʃ",
-    "dsch": "d͡ʒ",
+    "tz": "ʦ",
+    "tsch": "ʧ",
+    "dsch": "ʤ",
     "chs": "ks",
 }
 
@@ -129,6 +129,41 @@ def _is_front_vowel_context(prev_chars: str) -> bool:
     if prev_lower.endswith(("ei", "ai", "eu", "äu", "ie", "ey", "ay")):
         return True
     return False
+
+
+def normalize_to_kokoro(phonemes: str) -> str:
+    """Normalize German phonemes to Kokoro-compatible format.
+
+    Converts combining diacritics to precomposed characters that exist
+    in the Kokoro TTS vocabulary.
+
+    Args:
+        phonemes: IPA phoneme string potentially containing combining diacritics.
+
+    Returns:
+        Normalized phoneme string compatible with Kokoro vocab.
+    """
+    if not phonemes:
+        return phonemes
+
+    # Replace affricates with tie bars with precomposed versions
+    phonemes = phonemes.replace("t͡s", "ʦ")  # U+02A6
+    phonemes = phonemes.replace("t͡ʃ", "ʧ")  # U+02A7
+    phonemes = phonemes.replace("d͡ʒ", "ʤ")  # U+02A4
+    phonemes = phonemes.replace("p͡f", "pf")  # No precomposed, use sequence
+
+    # Remove non-syllabic markers from diphthongs (U+032F)
+    # The diphthongs work without this marker in Kokoro
+    phonemes = phonemes.replace("\u032f", "")  # COMBINING INVERTED BREVE BELOW
+
+    # Remove syllabic consonant marker (U+0329)
+    # Syllabic consonants like n̩, l̩, m̩ work without this marker in Kokoro
+    phonemes = phonemes.replace("\u0329", "")  # COMBINING VERTICAL LINE BELOW
+
+    # Replace IPA characters not in Kokoro vocab with closest equivalents
+    phonemes = phonemes.replace("ʏ", "y")  # LATIN SMALL CAPITAL Y -> lowercase y
+
+    return phonemes
 
 
 class GermanG2P(G2PBase):
@@ -217,20 +252,20 @@ class GermanG2P(G2PBase):
                 if self._lexicon:
                     phonemes = self._lexicon.lookup(word)
                     if phonemes:
-                        token.phonemes = phonemes
+                        token.phonemes = normalize_to_kokoro(phonemes)
                         token.set("rating", 5)  # Dictionary lookup = highest rating
 
                 # Fallback to rules
                 if not phonemes:
                     phonemes = self._word_to_phonemes(word)
                     if phonemes:
-                        token.phonemes = phonemes
+                        token.phonemes = normalize_to_kokoro(phonemes)
                         token.set("rating", 3)  # Rule-based
 
                 # Fallback to espeak
                 if not phonemes and self._espeak:
                     phonemes = self._espeak.phonemize(word)
-                    token.phonemes = phonemes
+                    token.phonemes = normalize_to_kokoro(phonemes)
                     token.set("rating", 2)  # Espeak fallback
 
                 if not phonemes:
@@ -499,9 +534,9 @@ class GermanG2P(G2PBase):
                 "œ",
                 "ə",
                 "ɐ",
-                "aɪ̯",
-                "aʊ̯",
-                "ɔʏ̯",
+                "aɪ",
+                "aʊ",
+                "ɔʏ",
             ]
         )
 
@@ -522,8 +557,13 @@ class GermanG2P(G2PBase):
 
     @staticmethod
     def _get_punct_phonemes(text: str) -> str:
-        """Get phonemes for punctuation tokens."""
-        puncts = frozenset(";:,.!?-\"'()[]")
+        """Get phonemes for punctuation tokens.
+
+        Only includes punctuation that exists in the Kokoro vocabulary.
+        """
+        # Punctuation marks that exist in Kokoro vocab
+        # See kokorog2p/data/kokoro_config.json
+        puncts = frozenset(';:,.!?"()')
         return "".join(c for c in text if c in puncts)
 
     def lookup(self, word: str, tag: str | None = None) -> str | None:

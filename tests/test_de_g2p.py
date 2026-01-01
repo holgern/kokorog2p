@@ -102,14 +102,16 @@ class TestGermanG2P:
         assert "aɪ̯" in result or "aɪ" in result
 
     def test_diphthong_au(self, g2p_no_lexicon):
-        """Test au diphthong -> [aʊ̯]."""
+        """Test au diphthong -> [aʊ] (normalized from aʊ̯)."""
         result = g2p_no_lexicon.phonemize("Haus")
-        assert "aʊ̯" in result or "aʊ" in result
+        # After Kokoro normalization: aʊ̯ -> aʊ (combining marker removed)
+        assert "aʊ" in result
 
     def test_diphthong_eu(self, g2p_no_lexicon):
-        """Test eu/äu diphthong -> [ɔʏ̯]."""
+        """Test eu/äu diphthong -> [ɔʏ] (normalized from ɔʏ̯)."""
         result = g2p_no_lexicon.phonemize("neu")
-        assert "ɔʏ̯" in result or "ɔʏ" in result
+        # After Kokoro normalization: ɔʏ̯ -> ɔy (ʏ also normalized to y)
+        assert "ɔy" in result
 
     def test_umlaut_ae(self, g2p_no_lexicon):
         """Test ä vowel."""
@@ -132,14 +134,16 @@ class TestGermanG2P:
         assert "s" in result
 
     def test_pf_affricate(self, g2p_no_lexicon):
-        """Test pf affricate -> [p͡f]."""
+        """Test pf affricate -> [pf] (no precomposed version in Kokoro)."""
         result = g2p_no_lexicon.phonemize("Pferd")
-        assert "p͡f" in result or "pf" in result
+        # After Kokoro normalization: p͡f -> pf (tie bar removed)
+        assert "pf" in result
 
     def test_z_affricate(self, g2p_no_lexicon):
-        """Test z -> [t͡s]."""
+        """Test z -> [ʦ] (precomposed affricate, normalized from t͡s)."""
         result = g2p_no_lexicon.phonemize("Zeit")
-        assert "t͡s" in result or "ts" in result
+        # After Kokoro normalization: t͡s -> ʦ (U+02A6)
+        assert "ʦ" in result
 
     def test_schwa_in_unstressed_e(self, g2p_no_lexicon):
         """Test schwa in unstressed -e endings."""
