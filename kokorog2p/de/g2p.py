@@ -1,0 +1,553 @@
+"""German G2P (Grapheme-to-Phoneme) converter.
+
+Grapheme to Phoneme for German language using dictionary lookup
+with rule-based fallback.
+
+German Phonology features:
+- Final obstruent devoicing (Auslautverhärtung)
+- Vowel length distinction
+- Umlauts (ä, ö, ü)
+- ß (Eszett)
+- CH as [ç] or [x] depending on context (ich-Laut vs ach-Laut)
+- Voicing assimilation in consonant clusters
+- Schwa in unstressed syllables
+
+Reference:
+https://en.wikipedia.org/wiki/Standard_German_phonology
+"""
+
+import re
+from typing import TYPE_CHECKING, Final, Optional
+
+from kokorog2p.base import G2PBase
+from kokorog2p.token import GToken
+
+if TYPE_CHECKING:
+    from kokorog2p.de.lexicon import GermanLexicon
+
+# =============================================================================
+# German Phoneme Mappings
+# =============================================================================
+
+# Basic IPA mappings for German graphemes
+# Note: Many mappings are context-dependent and handled by rules
+IPA: Final[dict[str, str]] = {
+    # Vowels - short
+    "a": "a",
+    "e": "ɛ",
+    "i": "ɪ",
+    "o": "ɔ",
+    "u": "ʊ",
+    "ä": "ɛ",
+    "ö": "œ",
+    "ü": "ʏ",
+    "y": "ʏ",
+    # Vowels - long (marked with doubling or followed by h/single consonant)
+    "aa": "aː",
+    "ee": "eː",
+    "ie": "iː",
+    "oo": "oː",
+    "uh": "uː",
+    "äh": "ɛː",
+    "öh": "øː",
+    "üh": "yː",
+    "ah": "aː",
+    "eh": "eː",
+    "ih": "iː",
+    "oh": "oː",
+    # Diphthongs
+    "ei": "aɪ̯",
+    "ai": "aɪ̯",
+    "ey": "aɪ̯",
+    "ay": "aɪ̯",
+    "au": "aʊ̯",
+    "eu": "ɔʏ̯",
+    "äu": "ɔʏ̯",
+    # Consonants
+    "b": "b",
+    "c": "k",
+    "d": "d",
+    "f": "f",
+    "g": "ɡ",
+    "h": "h",
+    "j": "j",
+    "k": "k",
+    "l": "l",
+    "m": "m",
+    "n": "n",
+    "p": "p",
+    "q": "k",
+    "r": "ʁ",
+    "s": "z",  # Default voiced, devoiced in certain contexts
+    "t": "t",
+    "v": "f",  # Usually [f] in German
+    "w": "v",
+    "x": "ks",
+    "z": "t͡s",
+    "ß": "s",
+    # Digraphs and trigraphs
+    "ch": "x",  # Default ach-Laut, ich-Laut handled by rule
+    "ck": "k",
+    "dt": "t",
+    "ng": "ŋ",
+    "nk": "ŋk",
+    "ph": "f",
+    "pf": "p͡f",
+    "qu": "kv",
+    "sch": "ʃ",
+    "sp": "ʃp",  # Word-initial
+    "st": "ʃt",  # Word-initial
+    "ss": "s",
+    "th": "t",
+    "tz": "t͡s",
+    "tsch": "t͡ʃ",
+    "dsch": "d͡ʒ",
+    "chs": "ks",
+}
+
+# Voiced-unvoiced consonant pairs for final devoicing
+VOICED_TO_UNVOICED: Final[dict[str, str]] = {
+    "b": "p",
+    "d": "t",
+    "g": "k",
+    "ɡ": "k",  # IPA g (U+0261)
+    "v": "f",
+    "z": "s",
+    "ʒ": "ʃ",
+}
+
+
+def _is_front_vowel_context(prev_chars: str) -> bool:
+    """Check if the previous character(s) form a front vowel context for ich-Laut."""
+    prev_lower = prev_chars.lower()
+    # Check for front vowels and consonants l, n, r
+    if prev_lower in ("i", "e", "ä", "ö", "ü", "y"):
+        return True
+    if prev_lower in ("l", "n", "r"):
+        return True
+    # Check for diphthongs ending in front vowel
+    if prev_lower.endswith(("ei", "ai", "eu", "äu", "ie", "ey", "ay")):
+        return True
+    return False
+
+
+class GermanG2P(G2PBase):
+    """German G2P converter using dictionary lookup with rule-based fallback.
+
+    This class provides grapheme-to-phoneme conversion for German text
+    using a large dictionary (738k+ entries) with fallback to phonological
+    rules for final devoicing, ich/ach-Laut alternation, and other
+    German-specific features.
+
+    Example:
+        >>> g2p = GermanG2P()
+        >>> tokens = g2p("Guten Tag")
+        >>> for token in tokens:
+        ...     print(f"{token.text} -> {token.phonemes}")
+    """
+
+    def __init__(
+        self,
+        language: str = "de-de",
+        use_espeak_fallback: bool = True,
+        use_lexicon: bool = True,
+        strip_stress: bool = True,
+    ) -> None:
+        """Initialize the German G2P converter.
+
+        Args:
+            language: Language code (default: 'de-de').
+            use_espeak_fallback: Whether to use espeak for OOV words.
+            use_lexicon: Whether to use dictionary lookup (default: True).
+            strip_stress: Whether to remove stress markers from lexicon output.
+        """
+        super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
+        self._lexicon: Optional[GermanLexicon] = None
+        self._espeak = None
+        self._strip_stress = strip_stress
+
+        if use_lexicon:
+            try:
+                from kokorog2p.de.lexicon import GermanLexicon
+
+                self._lexicon = GermanLexicon(strip_stress=strip_stress)
+            except ImportError:
+                pass
+
+        if use_espeak_fallback:
+            try:
+                from kokorog2p.backends.espeak import EspeakBackend
+
+                self._espeak = EspeakBackend(language="de")
+            except ImportError:
+                pass
+
+    def __call__(self, text: str) -> list[GToken]:
+        """Convert text to a list of tokens with phonemes.
+
+        Args:
+            text: Input text to convert.
+
+        Returns:
+            List of GToken objects with phonemes assigned.
+        """
+        if not text or not text.strip():
+            return []
+
+        tokens: list[GToken] = []
+
+        # Tokenize by whitespace and punctuation
+        for match in re.finditer(r"(\w+|[^\w\s]+|\s+)", text, re.UNICODE):
+            word = match.group()
+
+            if word.isspace():
+                if tokens:
+                    tokens[-1].whitespace = word
+                continue
+
+            token = GToken(text=word, tag="", whitespace="")
+
+            # Handle punctuation
+            if not any(c.isalnum() for c in word):
+                token.phonemes = self._get_punct_phonemes(word)
+                token.set("rating", 4)
+            else:
+                # Try lexicon first
+                phonemes = None
+                if self._lexicon:
+                    phonemes = self._lexicon.lookup(word)
+                    if phonemes:
+                        token.phonemes = phonemes
+                        token.set("rating", 5)  # Dictionary lookup = highest rating
+
+                # Fallback to rules
+                if not phonemes:
+                    phonemes = self._word_to_phonemes(word)
+                    if phonemes:
+                        token.phonemes = phonemes
+                        token.set("rating", 3)  # Rule-based
+
+                # Fallback to espeak
+                if not phonemes and self._espeak:
+                    phonemes = self._espeak.phonemize(word)
+                    token.phonemes = phonemes
+                    token.set("rating", 2)  # Espeak fallback
+
+                if not phonemes:
+                    token.phonemes = "?"
+                    token.set("rating", 0)
+
+            tokens.append(token)
+
+        return tokens
+
+    def _word_to_phonemes(self, word: str) -> str:
+        """Convert a single word to phonemes using German rules.
+
+        Args:
+            word: Word to convert.
+
+        Returns:
+            Phoneme string in IPA.
+        """
+        text = word.lower()
+        result: list[str] = []
+        i = 0
+        n = len(text)
+
+        while i < n:
+            matched = False
+
+            # Try to match multi-character sequences first (longest match)
+            for length in (4, 3, 2):
+                if i + length <= n:
+                    chunk = text[i : i + length]
+
+                    # Special handling for 'ch'
+                    if chunk == "ch" and length == 2:
+                        # ich-Laut vs ach-Laut
+                        if i == 0:
+                            # Word-initial ch (loan words) -> [ç] or [k]
+                            result.append("ç")
+                        elif i > 0 and _is_front_vowel_context(text[i - 1]):
+                            # After front vowels and l, n, r -> ich-Laut [ç]
+                            result.append("ç")
+                        else:
+                            # After back vowels a, o, u, au -> ach-Laut [x]
+                            result.append("x")
+                        i += 2
+                        matched = True
+                        break
+
+                    # Special handling for word-initial sp, st
+                    if chunk in ("sp", "st") and length == 2:
+                        if i == 0:
+                            # Word-initial sp/st -> [ʃp]/[ʃt]
+                            result.append("ʃ")
+                            result.append(chunk[1])
+                            i += 2
+                            matched = True
+                            break
+                        # Not word-initial, handle normally
+                        continue
+
+                    # Special handling for 'ig' at word end
+                    if chunk == "ig" and length == 2 and i + 2 == n:
+                        result.append("ɪ")
+                        result.append("ç")  # -ig -> [ɪç] at word end
+                        i += 2
+                        matched = True
+                        break
+
+                    # Check if chunk is in IPA mappings
+                    if chunk in IPA:
+                        result.append(IPA[chunk])
+                        i += length
+                        matched = True
+                        break
+
+            if matched:
+                continue
+
+            # Single character
+            char = text[i]
+
+            # Special handling for vowels - check for length
+            if char in "aeiouäöü":
+                phoneme = self._get_vowel_phoneme(text, i)
+                result.append(phoneme)
+                i += 1
+                continue
+
+            # Special handling for 's'
+            if char == "s":
+                # Word-final or before unvoiced consonant -> [s]
+                if i == n - 1:
+                    result.append("s")
+                elif i + 1 < n and text[i + 1] in "ptk":
+                    result.append("s")
+                else:
+                    # Before vowel -> [z]
+                    result.append("z")
+                i += 1
+                continue
+
+            # Special handling for 'v'
+            if char == "v":
+                # In some loan words, 'v' is [v], but default is [f]
+                result.append("f")
+                i += 1
+                continue
+
+            # Special handling for 'r'
+            if char == "r":
+                # Vocalized r at end of syllable/word often becomes [ɐ]
+                # For simplicity, use [ʁ] everywhere
+                result.append("ʁ")
+                i += 1
+                continue
+
+            # Check IPA mapping
+            if char in IPA:
+                result.append(IPA[char])
+            elif char.isalpha():
+                # Unknown letter, keep as-is or use placeholder
+                result.append(char)
+            # Skip non-alphabetic characters
+
+            i += 1
+
+        # Apply final devoicing
+        result = self._apply_final_devoicing(result)
+
+        return "".join(result)
+
+    def _get_vowel_phoneme(self, text: str, pos: int) -> str:
+        """Determine the correct vowel phoneme based on context.
+
+        German vowel length is determined by syllable structure:
+        - Long in open syllables (single consonant + vowel follows)
+        - Long before single consonant at word end in many cases
+        - Short before consonant clusters
+        - Schwa (ə) in unstressed endings like -e, -en, -el, -er
+
+        Args:
+            text: The full word text.
+            pos: Position of the vowel in the word.
+
+        Returns:
+            IPA phoneme for the vowel.
+        """
+        char = text[pos]
+
+        # Short vowel mappings
+        short_vowels: dict[str, str] = {
+            "a": "a",
+            "e": "ɛ",
+            "i": "ɪ",
+            "o": "ɔ",
+            "u": "ʊ",
+            "ä": "ɛ",
+            "ö": "œ",
+            "ü": "ʏ",
+        }
+
+        # Long vowel mappings
+        long_vowels: dict[str, str] = {
+            "a": "aː",
+            "e": "eː",
+            "i": "iː",
+            "o": "oː",
+            "u": "uː",
+            "ä": "ɛː",
+            "ö": "øː",
+            "ü": "yː",
+        }
+
+        # Check what follows
+        remaining = text[pos + 1 :]
+
+        # Special handling for 'e' - check for schwa
+        if char == "e":
+            # Word-final -e -> schwa
+            if not remaining:
+                return "ə"
+            # -en, -el, -er at word end -> schwa
+            if remaining in ("n", "l", "r", "m", "ns", "ln", "rn", "ls", "rs"):
+                return "ə"
+            # -end, -ent, -ens at word end (but not stressed like 'Trend')
+            if remaining in ("nd", "nt", "ns") and pos > 0:
+                return "ə"
+
+        # Before 'h' + vowel or word end -> long
+        if remaining.startswith("h") and (
+            len(remaining) == 1 or remaining[1:2] in "aeiouäöü"
+        ):
+            return long_vowels.get(char, short_vowels.get(char, char))
+
+        # Word-final vowel -> usually short except in some words
+        if not remaining:
+            return short_vowels.get(char, char)
+
+        # Before single consonant at word end -> often long
+        if len(remaining) == 1 and remaining[0] in "bcdfghjklmnpqrstvwxz":
+            # Common pattern: V + single C at end = long vowel
+            return long_vowels.get(char, short_vowels.get(char, char))
+
+        # Before 'ch', 'ß' -> depends on word, often long
+        if remaining.startswith(("ch", "ß")):
+            return long_vowels.get(char, short_vowels.get(char, char))
+
+        # Before single consonant + vowel (open syllable) -> long
+        if (
+            len(remaining) >= 2
+            and remaining[0] in "bcdfghjklmnpqrstvwxz"
+            and remaining[0] not in "ck"  # ck indicates short vowel
+            and remaining[1] in "aeiouäöü"
+        ):
+            # But 'sch' is one sound, not cluster
+            if not remaining.startswith("sch"):
+                return long_vowels.get(char, short_vowels.get(char, char))
+
+        # Before consonant cluster -> short
+        if (
+            len(remaining) >= 2
+            and remaining[0] in "bcdfghjklmnpqrstvwxz"
+            and remaining[1] in "bcdfghjklmnpqrstvwxz"
+        ):
+            return short_vowels.get(char, char)
+
+        # Default to short
+        return short_vowels.get(char, char)
+
+    def _apply_final_devoicing(self, phonemes: list[str]) -> list[str]:
+        """Apply German final obstruent devoicing (Auslautverhärtung).
+
+        Only applies to the final consonant cluster of the word.
+
+        Args:
+            phonemes: List of phoneme strings.
+
+        Returns:
+            Modified list with final devoicing applied.
+        """
+        if not phonemes:
+            return phonemes
+
+        vowels = frozenset(
+            [
+                "a",
+                "aː",
+                "e",
+                "eː",
+                "ɛ",
+                "ɛː",
+                "i",
+                "iː",
+                "ɪ",
+                "o",
+                "oː",
+                "ɔ",
+                "u",
+                "uː",
+                "ʊ",
+                "y",
+                "yː",
+                "ʏ",
+                "ø",
+                "øː",
+                "œ",
+                "ə",
+                "ɐ",
+                "aɪ̯",
+                "aʊ̯",
+                "ɔʏ̯",
+            ]
+        )
+
+        # Find the last consonant cluster (after the last vowel)
+        last_vowel_idx = -1
+        for i in range(len(phonemes) - 1, -1, -1):
+            if phonemes[i] in vowels:
+                last_vowel_idx = i
+                break
+
+        # Devoice all voiced obstruents after the last vowel
+        for i in range(last_vowel_idx + 1, len(phonemes)):
+            phone = phonemes[i]
+            if phone in VOICED_TO_UNVOICED:
+                phonemes[i] = VOICED_TO_UNVOICED[phone]
+
+        return phonemes
+
+    @staticmethod
+    def _get_punct_phonemes(text: str) -> str:
+        """Get phonemes for punctuation tokens."""
+        puncts = frozenset(";:,.!?-\"'()[]")
+        return "".join(c for c in text if c in puncts)
+
+    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+        """Look up a word in the dictionary.
+
+        Args:
+            word: The word to look up.
+            tag: Optional POS tag (not used for German).
+
+        Returns:
+            Phoneme string if found, None otherwise.
+        """
+        if self._lexicon:
+            return self._lexicon.lookup(word)
+        return self._word_to_phonemes(word)
+
+    def phonemize(self, text: str) -> str:
+        """Convert text to a phoneme string.
+
+        Args:
+            text: Input text to convert.
+
+        Returns:
+            Phoneme string.
+        """
+        tokens = self(text)
+        return " ".join(t.phonemes or "" for t in tokens if t.phonemes)

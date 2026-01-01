@@ -1,0 +1,332 @@
+"""Tests for the German G2P module."""
+
+import pytest
+
+from kokorog2p.de import GermanG2P, GermanLexicon, GermanNumberConverter
+from kokorog2p.de.numbers import expand_number, number_to_german, ordinal_to_german
+from kokorog2p.token import GToken
+
+
+class TestGermanG2P:
+    """Tests for GermanG2P."""
+
+    @pytest.fixture
+    def g2p(self):
+        """Create a German G2P instance."""
+        return GermanG2P()
+
+    @pytest.fixture
+    def g2p_no_lexicon(self):
+        """Create a German G2P instance without lexicon."""
+        return GermanG2P(use_lexicon=False, use_espeak_fallback=False)
+
+    def test_creation(self, g2p):
+        """Test G2P creation."""
+        assert g2p.language == "de-de"
+
+    def test_call_returns_tokens(self, g2p):
+        """Test calling G2P returns list of tokens."""
+        tokens = g2p("Guten Tag")
+        assert isinstance(tokens, list)
+        assert all(isinstance(t, GToken) for t in tokens)
+
+    def test_empty_input(self, g2p):
+        """Test empty input returns empty list."""
+        tokens = g2p("")
+        assert tokens == []
+
+        tokens2 = g2p("   ")
+        assert tokens2 == []
+
+    def test_phonemize_method(self, g2p):
+        """Test phonemize method returns string."""
+        result = g2p.phonemize("Hallo")
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_lookup_method(self, g2p):
+        """Test lookup method."""
+        ps = g2p.lookup("Haus")
+        assert ps is not None
+        assert isinstance(ps, str)
+
+    def test_repr(self, g2p):
+        """Test string representation."""
+        result = repr(g2p)
+        assert "GermanG2P" in result
+        assert "de-de" in result
+
+    # German-specific phonological tests (rule-based)
+
+    def test_ch_ich_laut(self, g2p_no_lexicon):
+        """Test ich-Laut [ç] after front vowels."""
+        # ich -> [ɪç]
+        result = g2p_no_lexicon.phonemize("ich")
+        assert "ç" in result
+
+    def test_ch_ach_laut(self, g2p_no_lexicon):
+        """Test ach-Laut [x] after back vowels."""
+        # Buch -> [x]
+        result = g2p_no_lexicon.phonemize("Buch")
+        assert "x" in result
+
+    def test_sch_digraph(self, g2p_no_lexicon):
+        """Test sch digraph -> [ʃ]."""
+        result = g2p_no_lexicon.phonemize("Schule")
+        assert "ʃ" in result
+
+    def test_word_initial_sp(self, g2p_no_lexicon):
+        """Test word-initial sp -> [ʃp]."""
+        result = g2p_no_lexicon.phonemize("Sport")
+        assert "ʃ" in result
+
+    def test_word_initial_st(self, g2p_no_lexicon):
+        """Test word-initial st -> [ʃt]."""
+        result = g2p_no_lexicon.phonemize("Stadt")
+        assert "ʃ" in result
+
+    def test_word_final_ig(self, g2p_no_lexicon):
+        """Test word-final -ig -> [ɪç]."""
+        result = g2p_no_lexicon.phonemize("richtig")
+        assert "ç" in result
+
+    def test_final_devoicing(self, g2p_no_lexicon):
+        """Test final obstruent devoicing."""
+        # Tag -> final g devoices to k
+        result = g2p_no_lexicon.phonemize("Tag")
+        assert result.endswith("k")
+
+    def test_diphthong_ei(self, g2p_no_lexicon):
+        """Test ei diphthong -> [aɪ̯]."""
+        result = g2p_no_lexicon.phonemize("mein")
+        assert "aɪ̯" in result or "aɪ" in result
+
+    def test_diphthong_au(self, g2p_no_lexicon):
+        """Test au diphthong -> [aʊ̯]."""
+        result = g2p_no_lexicon.phonemize("Haus")
+        assert "aʊ̯" in result or "aʊ" in result
+
+    def test_diphthong_eu(self, g2p_no_lexicon):
+        """Test eu/äu diphthong -> [ɔʏ̯]."""
+        result = g2p_no_lexicon.phonemize("neu")
+        assert "ɔʏ̯" in result or "ɔʏ" in result
+
+    def test_umlaut_ae(self, g2p_no_lexicon):
+        """Test ä vowel."""
+        result = g2p_no_lexicon.phonemize("Männer")
+        assert "ɛ" in result
+
+    def test_umlaut_oe(self, g2p_no_lexicon):
+        """Test ö vowel."""
+        result = g2p_no_lexicon.phonemize("König")
+        assert "œ" in result or "ø" in result
+
+    def test_umlaut_ue(self, g2p_no_lexicon):
+        """Test ü vowel."""
+        result = g2p_no_lexicon.phonemize("Tür")
+        assert "ʏ" in result or "y" in result
+
+    def test_eszett(self, g2p_no_lexicon):
+        """Test ß -> [s]."""
+        result = g2p_no_lexicon.phonemize("groß")
+        assert "s" in result
+
+    def test_pf_affricate(self, g2p_no_lexicon):
+        """Test pf affricate -> [p͡f]."""
+        result = g2p_no_lexicon.phonemize("Pferd")
+        assert "p͡f" in result or "pf" in result
+
+    def test_z_affricate(self, g2p_no_lexicon):
+        """Test z -> [t͡s]."""
+        result = g2p_no_lexicon.phonemize("Zeit")
+        assert "t͡s" in result or "ts" in result
+
+    def test_schwa_in_unstressed_e(self, g2p_no_lexicon):
+        """Test schwa in unstressed -e endings."""
+        result = g2p_no_lexicon.phonemize("bitte")
+        # Final -e should be schwa
+        assert "ə" in result
+
+    def test_sentence_with_punctuation(self, g2p):
+        """Test sentence with punctuation."""
+        tokens = g2p("Wie geht es Ihnen?")
+        texts = [t.text for t in tokens]
+        assert "Wie" in texts
+        assert "?" in texts
+
+
+class TestGermanLexicon:
+    """Tests for GermanLexicon."""
+
+    @pytest.fixture
+    def lexicon(self):
+        """Create a German lexicon instance."""
+        return GermanLexicon()
+
+    def test_creation(self, lexicon):
+        """Test lexicon creation."""
+        assert len(lexicon) > 0
+
+    def test_lookup_known_word(self, lexicon):
+        """Test lookup of known word."""
+        result = lexicon.lookup("haus")
+        assert result is not None
+        assert isinstance(result, str)
+
+    def test_lookup_unknown_word(self, lexicon):
+        """Test lookup of unknown word."""
+        result = lexicon.lookup("xyznotaword123")
+        assert result is None
+
+    def test_is_known(self, lexicon):
+        """Test is_known method."""
+        assert lexicon.is_known("haus")
+        assert not lexicon.is_known("xyznotaword123")
+
+    def test_case_insensitive(self, lexicon):
+        """Test case insensitive lookup."""
+        result_lower = lexicon.lookup("haus")
+        result_upper = lexicon.lookup("HAUS")
+        result_mixed = lexicon.lookup("Haus")
+        assert result_lower == result_upper == result_mixed
+
+    def test_repr(self, lexicon):
+        """Test string representation."""
+        result = repr(lexicon)
+        assert "GermanLexicon" in result
+        assert "entries=" in result
+
+
+class TestGermanNumberConverter:
+    """Tests for GermanNumberConverter."""
+
+    @pytest.fixture
+    def converter(self):
+        """Create a German number converter instance."""
+        return GermanNumberConverter()
+
+    def test_cardinal_single_digit(self, converter):
+        """Test single digit cardinals."""
+        assert converter.convert_cardinal("1") == "eins"
+        assert converter.convert_cardinal("5") == "fünf"
+        assert converter.convert_cardinal("0") == "null"
+
+    def test_cardinal_teens(self, converter):
+        """Test teen numbers."""
+        assert converter.convert_cardinal("11") == "elf"
+        assert converter.convert_cardinal("12") == "zwölf"
+        assert converter.convert_cardinal("17") == "siebzehn"
+
+    def test_cardinal_tens(self, converter):
+        """Test tens."""
+        assert converter.convert_cardinal("20") == "zwanzig"
+        assert converter.convert_cardinal("30") == "dreißig"
+        assert converter.convert_cardinal("21") == "einundzwanzig"
+        assert converter.convert_cardinal("42") == "zweiundvierzig"
+
+    def test_cardinal_hundreds(self, converter):
+        """Test hundreds."""
+        # num2words returns "einhundert", our fallback returns "hundert"
+        result_100 = converter.convert_cardinal("100")
+        assert result_100 in ("hundert", "einhundert")
+        result_200 = converter.convert_cardinal("200")
+        assert result_200 == "zweihundert"
+        result_123 = converter.convert_cardinal("123")
+        assert "hundert" in result_123 and "dreiundzwanzig" in result_123
+
+    def test_cardinal_thousands(self, converter):
+        """Test thousands."""
+        assert converter.convert_cardinal("1000") == "eintausend"
+        assert converter.convert_cardinal("2000") == "zweitausend"
+
+    def test_ordinal(self, converter):
+        """Test ordinal conversion."""
+        assert converter.convert_ordinal("1") == "erste"
+        assert converter.convert_ordinal("3") == "dritte"
+        assert converter.convert_ordinal("7") == "siebte"
+        assert converter.convert_ordinal("20") == "zwanzigste"
+
+    def test_year(self, converter):
+        """Test year conversion."""
+        result = converter.convert_year("1984")
+        assert "neunzehn" in result
+        assert "hundert" in result
+
+        result2 = converter.convert_year("2024")
+        assert "zweitausend" in result2
+
+    def test_decimal(self, converter):
+        """Test decimal conversion."""
+        result = converter.convert_decimal("3,14")
+        assert "drei" in result
+        assert "Komma" in result
+
+    def test_currency(self, converter):
+        """Test currency conversion."""
+        result = converter.convert_currency("12,50", "€")
+        assert "zwölf" in result
+        assert "Euro" in result
+        assert "fünfzig" in result
+
+
+class TestGermanNumberFunctions:
+    """Tests for standalone number conversion functions."""
+
+    def test_number_to_german(self):
+        """Test number_to_german function."""
+        assert number_to_german(0) == "null"
+        assert number_to_german(1) == "eins"
+        assert number_to_german(21) == "einundzwanzig"
+        assert number_to_german(-5) == "minus fünf"
+
+    def test_ordinal_to_german(self):
+        """Test ordinal_to_german function."""
+        assert ordinal_to_german(1) == "erste"
+        assert ordinal_to_german(3) == "dritte"
+        assert ordinal_to_german(8) == "achte"
+
+    def test_expand_number(self):
+        """Test expand_number function."""
+        result = expand_number("Ich habe 42 Bücher.")
+        assert "zweiundvierzig" in result
+
+        # Test simple number expansion (currency pattern is complex)
+        result2 = expand_number("Preis: 12,50")
+        assert "zwölf" in result2
+        assert "Komma" in result2
+
+
+class TestGermanGetG2P:
+    """Tests for get_g2p with German."""
+
+    def test_get_g2p_german(self):
+        """Test get_g2p returns GermanG2P for German."""
+        from kokorog2p import clear_cache, get_g2p
+
+        clear_cache()
+        g2p = get_g2p("de")
+        assert isinstance(g2p, GermanG2P)
+
+        clear_cache()
+        g2p = get_g2p("de-de")
+        assert isinstance(g2p, GermanG2P)
+
+        clear_cache()
+        g2p = get_g2p("german")
+        assert isinstance(g2p, GermanG2P)
+
+        clear_cache()
+        g2p = get_g2p("deu")
+        assert isinstance(g2p, GermanG2P)
+
+    def test_get_g2p_german_variants(self):
+        """Test get_g2p with German regional variants."""
+        from kokorog2p import clear_cache, get_g2p
+
+        clear_cache()
+        g2p_at = get_g2p("de-at")  # Austrian German
+        assert isinstance(g2p_at, GermanG2P)
+
+        clear_cache()
+        g2p_ch = get_g2p("de-ch")  # Swiss German
+        assert isinstance(g2p_ch, GermanG2P)

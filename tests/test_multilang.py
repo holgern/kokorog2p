@@ -99,17 +99,35 @@ class TestGetG2PFallback:
         from kokorog2p.espeak_g2p import EspeakOnlyG2P
 
         clear_cache()
-        g2p = get_g2p("de-de")
+        g2p = get_g2p("es-es")  # Spanish - not yet implemented
         assert isinstance(g2p, EspeakOnlyG2P)
 
-    def test_french_uses_fallback(self):
-        """Test French uses EspeakOnlyG2P."""
+    def test_french_uses_french_g2p(self):
+        """Test French uses FrenchG2P."""
         from kokorog2p import clear_cache, get_g2p
-        from kokorog2p.espeak_g2p import EspeakOnlyG2P
+        from kokorog2p.fr import FrenchG2P
 
         clear_cache()
         g2p = get_g2p("fr")
-        assert isinstance(g2p, EspeakOnlyG2P)
+        assert isinstance(g2p, FrenchG2P)
+
+    def test_czech_uses_czech_g2p(self):
+        """Test Czech uses CzechG2P."""
+        from kokorog2p import clear_cache, get_g2p
+        from kokorog2p.cs import CzechG2P
+
+        clear_cache()
+        g2p = get_g2p("cs")
+        assert isinstance(g2p, CzechG2P)
+
+    def test_german_uses_german_g2p(self):
+        """Test German uses GermanG2P."""
+        from kokorog2p import clear_cache, get_g2p
+        from kokorog2p.de import GermanG2P
+
+        clear_cache()
+        g2p = get_g2p("de")
+        assert isinstance(g2p, GermanG2P)
 
 
 # =============================================================================

@@ -1,15 +1,19 @@
 # kokorog2p
 
-A unified G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
+A unified multi-language G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 
 kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
 provides:
 
-- **Dictionary-based lookup** with gold/silver tier lexicons for US and British English
+- **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese
+- **Dictionary-based lookup** with comprehensive lexicons
+  - English: 100k+ entries (gold/silver tiers)
+  - German: 738k+ entries from Olaph/IPA-Dict
+  - French: Gold-tier dictionary
+  - Czech, Chinese, Japanese: Rule-based and specialized engines
 - **espeak-ng integration** as a fallback for out-of-vocabulary words
 - **Automatic IPA to Kokoro phoneme conversion**
-- **Number and currency handling** (e.g., "$1,234.56" → "one thousand two hundred
-  thirty-four dollars and fifty-six cents")
+- **Number and currency handling** for supported languages
 - **Stress assignment** based on linguistic rules
 
 ## Installation
@@ -18,13 +22,19 @@ provides:
 # Core package (no dependencies)
 pip install kokorog2p
 
-# With English G2P support
+# With English support
 pip install kokorog2p[en]
+
+# With German support
+pip install kokorog2p[de]
+
+# With French support
+pip install kokorog2p[fr]
 
 # With espeak-ng backend
 pip install kokorog2p[espeak]
 
-# Full installation
+# Full installation (all languages and backends)
 pip install kokorog2p[all]
 ```
 
@@ -33,31 +43,62 @@ pip install kokorog2p[all]
 ```python
 from kokorog2p import phonemize
 
-# Basic usage
+# English (US)
 phonemes = phonemize("Hello world!", language="en-us")
 print(phonemes)  # həlˈoʊ wˈɜːld!
 
 # British English
 phonemes = phonemize("Hello world!", language="en-gb")
+print(phonemes)  # həlˈəʊ wˈɜːld!
+
+# German
+phonemes = phonemize("Guten Tag!", language="de")
+print(phonemes)  # ɡuːtn̩ taːk!
+
+# French
+phonemes = phonemize("Bonjour!", language="fr")
+print(phonemes)
+
+# Chinese
+phonemes = phonemize("你好", language="zh")
 print(phonemes)
 ```
 
 ## Advanced Usage
 
 ```python
-from kokorog2p.en import EnglishG2P
+from kokorog2p import get_g2p
 
-# Create a G2P instance with custom settings
-g2p = EnglishG2P(
-    language="en-us",
-    use_espeak_fallback=True,
-)
+# English with custom settings
+g2p_en = get_g2p("en-us", use_espeak_fallback=True)
+tokens = g2p_en("The quick brown fox jumps over the lazy dog.")
+for token in tokens:
+    print(f"{token.text} → {token.phonemes}")
 
-# Process text
-tokens = g2p("The quick brown fox jumps over the lazy dog.")
+# German with lexicon and number handling
+g2p_de = get_g2p("de")
+tokens = g2p_de("Es kostet 42 Euro.")
+for token in tokens:
+    print(f"{token.text} → {token.phonemes}")
+
+# French with fallback support
+g2p_fr = get_g2p("fr", use_espeak_fallback=True)
+tokens = g2p_fr("C'est magnifique!")
 for token in tokens:
     print(f"{token.text} → {token.phonemes}")
 ```
+
+## Supported Languages
+
+| Language     | Code    | Dictionary Size | Number Support | Status     |
+| ------------ | ------- | --------------- | -------------- | ---------- |
+| English (US) | `en-us` | 100k+ entries   | ✓              | Production |
+| English (GB) | `en-gb` | 100k+ entries   | ✓              | Production |
+| German       | `de`    | 738k+ entries   | ✓              | Production |
+| French       | `fr`    | Gold dictionary | ✓              | Production |
+| Czech        | `cs`    | Rule-based      | -              | Production |
+| Chinese      | `zh`    | pypinyin        | -              | Production |
+| Japanese     | `ja`    | pyopenjtalk     | -              | Production |
 
 ## Phoneme Inventory
 
