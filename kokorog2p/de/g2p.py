@@ -162,7 +162,7 @@ class GermanG2P(G2PBase):
             strip_stress: Whether to remove stress markers from lexicon output.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
-        self._lexicon: Optional[GermanLexicon] = None
+        self._lexicon: Optional[GermanLexicon] = None  # noqa: F823
         self._espeak = None
         self._strip_stress = strip_stress
 
