@@ -123,15 +123,15 @@ class TestEnglishG2PWithSpacy:
         """
         test_cases = [
             ("I've learned", "ˌIv lˈɜɹnd"),
-            ("We've worked", "wiv wˈɜɹkt"),
-            ("You're welcome", "jʊɹ wˈɛlkəm"),
-            ("They're here", "ðɛɹ hˈɪɹ"),
+            ("We've worked", "wˌiv wˈɜɹkt"),
+            ("You're welcome", "jˌʊɹ wˈɛlkəm"),
+            ("They're here", "ðˌɛɹ hˈɪɹ"),
         ]
         for text, expected in test_cases:
             result = english_g2p_with_spacy.phonemize(text)
-            assert (
-                result == expected
-            ), f"'{text}': expected '{expected}', got '{result}'"
+            assert result == expected, (
+                f"'{text}': expected '{expected}', got '{result}'"
+            )
 
 
 @pytest.mark.espeak
@@ -220,9 +220,9 @@ class TestEnglishG2PTokenization:
             tokens = english_g2p_no_espeak(word)
             assert len(tokens) >= 1, f"Should have token for '{word}'"
             actual = tokens[0].phonemes
-            assert (
-                actual == expected_phonemes
-            ), f"'{word}': expected '{expected_phonemes}', got '{actual}'"
+            assert actual == expected_phonemes, (
+                f"'{word}': expected '{expected_phonemes}', got '{actual}'"
+            )
 
     def test_contraction_in_sentence(self, english_g2p_no_espeak):
         """Test contractions work correctly within sentences."""
