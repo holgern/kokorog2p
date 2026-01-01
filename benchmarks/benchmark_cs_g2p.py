@@ -108,7 +108,8 @@ CZECH_TEST_CASES: list[tuple[str, str]] = [
     ("bě", "bjɛ"),
     ("pě", "pjɛ"),
     ("vě", "vjɛ"),
-    # Note: fě doesn't have special rule in Czech orthography (rare foreign word pattern)
+    # Note: fě doesn't have special rule in Czech orthography
+    # (rare foreign word pattern)
     # TS combination
     ("citron", "t͡sɪtron"),  # c -> t͡s, i -> ɪ
     ("cena", "t͡sɛna"),  # c -> t͡s

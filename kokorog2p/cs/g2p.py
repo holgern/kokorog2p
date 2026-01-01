@@ -298,7 +298,7 @@ class CzechG2P(G2PBase):
 
         return tokens
 
-    def _word_to_phonemes(self, word: str) -> str:
+    def _word_to_phonemes(self, word: str) -> str:  # noqa: C901
         """Convert a single word to phonemes using Czech rules.
 
         Args:
