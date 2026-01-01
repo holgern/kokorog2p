@@ -118,20 +118,20 @@ class TestEnglishG2PWithSpacy:
     def test_contraction_phonemes_with_spacy(self, english_g2p_with_spacy):
         """Test contractions are phonemized correctly with spaCy.
 
-        SpaCy splits contractions (e.g., I've -> I + 've), so we need to
-        ensure the suffix parts ('ve, 're, etc.) have correct phonemes.
+        spaCy splits contractions (e.g., I've -> I + 've), but our merge
+        function should combine them back for proper lexicon lookup.
         """
         test_cases = [
-            ("I've learned", "ˈIv lˈɜɹnd"),
-            ("We've worked", "wˌiv wˈɜɹkt"),
-            ("You're welcome", "jˌuɹ wˈɛlkəm"),
-            ("They're here", "ðˌAɹ hˈɪɹ"),
+            ("I've learned", "ˌIv lˈɜɹnd"),
+            ("We've worked", "wiv wˈɜɹkt"),
+            ("You're welcome", "jʊɹ wˈɛlkəm"),
+            ("They're here", "ðɛɹ hˈɪɹ"),
         ]
         for text, expected in test_cases:
             result = english_g2p_with_spacy.phonemize(text)
-            assert (
-                result == expected
-            ), f"'{text}': expected '{expected}', got '{result}'"
+            assert result == expected, (
+                f"'{text}': expected '{expected}', got '{result}'"
+            )
 
 
 @pytest.mark.espeak
@@ -220,9 +220,9 @@ class TestEnglishG2PTokenization:
             tokens = english_g2p_no_espeak(word)
             assert len(tokens) >= 1, f"Should have token for '{word}'"
             actual = tokens[0].phonemes
-            assert (
-                actual == expected_phonemes
-            ), f"'{word}': expected '{expected_phonemes}', got '{actual}'"
+            assert actual == expected_phonemes, (
+                f"'{word}': expected '{expected_phonemes}', got '{actual}'"
+            )
 
     def test_contraction_in_sentence(self, english_g2p_no_espeak):
         """Test contractions work correctly within sentences."""
@@ -308,3 +308,374 @@ class TestMainAPI:
         from kokorog2p import __version__
 
         assert isinstance(__version__, str)
+
+
+@pytest.mark.spacy
+class TestContractionMerging:
+    """Comprehensive tests for contraction handling with spaCy.
+
+    These tests ensure that spaCy-split contractions (e.g., "Don't" -> "Do" + "n't")
+    are properly merged back together for correct lexicon lookup and phonemization.
+
+    This addresses the issue where contractions were being incorrectly phonemized
+    as separate words instead of using their dictionary entries.
+    """
+
+    @pytest.fixture
+    def g2p_spacy(self):
+        """Create an EnglishG2P instance with spaCy enabled."""
+        from kokorog2p.en import EnglishG2P
+
+        return EnglishG2P(language="en-us", use_spacy=True, use_espeak_fallback=False)
+
+    def test_dont_contraction(self, g2p_spacy):
+        """Test 'don't' is phonemized as a single word, not 'do' + 'n't'."""
+        tokens = g2p_spacy("Don't worry")
+
+        # Should have 2 word tokens (Don't, worry)
+        word_tokens = [t for t in tokens if t.text not in (" ", ".")]
+        assert len(word_tokens) == 2
+        assert word_tokens[0].text == "Don't"
+        assert word_tokens[0].phonemes == "dˈOnt"
+
+    def test_cant_contraction(self, g2p_spacy):
+        """Test 'can't' is phonemized correctly."""
+        tokens = g2p_spacy("I can't believe it")
+
+        cant_token = [t for t in tokens if t.text == "can't"][0]
+        assert cant_token.phonemes == "kˈænt"
+
+    def test_wont_contraction(self, g2p_spacy):
+        """Test 'won't' is phonemized correctly."""
+        tokens = g2p_spacy("I won't go")
+
+        wont_token = [t for t in tokens if t.text == "won't"][0]
+        assert wont_token.phonemes == "wOnt"
+
+    def test_ive_contraction(self, g2p_spacy):
+        """Test 'I've' is phonemized as a single word."""
+        tokens = g2p_spacy("I've done it")
+
+        ive_token = [t for t in tokens if t.text == "I've"][0]
+        assert ive_token.phonemes == "ˌIv"
+
+    def test_weve_contraction(self, g2p_spacy):
+        """Test 'we've' is phonemized correctly."""
+        tokens = g2p_spacy("We've finished")
+
+        weve_token = [t for t in tokens if t.text == "We've"][0]
+        assert weve_token.phonemes == "wˌiv"
+
+    def test_youre_contraction(self, g2p_spacy):
+        """Test 'you're' is phonemized correctly."""
+        tokens = g2p_spacy("You're welcome")
+
+        youre_token = [t for t in tokens if t.text == "You're"][0]
+        assert youre_token.phonemes == "jˌʊɹ"
+
+    def test_theyre_contraction(self, g2p_spacy):
+        """Test 'they're' is phonemized correctly."""
+        tokens = g2p_spacy("They're here")
+
+        theyre_token = [t for t in tokens if t.text == "They're"][0]
+        assert theyre_token.phonemes == "ðˌɛɹ"
+
+    def test_ill_contraction(self, g2p_spacy):
+        """Test 'I'll' is phonemized correctly."""
+        tokens = g2p_spacy("I'll help")
+
+        ill_token = [t for t in tokens if t.text == "I'll"][0]
+        assert ill_token.phonemes == "ˌIl"
+
+    def test_youll_contraction(self, g2p_spacy):
+        """Test 'you'll' is phonemized correctly."""
+        tokens = g2p_spacy("You'll see")
+
+        youll_token = [t for t in tokens if t.text == "You'll"][0]
+        assert youll_token.phonemes == "jˌul"
+
+    def test_id_contraction(self, g2p_spacy):
+        """Test 'I'd' is phonemized correctly."""
+        tokens = g2p_spacy("I'd like that")
+
+        id_token = [t for t in tokens if t.text == "I'd"][0]
+        assert id_token.phonemes == "ˌId"
+
+    def test_youd_contraction(self, g2p_spacy):
+        """Test 'you'd' is phonemized correctly."""
+        tokens = g2p_spacy("You'd better hurry")
+
+        youd_token = [t for t in tokens if t.text == "You'd"][0]
+        assert youd_token.phonemes == "jˌud"
+
+    def test_shes_contraction(self, g2p_spacy):
+        """Test 'she's' is phonemized correctly."""
+        tokens = g2p_spacy("She's here")
+
+        shes_token = [t for t in tokens if t.text == "She's"][0]
+        assert shes_token.phonemes == "ʃˌiz"
+
+    def test_hes_contraction(self, g2p_spacy):
+        """Test 'he's' is phonemized correctly."""
+        tokens = g2p_spacy("He's coming")
+
+        hes_token = [t for t in tokens if t.text == "He's"][0]
+        assert hes_token.phonemes == "hˌiz"
+
+    def test_its_contraction(self, g2p_spacy):
+        """Test 'it's' is phonemized correctly."""
+        tokens = g2p_spacy("It's ready")
+
+        its_token = [t for t in tokens if t.text == "It's"][0]
+        assert its_token.phonemes == "ˌɪts"
+
+    def test_lets_contraction(self, g2p_spacy):
+        """Test 'let's' is phonemized correctly."""
+        tokens = g2p_spacy("Let's go")
+
+        lets_token = [t for t in tokens if t.text == "Let's"][0]
+        assert lets_token.phonemes == "lˈɛts"
+
+    def test_thats_contraction(self, g2p_spacy):
+        """Test 'that's' is phonemized correctly."""
+        tokens = g2p_spacy("That's correct")
+
+        thats_token = [t for t in tokens if t.text == "That's"][0]
+        assert thats_token.phonemes == "ðˈæts"
+
+    def test_multiple_contractions_in_sentence(self, g2p_spacy):
+        """Test multiple contractions in one sentence."""
+        text = "I don't think they're ready, but we'll see."
+        tokens = g2p_spacy(text)
+
+        word_tokens = {
+            t.text: t
+            for t in tokens
+            if t.text.replace("'", "").isalpha() or "'" in t.text
+        }
+
+        assert word_tokens["don't"].phonemes == "dˈOnt"
+        assert word_tokens["they're"].phonemes == "ðɛɹ"
+        assert word_tokens["we'll"].phonemes == "wil"
+
+    def test_contraction_case_insensitive(self, g2p_spacy):
+        """Test contractions work regardless of case."""
+        # Test uppercase
+        tokens_upper = g2p_spacy("DON'T SHOUT")
+        dont_upper = [t for t in tokens_upper if "don't" in t.text.lower()][0]
+
+        # Test lowercase
+        tokens_lower = g2p_spacy("don't shout")
+        dont_lower = [t for t in tokens_lower if t.text == "don't"][0]
+
+        # Should have same phonemes (case normalized in lookup)
+        assert dont_upper.phonemes == dont_lower.phonemes
+
+    def test_contraction_tokenization_count(self, g2p_spacy):
+        """Test that contractions are counted as single tokens, not split."""
+        tokens = g2p_spacy("I've can't won't don't")
+
+        # Should have 4 word tokens, not 8
+        word_tokens = [t for t in tokens if t.text.strip() and not t.phonemes == " "]
+        assert len(word_tokens) == 4
+
+    def test_possessive_vs_contraction(self, g2p_spacy):
+        """Test that 's can be either possessive or contraction."""
+        # Contraction: "he is"
+        tokens1 = g2p_spacy("He's tall")
+        hes_token = [t for t in tokens1 if t.text == "He's"][0]
+        assert hes_token.phonemes == "hˌiz"
+
+        # Note: Possessives like "John's" would be handled differently
+        # This test just ensures 's contractions work
+
+    def test_contraction_with_punctuation(self, g2p_spacy):
+        """Test contractions followed by punctuation."""
+        tokens = g2p_spacy("Don't! Can't? Won't.")
+
+        dont_token = [t for t in tokens if t.text == "Don't"][0]
+        cant_token = [t for t in tokens if t.text == "Can't"][0]
+        wont_token = [t for t in tokens if t.text == "Won't"][0]
+
+        assert dont_token.phonemes == "dˈOnt"
+        assert cant_token.phonemes == "kˈænt"
+        assert wont_token.phonemes == "wˈOnt"
+
+    def test_phonemize_with_contractions(self, g2p_spacy):
+        """Test the phonemize() method with contractions."""
+        result = g2p_spacy.phonemize("I don't think so")
+
+        # Should contain the correct phoneme for "don't"
+        assert "dˈOnt" in result
+
+        # Should not contain separate "do" phoneme
+        assert result.count("dˈu") == 0  # "do" should not appear separately
+
+
+@pytest.mark.spacy
+class TestDoubleContractions:
+    """Tests for double contractions like "could've", "I'd've", etc.
+
+    These test that the contraction merging handles chains of contractions
+    where spaCy splits them into 3+ tokens (e.g., "I'd've" -> "I" + "'d" + "'ve").
+    """
+
+    @pytest.fixture
+    def g2p_spacy(self):
+        """Create an EnglishG2P instance with spaCy enabled."""
+        from kokorog2p.en import EnglishG2P
+
+        return EnglishG2P(language="en-us", use_spacy=True, use_espeak_fallback=False)
+
+    def test_couldve_tokenization(self, g2p_spacy):
+        """Test 'could've' is treated as a single token."""
+        tokens = g2p_spacy("I could've done it")
+
+        # Find the could've token
+        couldve_token = [t for t in tokens if t.text == "could've"][0]
+
+        # Should be merged as one token
+        assert couldve_token.text == "could've"
+        assert couldve_token.phonemes == "kʊdəv"
+
+    def test_shouldve_tokenization(self, g2p_spacy):
+        """Test 'should've' is treated as a single token."""
+        tokens = g2p_spacy("You should've known")
+
+        # Find the should've token
+        shouldve_tokens = [t for t in tokens if "should've" in t.text]
+        assert len(shouldve_tokens) == 1
+        assert shouldve_tokens[0].text == "should've"
+
+    def test_wouldve_tokenization(self, g2p_spacy):
+        """Test 'would've' is treated as a single token."""
+        tokens = g2p_spacy("I would've tried")
+
+        # Find the would've token
+        wouldve_tokens = [t for t in tokens if "would've" in t.text]
+        assert len(wouldve_tokens) == 1
+        assert wouldve_tokens[0].text == "would've"
+
+    def test_idve_tokenization(self, g2p_spacy):
+        """Test 'I'd've' is treated as a single token."""
+        tokens = g2p_spacy("I'd've helped")
+
+        # Find the I'd've token
+        idve_tokens = [t for t in tokens if "I'd've" in t.text]
+        assert len(idve_tokens) == 1
+        assert idve_tokens[0].text == "I'd've"
+
+    def test_youdve_tokenization(self, g2p_spacy):
+        """Test 'you'd've' is treated as a single token."""
+        tokens = g2p_spacy("You'd've loved it")
+
+        # Find the you'd've token
+        youdve_tokens = [t for t in tokens if "you'd've" in t.text.lower()]
+        assert len(youdve_tokens) == 1
+        assert youdve_tokens[0].text == "You'd've"
+
+    def test_theydve_tokenization(self, g2p_spacy):
+        """Test 'they'd've' is treated as a single token."""
+        tokens = g2p_spacy("They'd've been there")
+
+        # Find the they'd've token
+        theydve_tokens = [t for t in tokens if "they'd've" in t.text.lower()]
+        assert len(theydve_tokens) == 1
+        assert theydve_tokens[0].text == "They'd've"
+
+    def test_couldntve_tokenization(self, g2p_spacy):
+        """Test 'couldn't've' is treated as a single token."""
+        tokens = g2p_spacy("I couldn't've done better")
+
+        # Find the couldn't've token
+        couldntve_tokens = [t for t in tokens if "couldn't've" in t.text.lower()]
+        assert len(couldntve_tokens) == 1
+        assert couldntve_tokens[0].text == "couldn't've"
+
+    def test_shouldntve_tokenization(self, g2p_spacy):
+        """Test 'shouldn't've' is treated as a single token."""
+        tokens = g2p_spacy("You shouldn't've said that")
+
+        # Find the shouldn't've token
+        shouldntve_tokens = [t for t in tokens if "shouldn't've" in t.text.lower()]
+        assert len(shouldntve_tokens) == 1
+        assert shouldntve_tokens[0].text == "shouldn't've"
+
+    def test_wouldntve_tokenization(self, g2p_spacy):
+        """Test 'wouldn't've' is treated as a single token."""
+        tokens = g2p_spacy("I wouldn't've believed it")
+
+        # Find the wouldn't've token
+        wouldntve_tokens = [t for t in tokens if "wouldn't've" in t.text.lower()]
+        assert len(wouldntve_tokens) == 1
+        assert wouldntve_tokens[0].text == "wouldn't've"
+
+    def test_couldve_phonemes(self, g2p_spacy):
+        """Test 'could've' has correct phonemes from lexicon."""
+        tokens = g2p_spacy("could've")
+        assert tokens[0].phonemes == "kˈʊdəv"
+
+    def test_double_contraction_not_split(self, g2p_spacy):
+        """Test that double contractions aren't split into multiple word tokens."""
+        text = "I could've should've would've"
+        tokens = g2p_spacy(text)
+
+        # Count word tokens (excluding punctuation and whitespace)
+        word_tokens = [t for t in tokens if t.text.strip() and "'" in t.text]
+
+        # Should have exactly 3 contraction tokens, not 6 or more
+        assert len(word_tokens) == 3
+        assert word_tokens[0].text == "could've"
+        assert word_tokens[1].text == "should've"
+        assert word_tokens[2].text == "would've"
+
+    def test_triple_contraction_chain(self, g2p_spacy):
+        """Test merging works even with 3 apostrophe parts."""
+        # "I'd've" is actually I + 'd + 've (3 parts)
+        tokens = g2p_spacy("I'd've")
+
+        # Should result in single token
+        word_tokens = [t for t in tokens if t.text.strip()]
+        assert len(word_tokens) == 1
+        assert word_tokens[0].text == "I'd've"
+
+    def test_mixed_single_and_double_contractions(self, g2p_spacy):
+        """Test sentence with both single and double contractions."""
+        text = "I don't think I could've done it, but you're right"
+        tokens = g2p_spacy(text)
+
+        contractions = {t.text: t for t in tokens if "'" in t.text}
+
+        # All contractions should be merged correctly
+        assert "don't" in contractions
+        assert "could've" in contractions
+        assert "you're" in contractions
+
+        # Verify they're single tokens
+        assert len([t for t in tokens if t.text == "don't"]) == 1
+        assert len([t for t in tokens if t.text == "could've"]) == 1
+        assert len([t for t in tokens if t.text == "you're"]) == 1
+
+    def test_double_contraction_with_punctuation(self, g2p_spacy):
+        """Test double contractions work with punctuation."""
+        tokens = g2p_spacy("I could've!")
+
+        couldve_token = [t for t in tokens if "could've" in t.text][0]
+        assert couldve_token.text == "could've"
+        assert couldve_token.phonemes == "kˈʊdəv"
+
+    def test_double_contraction_case_variations(self, g2p_spacy):
+        """Test double contractions work with different cases."""
+        test_cases = [
+            "could've",
+            "Could've",
+            "COULD'VE",
+        ]
+
+        for text in test_cases:
+            tokens = g2p_spacy(text)
+            # Should be single token regardless of case
+            word_tokens = [t for t in tokens if t.text.strip()]
+            assert len(word_tokens) == 1
+            assert "could" in word_tokens[0].text.lower()
+            assert "ve" in word_tokens[0].text.lower()

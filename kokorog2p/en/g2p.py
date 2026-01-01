@@ -159,7 +159,59 @@ class EnglishG2P(G2PBase):
 
             tokens.append(token)
 
+        # Merge contractions (e.g., "Do" + "n't" -> "Don't")
+        tokens = self._merge_contractions(tokens)
+
         return tokens
+
+    def _merge_contractions(self, tokens: list[GToken]) -> list[GToken]:
+        """Merge contraction suffixes with their base words.
+
+        spaCy splits contractions like "don't" into "do" + "n't",
+        and double contractions like "I'd've" into "I" + "'d" + "'ve".
+        This method merges them back together for better lexicon lookup.
+
+        Args:
+            tokens: List of tokens from spaCy.
+
+        Returns:
+            List of tokens with contractions merged.
+        """
+        # Common contraction suffixes
+        contractions = {"n't", "'s", "'m", "'re", "'ve", "'d", "'ll"}
+
+        merged: list[GToken] = []
+        i = 0
+
+        while i < len(tokens):
+            token = tokens[i]
+
+            # Collect all consecutive contraction suffixes
+            merged_text = token.text
+            merged_tag = token.tag
+            j = i + 1
+
+            # Keep merging while next token is a contraction suffix
+            while j < len(tokens) and tokens[j].text in contractions:
+                merged_text += tokens[j].text
+                j += 1
+
+            # If we merged anything, create a new token
+            if j > i + 1:
+                merged_token = GToken(
+                    text=merged_text,
+                    tag=merged_tag,  # Use the tag of the main word
+                    whitespace=tokens[
+                        j - 1
+                    ].whitespace,  # Use whitespace from last suffix
+                )
+                merged.append(merged_token)
+                i = j  # Skip all merged tokens
+            else:
+                merged.append(token)
+                i += 1
+
+        return merged
 
     def _tokenize_simple(self, text: str) -> list[GToken]:
         """Simple tokenization without spaCy.
