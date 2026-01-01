@@ -173,8 +173,13 @@ class EnglishG2P(G2PBase):
         import re
 
         tokens: list[GToken] = []
-        # Simple word/punct split
-        for match in re.finditer(r"(\w+|[^\w\s]+|\s+)", text):
+        # Tokenize with support for contractions (e.g., I've, we're, don't)
+        # Pattern matches:
+        # 1. Words with apostrophes (contractions): \w+'\w+
+        # 2. Regular words: \w+
+        # 3. Punctuation sequences: [^\w\s]+
+        # 4. Whitespace: \s+
+        for match in re.finditer(r"(\w+'\w+|\w+|[^\w\s]+|\s+)", text):
             word = match.group()
             if word.isspace():
                 if tokens:
@@ -183,8 +188,8 @@ class EnglishG2P(G2PBase):
 
             token = GToken(text=word, tag="", whitespace="")
 
-            # Handle punctuation
-            if not word.isalnum() and not word.replace("'", "").isalpha():
+            # Handle punctuation (but not contractions with apostrophes)
+            if not word.isalnum() and "'" not in word:
                 token.phonemes = word if word in ".,;:!?-—…" else ""
                 token.set("rating", 4)
 

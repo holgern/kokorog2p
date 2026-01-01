@@ -115,6 +115,24 @@ class TestEnglishG2PWithSpacy:
         assert any(t.text == "," for t in tokens)
         assert any(t.text == "!" for t in tokens)
 
+    def test_contraction_phonemes_with_spacy(self, english_g2p_with_spacy):
+        """Test contractions are phonemized correctly with spaCy.
+
+        SpaCy splits contractions (e.g., I've -> I + 've), so we need to
+        ensure the suffix parts ('ve, 're, etc.) have correct phonemes.
+        """
+        test_cases = [
+            ("I've learned", "ˈIv lˈɜɹnd"),
+            ("We've worked", "wˌiv wˈɜɹkt"),
+            ("You're welcome", "jˌuɹ wˈɛlkəm"),
+            ("They're here", "ðˌAɹ hˈɪɹ"),
+        ]
+        for text, expected in test_cases:
+            result = english_g2p_with_spacy.phonemize(text)
+            assert result == expected, (
+                f"'{text}': expected '{expected}', got '{result}'"
+            )
+
 
 @pytest.mark.espeak
 @pytest.mark.spacy
@@ -170,6 +188,60 @@ class TestEnglishG2PTokenization:
         tokens = english_g2p_no_espeak("hello world")
         # First token should have trailing whitespace
         assert tokens[0].whitespace == " " or any(t.whitespace for t in tokens)
+
+    def test_contraction_tokenization(self, english_g2p_no_espeak):
+        """Test contractions are tokenized as single tokens."""
+        # Test various contractions
+        contractions = ["I've", "we've", "you've", "they've", "don't", "won't", "can't"]
+        for contraction in contractions:
+            tokens = english_g2p_no_espeak(contraction)
+            # Should be a single token (not split by apostrophe)
+            word_tokens = [t for t in tokens if t.text == contraction]
+            assert len(word_tokens) == 1, f"'{contraction}' should be a single token"
+
+    def test_contraction_phonemes(self, english_g2p_no_espeak):
+        """Test contractions have correct phonemes."""
+        # Test that contractions get proper phonemes from the lexicon
+        # Note: Capitalized forms may have different stress patterns
+        test_cases = [
+            ("I've", "ˌIv"),
+            ("we've", "wiv"),  # lowercase has no secondary stress
+            ("We've", "wˌiv"),  # capitalized has secondary stress
+            ("you've", "juv"),
+            ("they've", "ðAv"),
+            ("don't", "dˈOnt"),
+            ("won't", "wˈOnt"),
+            ("can't", "kˈænt"),
+            ("he's", "hiz"),
+            ("she's", "ʃiz"),
+            ("it's", "ɪts"),
+        ]
+        for word, expected_phonemes in test_cases:
+            tokens = english_g2p_no_espeak(word)
+            assert len(tokens) >= 1, f"Should have token for '{word}'"
+            actual = tokens[0].phonemes
+            assert actual == expected_phonemes, (
+                f"'{word}': expected '{expected_phonemes}', got '{actual}'"
+            )
+
+    def test_contraction_in_sentence(self, english_g2p_no_espeak):
+        """Test contractions work correctly within sentences."""
+        # Test "I've learned"
+        tokens = english_g2p_no_espeak("I've learned")
+        texts = [t.text for t in tokens]
+        assert "I've" in texts, "I've should be a single token"
+
+        # Check phonemes
+        ive_token = [t for t in tokens if t.text == "I've"][0]
+        assert ive_token.phonemes == "ˌIv", f"I've phonemes: {ive_token.phonemes}"
+
+        # Test "We've worked"
+        tokens = english_g2p_no_espeak("We've worked")
+        texts = [t.text for t in tokens]
+        assert "We've" in texts, "We've should be a single token"
+
+        weve_token = [t for t in tokens if t.text == "We've"][0]
+        assert weve_token.phonemes == "wˌiv", f"We've phonemes: {weve_token.phonemes}"
 
 
 class TestMainAPI:
