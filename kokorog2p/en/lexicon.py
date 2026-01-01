@@ -8,7 +8,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
-from typing import Any, Final, Optional, Union
+from typing import Any, Final
 
 from kokorog2p.en import data
 from kokorog2p.phonemes import GB_VOCAB, US_VOCAB
@@ -112,7 +112,7 @@ GREEK_LETTERS: Final[dict[str, str]] = {
 class TokenContext:
     """Context information for token processing."""
 
-    future_vowel: Optional[bool] = None
+    future_vowel: bool | None = None
     future_to: bool = False
 
 
@@ -121,7 +121,7 @@ class TokenContext:
 # =============================================================================
 
 
-def apply_stress(ps: Optional[str], stress: Optional[float]) -> Optional[str]:
+def apply_stress(ps: str | None, stress: float | None) -> str | None:
     """Apply stress modification to a phoneme string.
 
     Args:
@@ -175,7 +175,7 @@ def apply_stress(ps: Optional[str], stress: Optional[float]) -> Optional[str]:
     return ps
 
 
-def stress_weight(ps: Optional[str]) -> int:
+def stress_weight(ps: str | None) -> int:
     """Calculate the "weight" of a phoneme string for stress assignment."""
     if not ps:
         return 0
@@ -205,7 +205,7 @@ class Lexicon:
         self.british = british
         self.skip_is_known = skip_is_known
         self.cap_stresses = (0.5, 2)
-        self.golds: dict[str, Union[str, dict[str, Optional[str]]]] = {}
+        self.golds: dict[str, str | dict[str, str | None]] = {}
         self.silvers: dict[str, str] = {}
 
         # Load dictionaries
@@ -251,7 +251,7 @@ class Lexicon:
         return {**e, **d}
 
     @staticmethod
-    def get_parent_tag(tag: Optional[str]) -> Optional[str]:
+    def get_parent_tag(tag: str | None) -> str | None:
         """Get parent POS tag category."""
         if tag is None:
             return tag
@@ -265,7 +265,7 @@ class Lexicon:
             return "ADJ"
         return tag
 
-    def is_known(self, word: str, tag: Optional[str] = None) -> bool:
+    def is_known(self, word: str, tag: str | None = None) -> bool:
         """Check if a word is in the lexicon."""
         if word in self.golds or word in SYMBOLS or word in self.silvers:
             return True
@@ -277,7 +277,7 @@ class Lexicon:
             return True
         return word[1:] == word[1:].upper()
 
-    def get_NNP(self, word: str) -> tuple[Optional[str], Optional[int]]:
+    def get_NNP(self, word: str) -> tuple[str | None, int | None]:
         """Get phonemes for a proper noun by spelling."""
         ps = [self.golds.get(c.upper()) for c in word if c.isalpha()]
         if None in ps:
@@ -291,10 +291,10 @@ class Lexicon:
     def lookup(
         self,
         word: str,
-        tag: Optional[str] = None,
-        stress: Optional[float] = None,
-        ctx: Optional[TokenContext] = None,
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None = None,
+        stress: float | None = None,
+        ctx: TokenContext | None = None,
+    ) -> tuple[str | None, int | None]:
         """Look up a word in the lexicon.
 
         Args:
@@ -311,7 +311,7 @@ class Lexicon:
             word = word.lower()
             is_NNP = tag == "NNP"
 
-        ps: Optional[str] = self.golds.get(word)  # type: ignore
+        ps: str | None = self.golds.get(word)  # type: ignore
         rating = 4
         if ps is None and not is_NNP:
             ps = self.silvers.get(word)
@@ -334,10 +334,10 @@ class Lexicon:
     def get_special_case(
         self,
         word: str,
-        tag: Optional[str],
-        stress: Optional[float],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        stress: float | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Handle special case words with context-dependent pronunciations."""
         if tag == "ADD" and word in ADD_SYMBOLS:
             return self.lookup(ADD_SYMBOLS[word], None, -0.5, ctx)
@@ -399,7 +399,7 @@ class Lexicon:
     # Suffix handling
     # ==========================================================================
 
-    def _s(self, stem: Optional[str]) -> Optional[str]:
+    def _s(self, stem: str | None) -> str | None:
         """Add -s suffix phonemes."""
         if not stem:
             return None
@@ -412,10 +412,10 @@ class Lexicon:
     def stem_s(
         self,
         word: str,
-        tag: Optional[str],
-        stress: Optional[float],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        stress: float | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Handle -s suffix."""
         if len(word) < 3 or not word.endswith("s"):
             return (None, None)
@@ -437,7 +437,7 @@ class Lexicon:
         stem_ps, rating = self.lookup(stem, tag, stress, ctx)
         return (self._s(stem_ps), rating)
 
-    def _ed(self, stem: Optional[str]) -> Optional[str]:
+    def _ed(self, stem: str | None) -> str | None:
         """Add -ed suffix phonemes."""
         if not stem:
             return None
@@ -456,10 +456,10 @@ class Lexicon:
     def stem_ed(
         self,
         word: str,
-        tag: Optional[str],
-        stress: Optional[float],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        stress: float | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Handle -ed suffix."""
         if len(word) < 4 or not word.endswith("d"):
             return (None, None)
@@ -477,7 +477,7 @@ class Lexicon:
         stem_ps, rating = self.lookup(stem, tag, stress, ctx)
         return (self._ed(stem_ps), rating)
 
-    def _ing(self, stem: Optional[str]) -> Optional[str]:
+    def _ing(self, stem: str | None) -> str | None:
         """Add -ing suffix phonemes."""
         if not stem:
             return None
@@ -491,10 +491,10 @@ class Lexicon:
     def stem_ing(
         self,
         word: str,
-        tag: Optional[str],
-        stress: Optional[float],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        stress: float | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Handle -ing suffix."""
         if len(word) < 5 or not word.endswith("ing"):
             return (None, None)
@@ -516,10 +516,10 @@ class Lexicon:
     def get_word(
         self,
         word: str,
-        tag: Optional[str],
-        stress: Optional[float],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        stress: float | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Get phonemes for a word, trying various strategies."""
         # Check special cases first
         ps, rating = self.get_special_case(word, tag, stress, ctx)
@@ -614,10 +614,10 @@ class Lexicon:
     def __call__(
         self,
         word: str,
-        tag: Optional[str] = None,
-        stress: Optional[float] = None,
-        ctx: Optional[TokenContext] = None,
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None = None,
+        stress: float | None = None,
+        ctx: TokenContext | None = None,
+    ) -> tuple[str | None, int | None]:
         """Look up phonemes for a word.
 
         Args:
@@ -660,9 +660,9 @@ class Lexicon:
     def _convert_number(
         self,
         word: str,
-        currency: Optional[str],
+        currency: str | None,
         is_head: bool,
-    ) -> tuple[Optional[str], Optional[int]]:
+    ) -> tuple[str | None, int | None]:
         """Convert a number to phonemes using num2words.
 
         Args:

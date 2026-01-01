@@ -1,7 +1,6 @@
 """Abstract base class for G2P (Grapheme-to-Phoneme) converters."""
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from .token import GToken
 
@@ -72,7 +71,7 @@ class G2PBase(ABC):
                     result.append(" ")
         return "".join(result).strip()
 
-    def word_to_phonemes(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def word_to_phonemes(self, word: str, tag: str | None = None) -> str | None:
         """
         Convert a single word to phonemes.
 
@@ -89,7 +88,7 @@ class G2PBase(ABC):
         return None
 
     @abstractmethod
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """
         Look up a word in the dictionary.
 

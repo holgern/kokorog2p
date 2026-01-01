@@ -1,6 +1,6 @@
 """Espeak fallback for French OOV words."""
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from kokorog2p.backends.espeak import EspeakBackend
@@ -11,7 +11,7 @@ class FrenchFallback:
 
     def __init__(self) -> None:
         """Initialize the French espeak fallback."""
-        self._backend: Optional[EspeakBackend] = None
+        self._backend: EspeakBackend | None = None
 
     @property
     def backend(self) -> Any:
@@ -22,7 +22,7 @@ class FrenchFallback:
             self._backend = EspeakBackend(language="fr-fr")
         return self._backend
 
-    def __call__(self, word: str) -> tuple[Optional[str], int]:
+    def __call__(self, word: str) -> tuple[str | None, int]:
         """Get phonemes for a word using espeak.
 
         Args:

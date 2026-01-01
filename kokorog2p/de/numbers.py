@@ -7,7 +7,7 @@ Based on the English numbers module, adapted for German language rules.
 """
 
 import re
-from typing import Callable, Optional
+from collections.abc import Callable
 
 # Ordinal suffixes in German
 ORDINALS = frozenset([".", "te", "ter", "tes", "ten", "tem"])
@@ -178,12 +178,7 @@ class GermanNumberConverter:
 
     def __init__(
         self,
-        lookup_fn: Optional[
-            Callable[
-                [str, Optional[str]],
-                Optional[str],
-            ]
-        ] = None,
+        lookup_fn: Callable[[str, str | None], str | None] | None = None,
     ) -> None:
         """Initialize the German number converter.
 
@@ -191,7 +186,7 @@ class GermanNumberConverter:
             lookup_fn: Optional function to look up words in the lexicon.
         """
         self.lookup = lookup_fn
-        self._num2words: Optional[Callable] = None
+        self._num2words: Callable | None = None
 
     @property
     def num2words(self) -> Callable:
@@ -340,7 +335,7 @@ class GermanNumberConverter:
     def convert(
         self,
         word: str,
-        currency: Optional[str] = None,
+        currency: str | None = None,
         is_ordinal: bool = False,
         is_year: bool = False,
     ) -> str:

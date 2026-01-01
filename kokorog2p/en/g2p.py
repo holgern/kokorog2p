@@ -1,7 +1,5 @@
 """English G2P (Grapheme-to-Phoneme) converter."""
 
-from typing import Optional
-
 from kokorog2p.base import G2PBase
 from kokorog2p.en.fallback import EspeakFallback
 from kokorog2p.en.lexicon import Lexicon, TokenContext
@@ -46,13 +44,13 @@ class EnglishG2P(G2PBase):
         self.lexicon = Lexicon(british=self.is_british)
 
         # Initialize fallback (lazy)
-        self._fallback: Optional[EspeakFallback] = None
+        self._fallback: EspeakFallback | None = None
 
         # Initialize spaCy (lazy)
-        self._nlp: Optional[object] = None
+        self._nlp: object | None = None
 
     @property
-    def fallback(self) -> Optional[EspeakFallback]:
+    def fallback(self) -> EspeakFallback | None:
         """Lazily initialize the espeak fallback."""
         if self.use_espeak_fallback and self._fallback is None:
             self._fallback = EspeakFallback(british=self.is_british)
@@ -267,7 +265,7 @@ class EnglishG2P(G2PBase):
         return "".join(c for c in text if c in puncts)
 
     def _update_context(
-        self, ctx: TokenContext, phonemes: Optional[str], token: GToken
+        self, ctx: TokenContext, phonemes: str | None, token: GToken
     ) -> TokenContext:
         """Update context based on processed token."""
         from kokorog2p.en.lexicon import CONSONANTS, VOWELS
@@ -291,7 +289,7 @@ class EnglishG2P(G2PBase):
 
         return TokenContext(future_vowel=future_vowel, future_to=future_to)
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the dictionary.
 
         Args:

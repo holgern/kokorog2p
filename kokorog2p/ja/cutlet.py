@@ -11,7 +11,6 @@ import importlib.resources
 import re
 import unicodedata
 from dataclasses import dataclass
-from typing import Optional
 
 import jaconv
 import mojimoji
@@ -262,7 +261,7 @@ SUTEGANA = frozenset("ゃゅょぁぃぅぇぉ")
 ODORI = frozenset("〃々ゝゞヽ")
 
 
-def add_dakuten(kk: str) -> Optional[str]:
+def add_dakuten(kk: str) -> str | None:
     """Given a kana (single-character string), add a dakuten."""
     try:
         ii = "かきくけこさしすせそたちつてとはひふへほ".index(kk)
@@ -410,7 +409,7 @@ class Cutlet:
             out += self._get_single_mapping(pk, char, nk)
         return out
 
-    def _get_single_mapping(self, pk: Optional[str], kk: str, nk: Optional[str]) -> str:
+    def _get_single_mapping(self, pk: str | None, kk: str, nk: str | None) -> str:
         """Given a single kana and its neighbors, return the mapped romaji."""
         # handle odoriji
         if kk in ODORI:

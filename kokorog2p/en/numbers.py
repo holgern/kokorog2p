@@ -7,7 +7,7 @@ Based on misaki by hexgrad, adapted for kokorog2p.
 """
 
 import re
-from typing import Callable, Optional
+from collections.abc import Callable
 
 # Ordinal suffixes
 ORDINALS = frozenset(["st", "nd", "rd", "th"])
@@ -47,12 +47,12 @@ class NumberConverter:
     def __init__(
         self,
         lookup_fn: Callable[
-            [str, Optional[str], Optional[float], Optional[object]],
-            tuple[Optional[str], Optional[int]],
+            [str, str | None, float | None, object | None],
+            tuple[str | None, int | None],
         ],
         stem_s_fn: Callable[
-            [str, Optional[str], Optional[float], Optional[object]],
-            tuple[Optional[str], Optional[int]],
+            [str, str | None, float | None, object | None],
+            tuple[str | None, int | None],
         ],
     ) -> None:
         """Initialize the number converter.
@@ -63,7 +63,7 @@ class NumberConverter:
         """
         self.lookup = lookup_fn
         self.stem_s = stem_s_fn
-        self._num2words: Optional[Callable] = None
+        self._num2words: Callable | None = None
 
     @property
     def num2words(self) -> Callable:
@@ -213,7 +213,7 @@ class NumberConverter:
     def _convert_regular_number(
         self,
         word: str,
-        suffix: Optional[str],
+        suffix: str | None,
         result: list[tuple[str, int]],
         num_flags: set,
     ) -> bool:
@@ -241,10 +241,10 @@ class NumberConverter:
     def convert(
         self,
         word: str,
-        currency: Optional[str] = None,
+        currency: str | None = None,
         is_head: bool = True,
-        num_flags: Optional[set] = None,
-    ) -> tuple[Optional[str], Optional[int]]:
+        num_flags: set | None = None,
+    ) -> tuple[str | None, int | None]:
         """Convert a number to its word representation.
 
         Args:
@@ -322,7 +322,7 @@ class NumberConverter:
 
         return phonemes, rating
 
-    def _add_s(self, stem: Optional[str]) -> Optional[str]:
+    def _add_s(self, stem: str | None) -> str | None:
         """Add -s suffix phonemes."""
         if not stem:
             return None
@@ -332,7 +332,7 @@ class NumberConverter:
             return stem + "ᵻz"
         return stem + "z"
 
-    def _add_ed(self, stem: Optional[str]) -> Optional[str]:
+    def _add_ed(self, stem: str | None) -> str | None:
         """Add -ed suffix phonemes."""
         if not stem:
             return None
@@ -344,13 +344,13 @@ class NumberConverter:
             return stem + "d"
         return stem + "ᵻd"
 
-    def _add_ing(self, stem: Optional[str]) -> Optional[str]:
+    def _add_ing(self, stem: str | None) -> str | None:
         """Add -ing suffix phonemes."""
         if not stem:
             return None
         return stem + "ɪŋ"
 
-    def append_currency(self, phonemes: str, currency: Optional[str]) -> str:
+    def append_currency(self, phonemes: str, currency: str | None) -> str:
         """Append currency word to phonemes.
 
         Args:

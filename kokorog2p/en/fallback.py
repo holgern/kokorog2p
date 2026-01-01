@@ -1,7 +1,5 @@
 """Espeak fallback for OOV words with IPA to Kokoro conversion."""
 
-from typing import Optional
-
 from kokorog2p.phonemes import from_espeak
 
 
@@ -15,7 +13,7 @@ class EspeakFallback:
             british: Whether to use British English.
         """
         self.british = british
-        self._backend: Optional[EspeakBackend] = None  # Lazy init  # noqa: F821
+        self._backend: EspeakBackend | None = None  # Lazy init  # noqa: F821
 
     @property
     def backend(self) -> "EspeakBackend":  # noqa: F821
@@ -27,7 +25,7 @@ class EspeakFallback:
             self._backend = EspeakBackend(language=language)
         return self._backend
 
-    def __call__(self, word: str) -> tuple[Optional[str], int]:
+    def __call__(self, word: str) -> tuple[str | None, int]:
         """Get phonemes for a word using espeak.
 
         Args:

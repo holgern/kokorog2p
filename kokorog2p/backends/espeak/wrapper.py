@@ -12,7 +12,7 @@ import ctypes.util
 import os
 import pathlib
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from kokorog2p.backends.espeak.api import PHONEMES_IPA, EspeakLibrary
 from kokorog2p.backends.espeak.voice import (
@@ -70,7 +70,7 @@ def find_espeak_library() -> str:
     )
 
 
-def find_espeak_data() -> Optional[Path]:
+def find_espeak_data() -> Path | None:
     """Find the espeak-ng data directory.
 
     Search order:
@@ -116,8 +116,8 @@ class Phonemizer:
     """
 
     # Class-level overrides for library/data paths
-    _custom_library: Optional[str] = None
-    _custom_data: Optional[str] = None
+    _custom_library: str | None = None
+    _custom_data: str | None = None
 
     def __init__(self) -> None:
         """Initialize the phonemizer.
@@ -125,9 +125,9 @@ class Phonemizer:
         Raises:
             RuntimeError: If espeak-ng library cannot be loaded.
         """
-        self._version: Optional[tuple[int, ...]] = None
-        self._data_path: Optional[Path] = None
-        self._current_voice: Optional[Voice] = None
+        self._version: tuple[int, ...] | None = None
+        self._data_path: Path | None = None
+        self._current_voice: Voice | None = None
 
         # Find library and data paths
         lib_path = self._custom_library or find_espeak_library()
@@ -137,7 +137,7 @@ class Phonemizer:
         self._api = EspeakLibrary(lib_path, data_path)
 
     @classmethod
-    def set_library_path(cls, path: Optional[str]) -> None:
+    def set_library_path(cls, path: str | None) -> None:
         """Set a custom library path for all instances.
 
         Args:
@@ -146,7 +146,7 @@ class Phonemizer:
         cls._custom_library = path
 
     @classmethod
-    def set_data_path(cls, path: Optional[str]) -> None:
+    def set_data_path(cls, path: str | None) -> None:
         """Set a custom data path for all instances.
 
         Args:
@@ -189,7 +189,7 @@ class Phonemizer:
         return self._api.library_path
 
     @property
-    def data_path(self) -> Optional[Path]:
+    def data_path(self) -> Path | None:
         """Get path to espeak data directory."""
         if self._data_path is None:
             _, data_str = self._api.get_info()
@@ -198,11 +198,11 @@ class Phonemizer:
         return self._data_path
 
     @property
-    def voice(self) -> Optional[Voice]:
+    def voice(self) -> Voice | None:
         """Get the currently selected voice."""
         return self._current_voice
 
-    def list_voices(self, filter_name: Optional[str] = None) -> list[Voice]:
+    def list_voices(self, filter_name: str | None = None) -> list[Voice]:
         """List available voices.
 
         Args:

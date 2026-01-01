@@ -18,7 +18,7 @@ import sys
 import tempfile
 import weakref
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from kokorog2p.backends.espeak.voice import VoiceStruct
 
@@ -94,8 +94,8 @@ class EspeakLibrary:
 
     def __init__(
         self,
-        library_path: Union[str, Path],
-        data_path: Optional[Union[str, Path]] = None,
+        library_path: str | Path,
+        data_path: str | Path | None = None,
     ) -> None:
         """Initialize the espeak library bindings.
 
@@ -106,12 +106,12 @@ class EspeakLibrary:
         Raises:
             RuntimeError: If the library cannot be loaded or initialized.
         """
-        self._lib: Optional[ctypes.CDLL] = None
-        self._temp_dir: Optional[str] = None
-        self._original_path: Optional[Path] = None
+        self._lib: ctypes.CDLL | None = None
+        self._temp_dir: str | None = None
+        self._original_path: Path | None = None
 
         # Convert data_path to bytes for C API
-        data_bytes: Optional[bytes] = None
+        data_bytes: bytes | None = None
         if data_path is not None:
             data_bytes = str(data_path).encode("utf-8")
 
@@ -161,7 +161,7 @@ class EspeakLibrary:
         self._cleanup(self._lib, self._temp_dir)
 
     @staticmethod
-    def _cleanup(lib: Optional[ctypes.CDLL], temp_dir: Optional[str]) -> None:
+    def _cleanup(lib: ctypes.CDLL | None, temp_dir: str | None) -> None:
         """Clean up library resources.
 
         Args:
@@ -199,7 +199,7 @@ class EspeakLibrary:
         return self._original_path
 
     @property
-    def temp_dir(self) -> Optional[str]:
+    def temp_dir(self) -> str | None:
         """Temporary directory containing library copy."""
         return self._temp_dir
 
@@ -227,7 +227,7 @@ class EspeakLibrary:
 
         return version_str, path_str
 
-    def list_voices(self, voice_filter: Optional[VoiceStruct] = None) -> Any:
+    def list_voices(self, voice_filter: VoiceStruct | None = None) -> Any:
         """List available voices.
 
         Args:
@@ -294,7 +294,7 @@ class EspeakLibrary:
         self,
         text: str,
         phoneme_mode: int = PHONEMES_IPA,
-        separator: Optional[str] = None,
+        separator: str | None = None,
         use_tie: bool = False,
     ) -> str:
         """Convert text to phonemes.

@@ -15,7 +15,7 @@ https://cs.wikipedia.org/wiki/Fonologie_%C4%8De%C5%A1tiny
 """
 
 import re
-from typing import Final, Optional
+from typing import Final
 
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
@@ -223,7 +223,7 @@ IEIAIO_FIRST: Final[dict[str, str]] = {"i": "i"}
 IEIAIO_SECOND: Final[dict[str, str]] = {"e": "e", "a": "a", "o": "o"}
 
 
-def _indices_where_in(v: list[Optional[str]], keyset: dict[str, str]) -> list[int]:
+def _indices_where_in(v: list[str | None], keyset: dict[str, str]) -> list[int]:
     """Find indices where values are in keyset."""
     s = set(keyset.keys())
     return [i for i, x in enumerate(v) if x in s]
@@ -310,7 +310,7 @@ class CzechG2P(G2PBase):
         text = word.lower()
         text_split = list(text)
 
-        result: list[Optional[str]] = []
+        result: list[str | None] = []
         for ch in text_split:
             result.append(TEMP.get(ch))  # missing -> None
 
@@ -413,7 +413,7 @@ class CzechG2P(G2PBase):
         puncts = frozenset(";:,.!?-\"'()[]")
         return "".join(c for c in text if c in puncts)
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the dictionary.
 
         For Czech, this just converts the word to phonemes using rules.

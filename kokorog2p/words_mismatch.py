@@ -173,7 +173,9 @@ def detect_mismatches(
     output_counts = count_words_batch(output_texts, output_separator)
 
     mismatches: list[MismatchInfo] = []
-    for i, (inp_count, out_count) in enumerate(zip(input_counts, output_counts)):
+    for i, (inp_count, out_count) in enumerate(
+        zip(input_counts, output_counts, strict=False)
+    ):
         if inp_count != out_count:
             mismatches.append(
                 MismatchInfo(
@@ -232,7 +234,9 @@ class BaseMismatchProcessor(abc.ABC):
 
         return [
             (i, inp, out)
-            for i, (inp, out) in enumerate(zip(self._input_counts, self._output_counts))
+            for i, (inp, out) in enumerate(
+                zip(self._input_counts, self._output_counts, strict=False)
+            )
             if inp != out
         ]
 

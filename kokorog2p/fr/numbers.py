@@ -1,10 +1,10 @@
 """French number to words conversion using num2words."""
 
 import re
-from typing import Callable, Optional
+from collections.abc import Callable
 
 # Try to import num2words
-_num2words_fn: Optional[Callable[..., str]] = None
+_num2words_fn: Callable[..., str] | None = None
 try:
     from num2words import num2words as _n2w
 

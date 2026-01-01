@@ -17,7 +17,7 @@ https://en.wikipedia.org/wiki/Standard_German_phonology
 """
 
 import re
-from typing import TYPE_CHECKING, Final, Optional
+from typing import TYPE_CHECKING, Final
 
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
@@ -162,7 +162,7 @@ class GermanG2P(G2PBase):
             strip_stress: Whether to remove stress markers from lexicon output.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
-        self._lexicon: Optional[GermanLexicon] = None  # noqa: F823
+        self._lexicon: GermanLexicon | None = None  # noqa: F823
         self._espeak = None
         self._strip_stress = strip_stress
 
@@ -526,7 +526,7 @@ class GermanG2P(G2PBase):
         puncts = frozenset(";:,.!?-\"'()[]")
         return "".join(c for c in text if c in puncts)
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the dictionary.
 
         Args:

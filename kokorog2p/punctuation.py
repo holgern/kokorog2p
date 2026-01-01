@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from re import Pattern
-from typing import Final, Union
+from typing import Final
 
 # =============================================================================
 # Kokoro-supported punctuation
@@ -186,7 +186,7 @@ class Punctuation:
         ['həˈloʊ, wˈɜːld!']
     """
 
-    def __init__(self, marks: Union[str, Pattern] = DEFAULT_MARKS):
+    def __init__(self, marks: str | Pattern = DEFAULT_MARKS):
         """Initialize punctuation handler.
 
         Args:
@@ -217,7 +217,7 @@ class Punctuation:
         )
 
     @marks.setter
-    def marks(self, value: Union[str, Pattern]) -> None:
+    def marks(self, value: str | Pattern) -> None:
         """Set the punctuation marks."""
         if isinstance(value, Pattern):
             # Wrap pattern to catch surrounding spaces
@@ -289,7 +289,7 @@ class Punctuation:
 
         return "".join(result)
 
-    def remove(self, text: Union[str, list[str]]) -> Union[str, list[str]]:
+    def remove(self, text: str | list[str]) -> str | list[str]:
         """Remove all punctuation marks, replacing with spaces.
 
         Args:
@@ -315,9 +315,7 @@ class Punctuation:
             return _remove_single(text)
         return [_remove_single(t) for t in text]
 
-    def preserve(
-        self, text: Union[str, list[str]]
-    ) -> tuple[list[str], list[MarkIndex]]:
+    def preserve(self, text: str | list[str]) -> tuple[list[str], list[MarkIndex]]:
         """Extract punctuation from text, preserving positions for restoration.
 
         This splits the text into chunks without punctuation, while recording
@@ -389,7 +387,7 @@ class Punctuation:
     @classmethod
     def restore(
         cls,
-        text: Union[str, list[str]],
+        text: str | list[str],
         marks: list[MarkIndex],
         word_sep: str = " ",
         strip: bool = True,

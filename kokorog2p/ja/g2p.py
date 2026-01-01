@@ -9,8 +9,6 @@ Copyright 2024 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 
-from typing import Optional
-
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
 
@@ -340,7 +338,7 @@ class JapaneseG2P(G2PBase):
         token.rating = "ja" if phonemes else None
         return [token]
 
-    def _phonemize_internal(self, text: str) -> tuple[str, Optional[list[GToken]]]:
+    def _phonemize_internal(self, text: str) -> tuple[str, list[GToken] | None]:
         """Internal phonemization logic.
 
         Args:
@@ -355,7 +353,7 @@ class JapaneseG2P(G2PBase):
         # Use pyopenjtalk
         return self._phonemize_pyopenjtalk(text)
 
-    def _phonemize_pyopenjtalk(self, text: str) -> tuple[str, Optional[list[GToken]]]:
+    def _phonemize_pyopenjtalk(self, text: str) -> tuple[str, list[GToken] | None]:
         """Phonemize using pyopenjtalk."""
         tokens = []
         last_a, _last_p = 0, ""
@@ -398,7 +396,7 @@ class JapaneseG2P(G2PBase):
             whitespace, phonemes, pitch = "", None, None
             if moras:
                 phonemes, pitch = "", ""
-                for m, a in zip(moras, accents):
+                for m, a in zip(moras, accents, strict=False):
                     ps = M2P.get(m, "")
                     phonemes += ps
                     pitch += ("_" if a == 0 else ("^" if a == 3 else "-")) * len(ps)
@@ -469,7 +467,7 @@ class JapaneseG2P(G2PBase):
 
         return result + pitch_str, tokens
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word's phonemes.
 
         Args:

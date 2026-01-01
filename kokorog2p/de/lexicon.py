@@ -6,7 +6,6 @@ Provides dictionary-based phoneme lookup for German words.
 import importlib.resources
 import json
 from functools import lru_cache
-from typing import Optional
 
 from kokorog2p.de import data
 
@@ -42,7 +41,7 @@ class GermanLexicon:
         self._gold = _load_gold_dictionary()
         self._strip_stress = strip_stress
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the lexicon.
 
         Args:
@@ -61,7 +60,7 @@ class GermanLexicon:
 
         return phonemes
 
-    def __call__(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def __call__(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the lexicon.
 
         Args:

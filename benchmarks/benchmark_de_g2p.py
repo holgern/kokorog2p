@@ -11,7 +11,6 @@ Run with: python -m benchmarks.benchmark_de_g2p
 import random
 import time
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -61,7 +60,7 @@ def load_gold_dictionary() -> dict[str, str]:
 def benchmark_accuracy(
     g2p,
     gold: dict[str, str],
-    sample_size: Optional[int] = None,
+    sample_size: int | None = None,
     name: str = "Accuracy vs Gold Dictionary",
 ) -> BenchmarkResult:
     """Benchmark G2P accuracy against gold dictionary.

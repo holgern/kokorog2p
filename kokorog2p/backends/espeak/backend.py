@@ -7,8 +7,6 @@ Copyright 2024 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 
-from typing import Optional
-
 from kokorog2p.backends.espeak.wrapper import Phonemizer
 from kokorog2p.phonemes import from_espeak
 
@@ -42,7 +40,7 @@ class EspeakBackend:
         self.language = language
         self.with_stress = with_stress
         self.tie = tie
-        self._phonemizer: Optional[Phonemizer] = None
+        self._phonemizer: Phonemizer | None = None
 
     @property
     def wrapper(self) -> Phonemizer:

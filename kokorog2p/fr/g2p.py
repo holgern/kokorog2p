@@ -7,7 +7,6 @@ Based on misaki French implementation, adapted for kokorog2p architecture.
 
 import re
 import unicodedata
-from typing import Optional
 
 from kokorog2p.base import G2PBase
 from kokorog2p.fr.fallback import FrenchFallback
@@ -69,13 +68,13 @@ class FrenchG2P(G2PBase):
         self.lexicon = FrenchLexicon()
 
         # Initialize fallback (lazy)
-        self._fallback: Optional[FrenchFallback] = None
+        self._fallback: FrenchFallback | None = None
 
         # Initialize spaCy (lazy)
-        self._nlp: Optional[object] = None
+        self._nlp: object | None = None
 
     @property
-    def fallback(self) -> Optional[FrenchFallback]:
+    def fallback(self) -> FrenchFallback | None:
         """Lazily initialize the espeak fallback."""
         if self.use_espeak_fallback and self._fallback is None:
             self._fallback = FrenchFallback()
@@ -246,7 +245,7 @@ class FrenchG2P(G2PBase):
         puncts = frozenset(";:,.!?-\"'()[]")
         return "".join(c for c in text if c in puncts)
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the dictionary.
 
         Args:

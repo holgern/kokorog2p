@@ -10,7 +10,6 @@ Licensed under the Apache License, Version 2.0
 """
 
 import re
-from typing import Optional
 
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
@@ -180,7 +179,7 @@ class ChineseG2P(G2PBase):
 
     def _phonemize_internal(
         self, text: str, en_callable=None
-    ) -> tuple[str, Optional[list]]:
+    ) -> tuple[str, list | None]:
         """Internal phonemization logic.
 
         Args:
@@ -219,7 +218,7 @@ class ChineseG2P(G2PBase):
 
         return " ".join(segments), None
 
-    def lookup(self, word: str, tag: Optional[str] = None) -> Optional[str]:
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word's phonemes.
 
         Args:

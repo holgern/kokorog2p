@@ -1,7 +1,7 @@
 """Token dataclass for G2P processing."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -23,10 +23,10 @@ class GToken:
     text: str
     tag: str = ""
     whitespace: str = " "
-    phonemes: Optional[str] = None
-    start_ts: Optional[float] = None
-    end_ts: Optional[float] = None
-    rating: Optional[str] = None
+    phonemes: str | None = None
+    start_ts: float | None = None
+    end_ts: float | None = None
+    rating: str | None = None
     _: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:

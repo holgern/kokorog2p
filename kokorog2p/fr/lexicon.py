@@ -8,7 +8,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
-from typing import Any, Final, Optional, Union
+from typing import Any, Final
 
 from kokorog2p.fr import data
 
@@ -141,7 +141,7 @@ ORDINALS: Final[dict[str, str]] = {
 class TokenContext:
     """Context information for token processing."""
 
-    future_vowel: Optional[bool] = None
+    future_vowel: bool | None = None
     liaison: bool = False
 
 
@@ -155,7 +155,7 @@ class FrenchLexicon:
 
     def __init__(self) -> None:
         """Initialize the French lexicon."""
-        self.golds: dict[str, Union[str, dict[str, Optional[str]]]] = {}
+        self.golds: dict[str, str | dict[str, str | None]] = {}
 
         # Load gold dictionary
         with importlib.resources.open_text(data, "fr_gold.json") as r:
@@ -225,7 +225,7 @@ class FrenchLexicon:
                 e[k.lower()] = v
         return {**e, **d}
 
-    def is_known(self, word: str, tag: Optional[str] = None) -> bool:
+    def is_known(self, word: str, tag: str | None = None) -> bool:
         """Check if a word is in the lexicon."""
         word_lower = word.lower()
         return (
@@ -238,9 +238,9 @@ class FrenchLexicon:
     def lookup(
         self,
         word: str,
-        tag: Optional[str] = None,
-        ctx: Optional[TokenContext] = None,
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None = None,
+        ctx: TokenContext | None = None,
+    ) -> tuple[str | None, int | None]:
         """Look up a word in the lexicon.
 
         Args:
@@ -258,7 +258,7 @@ class FrenchLexicon:
             return (self.builtin[word_lower], 4)
 
         # Check gold dictionary
-        ps: Optional[str] = self.golds.get(word)
+        ps: str | None = self.golds.get(word)
         if ps is None:
             ps = self.golds.get(word_lower)
 
@@ -299,9 +299,9 @@ class FrenchLexicon:
     def get_special_case(
         self,
         word: str,
-        tag: Optional[str],
-        ctx: Optional[TokenContext],
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None,
+        ctx: TokenContext | None,
+    ) -> tuple[str | None, int | None]:
         """Handle special case words with context-dependent pronunciations."""
         if word in SYMBOLS:
             return self.lookup(SYMBOLS[word], None, ctx)
@@ -319,9 +319,9 @@ class FrenchLexicon:
     def __call__(
         self,
         word: str,
-        tag: Optional[str] = None,
-        ctx: Optional[TokenContext] = None,
-    ) -> tuple[Optional[str], Optional[int]]:
+        tag: str | None = None,
+        ctx: TokenContext | None = None,
+    ) -> tuple[str | None, int | None]:
         """Look up phonemes for a word.
 
         Args:

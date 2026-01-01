@@ -9,7 +9,6 @@ Licensed under the Apache License, Version 2.0
 
 import itertools
 from collections.abc import Generator
-from typing import Optional
 
 from ordered_set import OrderedSet
 from pypinyin.contrib.tone_convert import to_finals, to_initials, to_normal, to_tone3
@@ -183,21 +182,21 @@ def get_tone(pinyin: str) -> int:
     return tone_nr
 
 
-def get_syllabic_consonant(normal_pinyin: str) -> Optional[str]:
+def get_syllabic_consonant(normal_pinyin: str) -> str | None:
     """Check if the pinyin is a syllabic consonant."""
     if normal_pinyin in SYLLABIC_CONSONANTS:
         return normal_pinyin
     return None
 
 
-def get_interjection(normal_pinyin: str) -> Optional[str]:
+def get_interjection(normal_pinyin: str) -> str | None:
     """Check if the pinyin is an interjection."""
     if normal_pinyin in INTERJECTIONS:
         return normal_pinyin
     return None
 
 
-def get_initials(normal_pinyin: str) -> Optional[str]:
+def get_initials(normal_pinyin: str) -> str | None:
     """Get the initial consonant from pinyin."""
     if normal_pinyin in SYLLABIC_CONSONANTS:
         return None
@@ -220,7 +219,7 @@ def get_initials(normal_pinyin: str) -> Optional[str]:
     return pinyin_initial
 
 
-def get_finals(normal_pinyin: str) -> Optional[str]:
+def get_finals(normal_pinyin: str) -> str | None:
     """Get the final from pinyin."""
     if normal_pinyin in SYLLABIC_CONSONANTS:
         return None

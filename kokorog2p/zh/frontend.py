@@ -20,7 +20,6 @@ Copyright 2024 kokorog2p contributors
 """
 
 import re
-from typing import Optional
 
 import jieba.posseg as psg
 from pypinyin import Style, lazy_pinyin, load_phrases_dict, load_single_dict
@@ -238,7 +237,7 @@ class ZHFrontend:
         for i in en_index:
             orig_finals[i] = "n2"
 
-        for c, v in zip(orig_initials, orig_finals):
+        for c, v in zip(orig_initials, orig_finals, strict=False):
             if re.match(r"i\d", v):
                 if c in ["z", "c", "s"]:
                     # zi, ci, si
@@ -296,7 +295,7 @@ class ZHFrontend:
 
     def __call__(
         self, text: str, with_erhua: bool = True
-    ) -> tuple[str, Optional[list[GToken]]]:
+    ) -> tuple[str, list[GToken] | None]:
         """Convert text to phonemes.
 
         Args:
@@ -352,7 +351,7 @@ class ZHFrontend:
             finals.append(sub_finals)
 
             phones = []
-            for c, v in zip(sub_initials, sub_finals):
+            for c, v in zip(sub_initials, sub_finals, strict=False):
                 # NOTE: post process for pypinyin outputs
                 # we discriminate i, ii and iii
                 if c:
