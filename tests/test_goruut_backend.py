@@ -233,7 +233,7 @@ class TestMainAPIWithGoruutBackend:
 
     def test_cache_works_with_backend(self):
         """Test that cache distinguishes between backends."""
-        from kokorog2p import get_g2p, clear_cache
+        from kokorog2p import clear_cache, get_g2p
 
         clear_cache()
 

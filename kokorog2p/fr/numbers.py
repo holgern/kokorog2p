@@ -1,7 +1,7 @@
 """French number to words conversion using num2words."""
 
 import re
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 # Try to import num2words
 _num2words_fn: Optional[Callable[..., str]] = None

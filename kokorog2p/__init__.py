@@ -155,6 +155,18 @@ def get_g2p(
         from kokorog2p.ja import JapaneseG2P
 
         g2p = JapaneseG2P(language=language, **kwargs)
+    elif lang in ("fr", "fr-fr", "fra", "french"):
+        from kokorog2p.fr import FrenchG2P
+
+        g2p = FrenchG2P(
+            language=language,
+            use_espeak_fallback=use_espeak_fallback,
+            **kwargs,
+        )
+    elif lang in ("cs", "cs-cz", "ces", "czech"):
+        from kokorog2p.cs import CzechG2P
+
+        g2p = CzechG2P(language=language, **kwargs)
     else:
         # Fallback to espeak-only G2P for other languages
         from kokorog2p.espeak_g2p import EspeakOnlyG2P

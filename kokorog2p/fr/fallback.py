@@ -11,7 +11,7 @@ class FrenchFallback:
 
     def __init__(self) -> None:
         """Initialize the French espeak fallback."""
-        self._backend: Optional["EspeakBackend"] = None
+        self._backend: Optional[EspeakBackend] = None
 
     @property
     def backend(self) -> Any:

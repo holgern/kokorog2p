@@ -11,7 +11,6 @@ from typing import Optional
 
 from kokorog2p.phonemes import from_goruut
 
-
 # Language mapping from standard codes to pygoruut language names
 LANGUAGE_MAP: dict[str, str] = {
     # English variants
