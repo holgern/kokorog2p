@@ -103,6 +103,12 @@ except ImportError:
 # Lazy imports for optional dependencies
 _g2p_cache: dict[str, G2PBase] = {}
 
+# Import MixedLanguageG2P for type checking
+try:
+    from kokorog2p.mixed_language_g2p import MixedLanguageG2P
+except ImportError:
+    MixedLanguageG2P = None  # type: ignore
+
 # Backend type hint
 BackendType = Literal["espeak", "goruut"]
 
@@ -114,6 +120,9 @@ def get_g2p(
     backend: BackendType = "espeak",
     load_silver: bool = True,
     load_gold: bool = True,
+    multilingual_mode: bool = False,
+    allowed_languages: list[str] | None = None,
+    language_confidence_threshold: float = 0.7,
     **kwargs: Any,
 ) -> G2PBase:
     """Get a G2P instance for the specified language.
@@ -138,13 +147,26 @@ def get_g2p(
             Defaults to True for maximum quality and coverage.
             Set to False when only silver tier or no dictionaries needed.
             Only applies to languages with dictionaries (English, French, German).
+        multilingual_mode: If True, enable automatic language detection for
+            mixed-language texts. Requires lingua-language-detector and
+            allowed_languages to be specified. Example: German text with
+            English words will be automatically detected and routed to the
+            appropriate G2P engines.
+        allowed_languages: List of languages to detect in multilingual mode.
+            Required when multilingual_mode=True. Must be explicitly specified
+            by the user. Example: ["de", "en-us", "fr"]. Each word will be
+            analyzed and routed to the appropriate language's G2P engine.
+        language_confidence_threshold: Minimum confidence (0.0-1.0) for
+            language detection in multilingual mode. Words with lower confidence
+            fall back to the primary language. Default: 0.7 (recommended).
         **kwargs: Additional arguments passed to the G2P constructor.
 
     Returns:
         A G2PBase instance for the specified language.
 
     Raises:
-        ValueError: If the language is not supported and no fallback is available.
+        ValueError: If the language is not supported and no fallback is available,
+            or if multilingual_mode=True but allowed_languages is not specified.
         ImportError: If backend="goruut" but pygoruut is not installed.
 
     Example:
@@ -162,16 +184,44 @@ def get_g2p(
         >>> g2p_fr = get_g2p("fr")
         >>> # Using goruut backend
         >>> g2p_goruut = get_g2p("en-us", backend="goruut")
+        >>> # Mixed-language: German with English words
+        >>> g2p_mixed = get_g2p(
+        ...     language="de",
+        ...     multilingual_mode=True,
+        ...     allowed_languages=["de", "en-us"]
+        ... )
+        >>> result = g2p_mixed("Das Meeting ist great!")
     """
     # Normalize language code
     lang = language.lower().replace("_", "-")
 
-    # Check cache (include load_silver and load_gold in cache key)
+    # Check cache (include all relevant parameters in cache key)
+    # Convert allowed_languages list to sorted tuple for hashable cache key
+    allowed_langs_key = tuple(sorted(allowed_languages)) if allowed_languages else None
     cache_key = (
         f"{lang}:{use_espeak_fallback}:{use_spacy}:{backend}:{load_silver}:{load_gold}"
+        f":{multilingual_mode}:{allowed_langs_key}:{language_confidence_threshold}"
     )
     if cache_key in _g2p_cache:
         return _g2p_cache[cache_key]
+
+    # If multilingual mode is enabled, create MixedLanguageG2P
+    if multilingual_mode:
+        from kokorog2p.mixed_language_g2p import MixedLanguageG2P
+
+        g2p = MixedLanguageG2P(
+            primary_language=language,
+            allowed_languages=allowed_languages,
+            confidence_threshold=language_confidence_threshold,
+            enable_detection=True,
+            use_espeak_fallback=use_espeak_fallback,
+            use_spacy=use_spacy,
+            load_silver=load_silver,
+            load_gold=load_gold,
+            **kwargs,
+        )
+        _g2p_cache[cache_key] = g2p
+        return g2p
 
     # Create G2P instance based on language and backend
     g2p: G2PBase
@@ -353,6 +403,7 @@ __all__ = [
     # Core classes
     "GToken",
     "G2PBase",
+    "MixedLanguageG2P",  # Mixed-language support
     # Main functions
     "phonemize",
     "tokenize",

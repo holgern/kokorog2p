@@ -40,6 +40,14 @@ You can specify the language explicitly:
    # Czech
    cs_phonemes = phonemize("Dobrý den", language="cs")
 
+   # Mixed-language (German with English words)
+   mixed_phonemes = phonemize(
+       "Das Meeting war great!",
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
 Using G2P Instances
 -------------------
 
@@ -140,6 +148,35 @@ Czech
    tokens = g2p("Jak se máte?")
    for token in tokens:
        print(f"{token.text} → {token.phonemes}")
+
+Mixed-Language
+~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Automatic detection for mixed-language texts
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   tokens = g2p("Das Meeting war great!")
+   for token in tokens:
+       if token.is_word:
+           detected = token.get("detected_language")
+           print(f"{token.text} ({detected}) → {token.phonemes}")
+
+Output:
+
+.. code-block:: text
+
+   Das (de) → das
+   Meeting (en-us) → mˈiɾɪŋ
+   war (de) → vaːɐ̯
+   great (en-us) → ɡɹˈeɪt
 
 Working with Tokens
 -------------------

@@ -84,6 +84,22 @@ This includes:
 * Cutlet for romanization
 * Mora-based phoneme generation
 
+Mixed-Language Detection
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+For automatic language detection in mixed-language texts:
+
+.. code-block:: bash
+
+   pip install kokorog2p[mixed]
+
+This includes:
+
+* lingua-language-detector for high-accuracy detection
+* Automatic routing to appropriate G2P engines
+* Support for 17+ languages
+* Caching for performance
+
 With Backend Support
 --------------------
 

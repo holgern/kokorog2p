@@ -472,6 +472,309 @@ Filter phonemes for specific use cases:
    filtered = filter_for_kokoro(phoneme_str)
    print(filtered)
 
+Mixed-Language Processing
+-------------------------
+
+Advanced mixed-language detection and handling.
+
+Direct API Usage
+~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from kokorog2p.mixed_language_g2p import MixedLanguageG2P
+
+   # Create instance with custom configuration
+   g2p = MixedLanguageG2P(
+       primary_language="de",
+       allowed_languages=["de", "en-us", "fr"],
+       confidence_threshold=0.6,  # More aggressive detection
+       enable_detection=True
+   )
+
+   # Process text
+   tokens = g2p("Hello, mein Freund! Bonjour!")
+
+   # Access detection metadata
+   for token in tokens:
+       if token.is_word:
+           detected = token.get("detected_language")
+           confidence = token.get("language_confidence")
+           print(f"{token.text}: {detected} (conf: {confidence:.2f})")
+
+Confidence Tuning
+~~~~~~~~~~~~~~~~~
+
+Adjust detection sensitivity based on your use case:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Conservative (fewer false positives, may miss some foreign words)
+   g2p_conservative = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"],
+       language_confidence_threshold=0.9
+   )
+
+   # Balanced (recommended default)
+   g2p_balanced = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"],
+       language_confidence_threshold=0.7  # Default
+   )
+
+   # Aggressive (more detections, may have false positives)
+   g2p_aggressive = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"],
+       language_confidence_threshold=0.5
+   )
+
+   # Test on ambiguous text
+   text = "Das ist ein Test mit Meeting und Termin."
+
+   for name, g2p_instance in [
+       ("Conservative", g2p_conservative),
+       ("Balanced", g2p_balanced),
+       ("Aggressive", g2p_aggressive)
+   ]:
+       print(f"\n{name}:")
+       tokens = g2p_instance(text)
+       for tok in tokens:
+           if tok.is_word:
+               lang = tok.get("detected_language")
+               print(f"  {tok.text} → {lang}")
+
+Multi-Language Support
+~~~~~~~~~~~~~~~~~~~~~~
+
+Handle texts mixing more than two languages:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Technical documentation mixing French, English, and German
+   g2p = get_g2p(
+       language="fr",
+       multilingual_mode=True,
+       allowed_languages=["fr", "en-us", "de"]
+   )
+
+   text = """
+   Le système utilise un API REST.
+   Die Konfiguration ist dans le fichier settings.
+   """
+
+   tokens = g2p(text)
+
+   # Group by detected language
+   by_language = {}
+   for tok in tokens:
+       if tok.is_word:
+           lang = tok.get("detected_language", "unknown")
+           if lang not in by_language:
+               by_language[lang] = []
+           by_language[lang].append(tok.text)
+
+   for lang, words in by_language.items():
+       print(f"{lang}: {', '.join(words)}")
+
+Cache Analysis
+~~~~~~~~~~~~~~
+
+Monitor and manage detection cache:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   # Process some texts
+   texts = [
+       "Hello World",
+       "Hallo Welt",
+       "The Meeting ist wichtig",
+       "Das Projekt is great"
+   ]
+
+   for text in texts:
+       g2p(text)
+
+   # Check cache size
+   cache_size = g2p.get_cache_size()
+   print(f"Cache contains {cache_size} unique words")
+
+   # Clear cache for memory management
+   if cache_size > 10000:
+       g2p.clear_detection_cache()
+       print("Cache cleared")
+
+Batch Processing
+~~~~~~~~~~~~~~~~
+
+Efficient processing of many mixed-language texts:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Create instance once
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   # Process many documents
+   documents = [
+       "Das Meeting beginnt um 10 Uhr.",
+       "Please send the Report heute Abend.",
+       "Der Workflow ist optimal.",
+       # ... many more documents
+   ]
+
+   results = []
+   for doc in documents:
+       phonemes = g2p.phonemize(doc)
+       results.append(phonemes)
+
+   # Cache builds up automatically
+   print(f"Cached {g2p.get_cache_size()} detections")
+
+Detection Statistics
+~~~~~~~~~~~~~~~~~~~~
+
+Analyze detection patterns in your text:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+   from collections import Counter
+
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us", "fr"]
+   )
+
+   text = """
+   Die Präsentation war excellent!
+   The Analyse zeigt interessante Résultats.
+   Wir müssen das Strategy überdenken.
+   """
+
+   tokens = g2p(text)
+
+   # Count words by detected language
+   language_counts = Counter()
+   low_confidence = []
+
+   for tok in tokens:
+       if tok.is_word:
+           lang = tok.get("detected_language")
+           conf = tok.get("language_confidence", 0)
+
+           language_counts[lang] += 1
+
+           if conf < 0.8:
+               low_confidence.append((tok.text, lang, conf))
+
+   print("Language distribution:")
+   for lang, count in language_counts.items():
+       print(f"  {lang}: {count} words")
+
+   print("\nLow confidence detections:")
+   for word, lang, conf in low_confidence:
+       print(f"  {word} ({lang}): {conf:.2f}")
+
+Fallback Handling
+~~~~~~~~~~~~~~~~~
+
+Handle cases where lingua-py is not available:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # This will work even without lingua-py
+   # Falls back to primary language only
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   # Check if detection is actually enabled
+   if hasattr(g2p, 'detector') and g2p.detector is not None:
+       print("Using automatic language detection")
+   else:
+       print("Using primary language only (lingua-py not available)")
+       print("Install with: pip install kokorog2p[mixed]")
+
+Custom Language Hints
+~~~~~~~~~~~~~~~~~~~~~
+
+Provide hints for specific words:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   # Process with token metadata
+   tokens = g2p("Das Meeting ist wichtig")
+
+   # You can manually override detection by modifying token metadata
+   for tok in tokens:
+       if tok.text == "Meeting":
+           # Force English pronunciation even if detected as German
+           tok.phonemes = "mˈiɾɪŋ"
+           tok["detected_language"] = "en-us"
+
+Integration with Markdown
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Combine with markdown phoneme annotations:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   # Markdown overrides automatic detection
+   text = "Das {Meeting|ˈmiːtɪŋ} ist wichtig"
+
+   tokens = g2p(text)
+   for tok in tokens:
+       if tok.is_word:
+           source = tok.get("rating", 0)
+           if source == 5:
+               print(f"{tok.text}: user-provided → {tok.phonemes}")
+           else:
+               lang = tok.get("detected_language")
+               print(f"{tok.text}: detected ({lang}) → {tok.phonemes}")
+
 Error Handling
 --------------
 

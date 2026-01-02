@@ -75,8 +75,11 @@ ko = [
 he = [
     "phonikud"
 ]
+mixed = [
+    "lingua-language-detector>=2.0.0",
+]
 all = [
-    "kokorog2p[espeak,goruut,en,zh,ja,ko,he]",
+    "kokorog2p[espeak,goruut,en,zh,ja,ko,he,mixed]",
 ]
 dev = [
     "pytest>=7.0.0",
@@ -137,6 +140,7 @@ module = [
     "kokorog2p.en.g2p",
     "kokorog2p.en.lexicon",
     "kokorog2p.words_mismatch",
+    "kokorog2p.mixed_language_g2p",
     "kokorog2p.__init__",
 ]
 ignore_errors = true

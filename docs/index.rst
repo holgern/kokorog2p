@@ -15,6 +15,7 @@ Features
 --------
 
 * **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese
+* **Mixed-language detection**: Automatic detection and handling of texts mixing multiple languages
 * **Dictionary-based lookup** with large gold/silver tier lexicons
 * **espeak-ng integration** as a fallback for out-of-vocabulary words
 * **Automatic IPA to Kokoro phoneme conversion**
@@ -79,6 +80,7 @@ Installation
    api/czech
    api/chinese
    api/japanese
+   api/mixed
    api/backends
    api/utils
 

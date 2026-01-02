@@ -47,6 +47,11 @@ kokorog2p supports multiple languages with varying levels of functionality.
      - —
      - pyopenjtalk
      - Mora-based, pitch accent
+   * - Mixed
+     - multilingual
+     - Auto-detect
+     - lingua-py
+     - 17+ languages, word-level detection
 
 English (en-us, en-gb)
 ----------------------
@@ -315,6 +320,193 @@ Examples
    print(phonemize("世界", language="ja"))
    # → sekai
 
+Mixed-Language Support
+----------------------
+
+kokorog2p can automatically detect and handle texts that mix multiple languages, routing each word to the appropriate G2P engine.
+
+Features
+~~~~~~~~
+
+* **Automatic detection**: Word-level language detection using lingua-py
+* **High accuracy**: >90% accuracy for words with 5+ characters
+* **Caching**: Detection results cached for performance
+* **Configurable threshold**: Control detection sensitivity
+* **Graceful degradation**: Falls back to primary language without lingua-py
+* **17+ languages**: Support for major world languages
+
+Supported Languages
+~~~~~~~~~~~~~~~~~~~
+
+* English (en-us, en-gb)
+* German (de)
+* French (fr)
+* Spanish (es)
+* Italian (it)
+* Portuguese (pt)
+* Japanese (ja)
+* Chinese (zh)
+* Korean (ko)
+* Hebrew (he)
+* Czech (cs)
+* Dutch (nl)
+* Polish (pl)
+* Russian (ru)
+* Arabic (ar)
+* Hindi (hi)
+* Turkish (tr)
+
+Usage
+~~~~~
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # German text with English words
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+
+   tokens = g2p("Das Meeting war great!")
+
+   for token in tokens:
+       if token.is_word:
+           detected = token.get("detected_language")
+           print(f"{token.text} ({detected}) → {token.phonemes}")
+
+Output:
+
+.. code-block:: text
+
+   Das (de) → das
+   Meeting (en-us) → mˈiɾɪŋ
+   war (de) → vaːɐ̯
+   great (en-us) → ɡɹˈeɪt
+
+Examples
+~~~~~~~~
+
+**German with English:**
+
+.. code-block:: python
+
+   from kokorog2p import phonemize
+
+   result = phonemize(
+       "Ich gehe zum Meeting. Let's discuss the Roadmap!",
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"]
+   )
+   print(result)
+   # → ɪç ɡeːə ʦʊm mˈiɾɪŋ. lɛts dɪskˈʌs ðə ɹˈoʊdmæp!
+
+**English with German:**
+
+.. code-block:: python
+
+   result = phonemize(
+       "Hello, mein Freund! This is wunderbar.",
+       language="en-us",
+       multilingual_mode=True,
+       allowed_languages=["en-us", "de"]
+   )
+   print(result)
+   # → həlˈO, maɪ̯n fʁɔɪ̯nt! ðɪs ɪz vʊndɐbaːɐ̯.
+
+**Multiple languages:**
+
+.. code-block:: python
+
+   # French, English, and German
+   g2p = get_g2p(
+       language="fr",
+       multilingual_mode=True,
+       allowed_languages=["fr", "en-us", "de"]
+   )
+
+   result = g2p.phonemize("Bonjour! The Meeting ist wichtig.")
+   print(result)
+
+Configuration
+~~~~~~~~~~~~~
+
+**Confidence threshold:**
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Conservative (higher confidence required)
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"],
+       language_confidence_threshold=0.9  # Default: 0.7
+   )
+
+   # Aggressive (lower confidence required)
+   g2p = get_g2p(
+       language="de",
+       multilingual_mode=True,
+       allowed_languages=["de", "en-us"],
+       language_confidence_threshold=0.5
+   )
+
+**Cache management:**
+
+.. code-block:: python
+
+   # Check cache size
+   cache_size = g2p.get_cache_size()
+   print(f"Cached {cache_size} detections")
+
+   # Clear cache if needed
+   g2p.clear_detection_cache()
+
+How It Works
+~~~~~~~~~~~~
+
+1. Text is tokenized into words
+2. Each word is sent to the language detector
+3. Detector returns language + confidence score
+4. If confidence ≥ threshold and language is allowed:
+
+   * Word is routed to that language's G2P engine
+   * Detection is cached for future use
+
+5. Otherwise:
+
+   * Word uses primary language G2P
+   * Short words (<3 chars) always use primary language
+
+Performance
+~~~~~~~~~~~
+
+* **Memory**: ~100 MB for lingua models (loaded once)
+* **Speed**: ~0.1-0.5 ms per word (first detection)
+* **Speed**: ~0.001 ms per word (cached)
+* **Accuracy**: >90% for words with 5+ characters
+
+Limitations
+~~~~~~~~~~~
+
+* Short words (<3 characters) use primary language only
+* Proper nouns may be misdetected
+* Requires lingua-py installation (gracefully degrades without it)
+* Detection quality varies by word distinctiveness
+* Cache grows unbounded (clear manually if needed)
+
+Installation
+~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   pip install kokorog2p[mixed]
+
 Language-Specific Number Handling
 ----------------------------------
 
@@ -380,3 +572,4 @@ Next Steps
   - :doc:`api/czech`
   - :doc:`api/chinese`
   - :doc:`api/japanese`
+  - :doc:`api/mixed`
