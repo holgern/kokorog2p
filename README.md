@@ -6,12 +6,12 @@ kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech syst
 provides:
 
 - **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese,
-  Korean
+  Korean, Hebrew
 - **Dictionary-based lookup** with comprehensive lexicons
   - English: 179k+ entries (gold tier), 187k+ silver tier (both loaded by default)
   - German: 738k+ entries from Olaph/IPA-Dict
   - French: Gold-tier dictionary
-  - Czech, Chinese, Japanese, Korean: Rule-based and specialized engines
+  - Czech, Chinese, Japanese, Korean, Hebrew: Rule-based and specialized engines
 - **Flexible memory usage**: Control dictionary loading with `load_silver` and
   `load_gold` parameters
   - Disable silver: saves ~22-31 MB
@@ -71,6 +71,10 @@ print(phonemes)
 # Korean
 phonemes = phonemize("안녕하세요", language="ko")
 print(phonemes)
+
+# Hebrew (requires phonikud package)
+phonemes = phonemize("שָׁלוֹם", language="he")
+print(phonemes)
 ```
 
 ## Advanced Usage
@@ -124,6 +128,7 @@ for token in tokens:
 | Chinese      | `zh`    | pypinyin                          | -              | Production |
 | Japanese     | `ja`    | pyopenjtalk                       | -              | Production |
 | Korean       | `ko`    | g2pK rule-based                   | ✓              | Production |
+| Hebrew       | `he`    | phonikud-based (requires nikud)   | -              | Production |
 
 **Note:** Both gold and silver dictionaries are loaded by default for English. You can:
 
@@ -136,6 +141,16 @@ improved accuracy with morphological analysis, install MeCab:
 ```bash
 pip install mecab-python3
 ```
+
+**Hebrew Note:** Hebrew G2P requires the phonikud package for phonemization:
+
+```bash
+pip install kokorog2p[he]
+# or directly:
+pip install phonikud
+```
+
+Note: Hebrew text should include nikud (diacritical marks) for accurate phonemization.
 
 ## Phoneme Inventory
 

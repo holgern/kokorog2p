@@ -73,8 +73,11 @@ ko = [
     "nltk>=3.8.1",
     "mecab-python3",
 ]
+he = [
+    "phonikud"
+]
 all = [
-    "kokorog2p[espeak,goruut,en,zh,ja,ko]",
+    "kokorog2p[espeak,goruut,en,zh,ja,ko,he]",
 ]
 dev = [
     "pytest>=7.0.0",
