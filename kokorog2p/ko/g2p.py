@@ -12,6 +12,8 @@ Licensed under the Apache License, Version 2.0
 from kokorog2p.base import G2PBase
 from kokorog2p.token import GToken
 
+from .jamo_to_ipa import jamo_to_ipa
+
 
 class KoreanG2P(G2PBase):
     """Korean G2P using MeCab and Korean phonological rules.
@@ -88,8 +90,8 @@ class KoreanG2P(G2PBase):
         if not text or not text.strip():
             return []
 
-        # Convert to phonemes using g2pK
-        phonemes = self.g2pk(
+        # Convert to phonemes using g2pK (returns Hangul in phonetic form)
+        hangul_phonemes = self.g2pk(
             text,
             descriptive=False,
             verbose=False,
@@ -98,15 +100,17 @@ class KoreanG2P(G2PBase):
             use_dict=self.use_dict,
         )
 
+        # Convert jamo to IPA phonemes
+        ipa_phonemes = jamo_to_ipa(hangul_phonemes) if hangul_phonemes else None
+
         # Create a single token with the phoneme string
-        # Korean G2P returns jamo characters which are the phonemes
         token = GToken(
             text=text,
             tag="KO",
             whitespace="",
-            phonemes=phonemes if phonemes else None,
+            phonemes=ipa_phonemes if ipa_phonemes else None,
         )
-        token.rating = "ko" if phonemes else None
+        token.rating = "ko" if ipa_phonemes else None
         return [token]
 
     def lookup(self, word: str, tag: str | None = None) -> str | None:
@@ -122,8 +126,8 @@ class KoreanG2P(G2PBase):
         if not word or not word.strip():
             return None
 
-        # Use g2pK to convert the word
-        phonemes = self.g2pk(
+        # Use g2pK to convert the word (returns Hangul in phonetic form)
+        hangul_phonemes = self.g2pk(
             word,
             descriptive=False,
             verbose=False,
@@ -132,7 +136,10 @@ class KoreanG2P(G2PBase):
             use_dict=self.use_dict,
         )
 
-        return phonemes if phonemes else None
+        # Convert jamo to IPA phonemes
+        ipa_phonemes = jamo_to_ipa(hangul_phonemes) if hangul_phonemes else None
+
+        return ipa_phonemes if ipa_phonemes else None
 
     def _phonemize_internal(self, text: str) -> tuple[str, list[GToken] | None]:
         """Internal phonemization logic.
@@ -143,7 +150,8 @@ class KoreanG2P(G2PBase):
         Returns:
             Tuple of (phoneme_string, token_list).
         """
-        phonemes = self.g2pk(
+        # Convert to phonemes using g2pK (returns Hangul in phonetic form)
+        hangul_phonemes = self.g2pk(
             text,
             descriptive=False,
             verbose=False,
@@ -152,13 +160,16 @@ class KoreanG2P(G2PBase):
             use_dict=self.use_dict,
         )
 
+        # Convert jamo to IPA phonemes
+        ipa_phonemes = jamo_to_ipa(hangul_phonemes) if hangul_phonemes else ""
+
         # Create a token
         token = GToken(
             text=text,
             tag="KO",
             whitespace="",
-            phonemes=phonemes if phonemes else None,
+            phonemes=ipa_phonemes if ipa_phonemes else None,
         )
-        token.rating = "ko" if phonemes else None
+        token.rating = "ko" if ipa_phonemes else None
 
-        return phonemes, [token] if phonemes else None
+        return ipa_phonemes, [token] if ipa_phonemes else None
