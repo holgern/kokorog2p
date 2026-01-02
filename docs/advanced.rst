@@ -6,6 +6,58 @@ This guide covers advanced features and usage patterns for kokorog2p.
 Custom G2P Configuration
 ------------------------
 
+Memory-Efficient Loading
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Control dictionary loading to optimize memory and initialization time:
+
+.. code-block:: python
+
+   from kokorog2p import get_g2p
+
+   # Default: Gold + Silver dictionaries (~365k entries, ~57 MB)
+   # Provides maximum vocabulary coverage
+   g2p = get_g2p("en-us")
+   
+   # Memory-optimized: Gold dictionary only (~179k entries, ~35 MB)
+   # Saves ~22-31 MB memory and ~400-470 ms initialization time
+   g2p_fast = get_g2p("en-us", load_silver=False)
+   
+   # Ultra-fast initialization: No dictionaries (~7 MB, espeak fallback only)
+   # Saves ~50+ MB memory, fastest initialization
+   g2p_minimal = get_g2p("en-us", load_silver=False, load_gold=False)
+   
+   # Check dictionary size
+   print(f"Gold entries: {len(g2p.lexicon.golds):,}")
+   print(f"Silver entries: {len(g2p.lexicon.silvers):,}")
+
+**Dictionary loading configurations:**
+
+* ``load_gold=True, load_silver=True``: Maximum coverage (default, ~365k entries)
+* ``load_gold=True, load_silver=False``: Common words only (~179k entries, -22-31 MB)
+* ``load_gold=False, load_silver=True``: Extended vocabulary only (unusual, ~187k entries)
+* ``load_gold=False, load_silver=False``: Ultra-fast (espeak only, -50+ MB)
+
+**When to disable dictionaries:**
+
+* **Disable silver** (``load_silver=False``):
+  * Resource-constrained environments (limited memory)
+  * Real-time applications (faster initialization)
+  * You only need common vocabulary
+  * Production deployments where performance is critical
+
+* **Disable both** (``load_gold=False, load_silver=False``):
+  * Ultra-fast initialization is critical
+  * You're fine with espeak-only fallback
+  * Minimal memory footprint required
+  * Testing or prototyping
+
+**Default (both enabled) provides:**
+
+* Maximum vocabulary coverage (~365k total entries)
+* Best phoneme quality from curated dictionaries
+* Backward compatibility with existing code
+
 Disabling Features
 ~~~~~~~~~~~~~~~~~~
 
@@ -33,7 +85,9 @@ You can disable specific features for better performance or control:
    g2p = EnglishG2P(
        language="en-us",
        use_espeak_fallback=False,
-       use_spacy=False
+       use_spacy=False,
+       load_silver=False,
+       load_gold=False  # No dictionaries, ultra-fast
    )
 
 Stress Control
@@ -83,9 +137,9 @@ Rating System
 
 Tokens have a rating indicating the source of phonemes:
 
-* **5**: From gold dictionary (highest quality)
-* **4**: From silver dictionary or punctuation
-* **3**: From rule-based conversion
+* **5**: User-provided (markdown annotations) or gold dictionary (highest quality)
+* **4**: Punctuation
+* **3**: Silver dictionary or rule-based conversion
 * **2**: From espeak-ng fallback
 * **1**: From goruut backend
 * **0**: Unknown/failed
@@ -100,7 +154,9 @@ Tokens have a rating indicating the source of phonemes:
    for token in tokens:
        rating = token.get("rating", 0)
        if rating == 5:
-           print(f"{token.text}: High quality (dictionary)")
+           print(f"{token.text}: High quality (gold dictionary)")
+       elif rating == 3:
+           print(f"{token.text}: Silver dictionary")
        elif rating == 2:
            print(f"{token.text}: Fallback (espeak)")
        elif rating == 0:
@@ -113,25 +169,27 @@ Direct dictionary access:
 
 .. code-block:: python
 
-   from kokorog2p.en import EnglishLexicon
+   from kokorog2p.en import EnglishG2P
 
-   # Load the lexicon
-   lexicon = EnglishLexicon(language="en-us")
+   # Load with or without silver dataset
+   g2p_gold = EnglishG2P(language="en-us", load_silver=False)
+   g2p_full = EnglishG2P(language="en-us", load_silver=True)
 
    # Simple lookup
-   phonemes = lexicon.lookup("hello")
+   phonemes = g2p_gold.lexicon.lookup("hello")
    print(phonemes)  # həlˈO
 
    # Check if word is in dictionary
-   if lexicon.is_known("hello"):
-       print("Word is in dictionary")
+   if g2p_gold.lexicon.is_known("hello"):
+       print("Word is in gold dictionary")
 
-   # Get dictionary size
-   print(f"Dictionary has {len(lexicon):,} entries")
+   # Get dictionary sizes
+   print(f"Gold: {len(g2p_gold.lexicon.golds):,} entries")
+   print(f"Silver: {len(g2p_full.lexicon.silvers):,} entries")
 
    # POS-aware lookup
-   phonemes_verb = lexicon.lookup("read", tag="VB")   # ɹˈid (present)
-   phonemes_past = lexicon.lookup("read", tag="VBD")  # ɹˈɛd (past)
+   phonemes_verb = g2p_gold.lexicon.lookup("read", tag="VB")   # ɹˈid (present)
+   phonemes_past = g2p_gold.lexicon.lookup("read", tag="VBD")  # ɹˈɛd (past)
 
 German Lexicon
 ~~~~~~~~~~~~~~
@@ -362,6 +420,13 @@ Managing Cache
    # Different settings = different cache entry
    g2p3 = get_g2p("en-us", use_spacy=False)
    assert g2p1 is not g2p3  # Different instance
+   
+   # load_silver and load_gold also affect caching
+   g2p4 = get_g2p("en-us", load_silver=False)
+   assert g2p1 is not g2p4  # Different instance (different silver setting)
+   
+   g2p5 = get_g2p("en-us", load_gold=False)
+   assert g2p1 is not g2p5  # Different instance (different gold setting)
 
    # Clear cache when needed
    clear_cache()

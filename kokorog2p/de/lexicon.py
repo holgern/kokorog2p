@@ -11,12 +11,17 @@ from kokorog2p.de import data
 
 
 @lru_cache(maxsize=1)
-def _load_gold_dictionary() -> dict[str, str]:
+def _load_gold_dictionary(load_gold: bool = True) -> dict[str, str]:
     """Load the German gold dictionary.
+
+    Args:
+        load_gold: If True, load the dictionary; if False, return empty dict.
 
     Returns:
         Dictionary mapping lowercase words to IPA phonemes.
     """
+    if not load_gold:
+        return {}
     with importlib.resources.open_text(data, "de_gold.json") as f:
         return json.load(f)
 
@@ -32,14 +37,29 @@ class GermanLexicon:
         'haʊ̯s'
     """
 
-    def __init__(self, strip_stress: bool = False) -> None:
+    def __init__(
+        self,
+        strip_stress: bool = False,
+        load_silver: bool = True,
+        load_gold: bool = True,
+    ) -> None:
         """Initialize the German lexicon.
 
         Args:
             strip_stress: If True, remove stress markers from phonemes.
+            load_silver: If True, load silver tier dictionary if available.
+                Currently German only has gold dictionary, so this parameter
+                is reserved for future use and consistency with English.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary.
+                Defaults to True for maximum quality and coverage.
+                Set to False when ultra-fast initialization is needed.
         """
-        self._gold = _load_gold_dictionary()
+        self._gold = _load_gold_dictionary(load_gold=load_gold)
         self._strip_stress = strip_stress
+        self.load_silver = load_silver
+        self.load_gold = load_gold
+        # Silver dictionary not yet available for German
 
     def lookup(self, word: str, tag: str | None = None) -> str | None:
         """Look up a word in the lexicon.

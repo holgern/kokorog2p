@@ -195,38 +195,61 @@ def is_digit(text: str) -> bool:
 class Lexicon:
     """Dictionary-based G2P lookup with gold and silver tier dictionaries."""
 
-    def __init__(self, british: bool = False, skip_is_known: bool = False) -> None:
+    def __init__(
+        self,
+        british: bool = False,
+        skip_is_known: bool = False,
+        load_silver: bool = True,
+        load_gold: bool = True,
+    ) -> None:
         """Initialize the lexicon.
 
         Args:
             british: Whether to use British English dictionaries.
             skip_is_known: If True, skip is_known checks (useful for benchmarking).
+            load_silver: If True, load silver tier dictionary (~100k extra entries).
+                Defaults to True for backward compatibility and maximum coverage.
+                Set to False to save memory (~22-31 MB) and initialization time.
+            load_gold: If True, load gold tier dictionary (~170k common words).
+                Defaults to True for maximum quality and coverage.
+                Set to False when only silver tier or no dictionaries needed.
         """
         self.british = british
         self.skip_is_known = skip_is_known
+        self.load_silver = load_silver
+        self.load_gold = load_gold
         self.cap_stresses = (0.5, 2)
         self.golds: dict[str, str | dict[str, str | None]] = {}
         self.silvers: dict[str, str] = {}
 
         # Load dictionaries
         prefix = "gb" if british else "us"
-        with importlib.resources.open_text(data, f"{prefix}_gold.json") as r:
-            self.golds = self._grow_dictionary(json.load(r))
-        with importlib.resources.open_text(data, f"{prefix}_silver.json") as r:
-            self.silvers = self._grow_dictionary(json.load(r))
 
-        # Validate vocabulary
-        vocab = GB_VOCAB if british else US_VOCAB
-        for word, ps in self.golds.items():
-            if isinstance(ps, str):
-                assert all(c in vocab for c in ps), f"Invalid phoneme in {word}: {ps}"
-            else:
-                assert "DEFAULT" in ps, f"Missing DEFAULT in {word}"
-                for v in ps.values():
-                    if v is not None:
-                        assert all(
-                            c in vocab for c in v
-                        ), f"Invalid phoneme in {word}: {v}"
+        # Only load gold tier if requested
+        if load_gold:
+            with importlib.resources.open_text(data, f"{prefix}_gold.json") as r:
+                self.golds = self._grow_dictionary(json.load(r))
+
+        # Only load silver tier if requested
+        if load_silver:
+            with importlib.resources.open_text(data, f"{prefix}_silver.json") as r:
+                self.silvers = self._grow_dictionary(json.load(r))
+
+        # Validate vocabulary (only if gold dictionary is loaded)
+        if load_gold:
+            vocab = GB_VOCAB if british else US_VOCAB
+            for word, ps in self.golds.items():
+                if isinstance(ps, str):
+                    assert all(c in vocab for c in ps), (
+                        f"Invalid phoneme in {word}: {ps}"
+                    )
+                else:
+                    assert "DEFAULT" in ps, f"Missing DEFAULT in {word}"
+                    for v in ps.values():
+                        if v is not None:
+                            assert all(c in vocab for c in v), (
+                                f"Invalid phoneme in {word}: {v}"
+                            )
 
     @staticmethod
     def _grow_dictionary(d: dict[str, Any]) -> dict[str, Any]:

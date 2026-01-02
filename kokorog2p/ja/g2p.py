@@ -262,6 +262,8 @@ class JapaneseG2P(G2PBase):
         use_espeak_fallback: bool = True,
         version: str = "pyopenjtalk",
         unk: str = "",
+        load_silver: bool = True,
+        load_gold: bool = True,
         **kwargs,
     ) -> None:
         """Initialize the Japanese G2P.
@@ -271,11 +273,21 @@ class JapaneseG2P(G2PBase):
             use_espeak_fallback: Whether to use espeak for unknown words.
             version: Backend to use ("pyopenjtalk" or "cutlet").
             unk: Unknown token placeholder.
+            load_silver: If True, load silver tier dictionary if available.
+                Currently Japanese doesn't use dictionary system, so this
+                parameter is reserved for future use and consistency.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary if available.
+                Currently Japanese doesn't use dictionary system, so this
+                parameter is reserved for future use and consistency.
+                Defaults to True for consistency.
             **kwargs: Additional arguments.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
         self.version = version
         self.unk = unk
+        self.load_silver = load_silver
+        self.load_gold = load_gold
         self._pyopenjtalk = None
         self._cutlet = None
 

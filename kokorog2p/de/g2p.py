@@ -187,6 +187,8 @@ class GermanG2P(G2PBase):
         use_espeak_fallback: bool = True,
         use_lexicon: bool = True,
         strip_stress: bool = True,
+        load_silver: bool = True,
+        load_gold: bool = True,
     ) -> None:
         """Initialize the German G2P converter.
 
@@ -195,6 +197,13 @@ class GermanG2P(G2PBase):
             use_espeak_fallback: Whether to use espeak for OOV words.
             use_lexicon: Whether to use dictionary lookup (default: True).
             strip_stress: Whether to remove stress markers from lexicon output.
+            load_silver: If True, load silver tier dictionary if available.
+                Currently German only has gold dictionary, so this parameter
+                is reserved for future use and consistency with English.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary.
+                Defaults to True for maximum quality and coverage.
+                Set to False when ultra-fast initialization is needed.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
         self._lexicon: GermanLexicon | None = None  # noqa: F823
@@ -205,7 +214,11 @@ class GermanG2P(G2PBase):
             try:
                 from kokorog2p.de.lexicon import GermanLexicon
 
-                self._lexicon = GermanLexicon(strip_stress=strip_stress)
+                self._lexicon = GermanLexicon(
+                    strip_stress=strip_stress,
+                    load_silver=load_silver,
+                    load_gold=load_gold,
+                )
             except ImportError:
                 pass
 

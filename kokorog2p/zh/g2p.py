@@ -35,6 +35,8 @@ class ChineseG2P(G2PBase):
         version: str = "1.1",
         unk: str = "",
         en_callable=None,
+        load_silver: bool = True,
+        load_gold: bool = True,
         **kwargs,
     ) -> None:
         """Initialize the Chinese G2P.
@@ -45,12 +47,22 @@ class ChineseG2P(G2PBase):
             version: Version of the G2P ("1.1" for ZHFrontend, None for legacy).
             unk: Unknown token placeholder.
             en_callable: Callable for English word phonemization.
+            load_silver: If True, load silver tier dictionary if available.
+                Currently Chinese uses pypinyin system, so this parameter
+                is reserved for future use and consistency.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary if available.
+                Currently Chinese uses pypinyin system, so this parameter
+                is reserved for future use and consistency.
+                Defaults to True for consistency.
             **kwargs: Additional arguments.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
         self.version = version
         self.unk = unk
         self.en_callable = en_callable
+        self.load_silver = load_silver
+        self.load_gold = load_gold
         self._frontend = None
         self._jieba = None
         self._cn2an = None

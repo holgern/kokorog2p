@@ -26,6 +26,8 @@ class EnglishG2P(G2PBase):
         use_espeak_fallback: bool = True,
         use_spacy: bool = True,
         unk: str = "❓",
+        load_silver: bool = True,
+        load_gold: bool = True,
     ) -> None:
         """Initialize the English G2P converter.
 
@@ -34,6 +36,12 @@ class EnglishG2P(G2PBase):
             use_espeak_fallback: Whether to use espeak for OOV words.
             use_spacy: Whether to use spaCy for tokenization and POS tagging.
             unk: Character to use for unknown words when fallback is disabled.
+            load_silver: If True, load silver tier dictionary (~100k extra entries).
+                Defaults to True for backward compatibility and maximum coverage.
+                Set to False to save memory (~22-31 MB) and initialization time.
+            load_gold: If True, load gold tier dictionary (~170k common words).
+                Defaults to True for maximum quality and coverage.
+                Set to False when only silver tier or no dictionaries needed.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
 
@@ -41,7 +49,9 @@ class EnglishG2P(G2PBase):
         self.use_spacy = use_spacy
 
         # Initialize lexicon
-        self.lexicon = Lexicon(british=self.is_british)
+        self.lexicon = Lexicon(
+            british=self.is_british, load_silver=load_silver, load_gold=load_gold
+        )
 
         # Initialize fallback (lazy)
         self._fallback: EspeakFallback | None = None

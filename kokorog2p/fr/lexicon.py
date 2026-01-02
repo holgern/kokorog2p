@@ -153,13 +153,33 @@ class TokenContext:
 class FrenchLexicon:
     """Dictionary-based G2P lookup for French with gold dictionary."""
 
-    def __init__(self) -> None:
-        """Initialize the French lexicon."""
-        self.golds: dict[str, str | dict[str, str | None]] = {}
+    def __init__(self, load_silver: bool = True, load_gold: bool = True) -> None:
+        """Initialize the French lexicon.
 
-        # Load gold dictionary
-        with importlib.resources.open_text(data, "fr_gold.json") as r:
-            self.golds = self._grow_dictionary(json.load(r))
+        Args:
+            load_silver: If True, load silver tier dictionary if available.
+                Currently French only has gold dictionary, so this parameter
+                is reserved for future use and consistency with English.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary.
+                Defaults to True for maximum quality and coverage.
+                Set to False when ultra-fast initialization is needed.
+        """
+        self.load_silver = load_silver
+        self.load_gold = load_gold
+        self.golds: dict[str, str | dict[str, str | None]] = {}
+        self.silvers: dict[str, str] = {}
+
+        # Load gold dictionary if requested
+        if load_gold:
+            with importlib.resources.open_text(data, "fr_gold.json") as r:
+                self.golds = self._grow_dictionary(json.load(r))
+
+        # Silver dictionary not yet available for French
+        # When available, load it conditionally:
+        # if load_silver:
+        #     with importlib.resources.open_text(data, "fr_silver.json") as r:
+        #         self.silvers = self._grow_dictionary(json.load(r))
 
         # Initialize built-in pronunciation fixes (highest priority)
         self._init_builtin_fixes()

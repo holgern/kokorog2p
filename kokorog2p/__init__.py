@@ -108,6 +108,8 @@ def get_g2p(
     use_espeak_fallback: bool = True,
     use_spacy: bool = True,
     backend: BackendType = "espeak",
+    load_silver: bool = True,
+    load_gold: bool = True,
     **kwargs: Any,
 ) -> G2PBase:
     """Get a G2P instance for the specified language.
@@ -123,6 +125,15 @@ def get_g2p(
             (only applies to English).
         backend: Phonemization backend to use: "espeak" (default) or "goruut".
             The goruut backend requires pygoruut to be installed.
+        load_silver: If True, load silver tier dictionary (~100k extra entries).
+            Defaults to True for backward compatibility and maximum coverage.
+            Set to False to save memory (~22-31 MB) and initialization time.
+            Only applies to English (en-us, en-gb). Other languages reserve
+            this parameter for future use.
+        load_gold: If True, load gold tier dictionary (~170k common words).
+            Defaults to True for maximum quality and coverage.
+            Set to False when only silver tier or no dictionaries needed.
+            Only applies to languages with dictionaries (English, French, German).
         **kwargs: Additional arguments passed to the G2P constructor.
 
     Returns:
@@ -135,6 +146,10 @@ def get_g2p(
     Example:
         >>> g2p = get_g2p("en-us")
         >>> tokens = g2p("Hello world!")
+        >>> # Disable silver for better performance
+        >>> g2p_fast = get_g2p("en-us", load_silver=False)
+        >>> # Ultra-fast initialization with no dictionaries
+        >>> g2p_minimal = get_g2p("en-us", load_silver=False, load_gold=False)
         >>> # Chinese
         >>> g2p_zh = get_g2p("zh")
         >>> # Japanese
@@ -147,8 +162,10 @@ def get_g2p(
     # Normalize language code
     lang = language.lower().replace("_", "-")
 
-    # Check cache
-    cache_key = f"{lang}:{use_espeak_fallback}:{use_spacy}:{backend}"
+    # Check cache (include load_silver and load_gold in cache key)
+    cache_key = (
+        f"{lang}:{use_espeak_fallback}:{use_spacy}:{backend}:{load_silver}:{load_gold}"
+    )
     if cache_key in _g2p_cache:
         return _g2p_cache[cache_key]
 
@@ -167,34 +184,46 @@ def get_g2p(
             language=language,
             use_espeak_fallback=use_espeak_fallback,
             use_spacy=use_spacy,
+            load_silver=load_silver,
+            load_gold=load_gold,
             **kwargs,
         )
     elif lang in ("zh", "zh-cn", "zh-tw", "cmn", "chinese"):
         from kokorog2p.zh import ChineseG2P
 
-        g2p = ChineseG2P(language=language, **kwargs)
+        g2p = ChineseG2P(
+            language=language, load_silver=load_silver, load_gold=load_gold, **kwargs
+        )
     elif lang in ("ja", "ja-jp", "jpn", "japanese"):
         from kokorog2p.ja import JapaneseG2P
 
-        g2p = JapaneseG2P(language=language, **kwargs)
+        g2p = JapaneseG2P(
+            language=language, load_silver=load_silver, load_gold=load_gold, **kwargs
+        )
     elif lang in ("fr", "fr-fr", "fra", "french"):
         from kokorog2p.fr import FrenchG2P
 
         g2p = FrenchG2P(
             language=language,
             use_espeak_fallback=use_espeak_fallback,
+            load_silver=load_silver,
+            load_gold=load_gold,
             **kwargs,
         )
     elif lang in ("cs", "cs-cz", "ces", "czech"):
         from kokorog2p.cs import CzechG2P
 
-        g2p = CzechG2P(language=language, **kwargs)
+        g2p = CzechG2P(
+            language=language, load_silver=load_silver, load_gold=load_gold, **kwargs
+        )
     elif lang in ("de", "de-de", "de-at", "de-ch", "deu", "german"):
         from kokorog2p.de import GermanG2P
 
         g2p = GermanG2P(
             language=language,
             use_espeak_fallback=use_espeak_fallback,
+            load_silver=load_silver,
+            load_gold=load_gold,
             **kwargs,
         )
     else:

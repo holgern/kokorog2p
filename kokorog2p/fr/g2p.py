@@ -48,6 +48,8 @@ class FrenchG2P(G2PBase):
         use_spacy: bool = True,
         expand_nums: bool = True,
         unk: str = "?",
+        load_silver: bool = True,
+        load_gold: bool = True,
     ) -> None:
         """Initialize the French G2P converter.
 
@@ -57,6 +59,13 @@ class FrenchG2P(G2PBase):
             use_spacy: Whether to use spaCy for tokenization and POS tagging.
             expand_nums: Whether to expand numbers to words.
             unk: Character to use for unknown words when fallback is disabled.
+            load_silver: If True, load silver tier dictionary if available.
+                Currently French only has gold dictionary, so this parameter
+                is reserved for future use and consistency with English.
+                Defaults to True for consistency.
+            load_gold: If True, load gold tier dictionary.
+                Defaults to True for maximum quality and coverage.
+                Set to False when ultra-fast initialization is needed.
         """
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
 
@@ -65,7 +74,7 @@ class FrenchG2P(G2PBase):
         self.expand_nums = expand_nums
 
         # Initialize lexicon
-        self.lexicon = FrenchLexicon()
+        self.lexicon = FrenchLexicon(load_silver=load_silver, load_gold=load_gold)
 
         # Initialize fallback (lazy)
         self._fallback: FrenchFallback | None = None
