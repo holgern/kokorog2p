@@ -12,18 +12,19 @@ Example:
 """
 
 import re
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
+
 from kokorog2p.token import GToken
 
 if TYPE_CHECKING:
-    from kokorog2p.base import G2PBase
+    pass
 
 
 # Regex pattern for markdown annotations: [word](/phonemes/)
 LINK_REGEX = re.compile(r"\[([^\]]+)\]\(([^\)]*)\)")
 
 
-def preprocess_markdown(text: str) -> Tuple[str, list[str], dict[int, str]]:
+def preprocess_markdown(text: str) -> tuple[str, list[str], dict[int, str]]:
     """Preprocess text with markdown phoneme annotations.
 
     Extracts annotations in the format [word](/phonemes/) and returns

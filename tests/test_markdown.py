@@ -1,7 +1,5 @@
 """Tests for the markdown annotation module."""
 
-import pytest
-
 from kokorog2p.markdown import (
     apply_markdown_features,
     phonemize_with_markdown,
@@ -291,7 +289,8 @@ class TestMarkdownEdgeCases:
     def test_consecutive_annotations(self):
         """Test consecutive annotations without spaces."""
         # Note: Without space, "Helloworld" becomes a single token
-        # which won't match the individual annotations. Use space for proper tokenization.
+        # which won't match the individual annotations.
+        # Use space for proper tokenization.
         text = "[Hello](/hɛˈloʊ/) [world](/wˈɝld/)"
         result = phonemize_with_markdown(text, "en-us")
         assert "hɛˈloʊ" in result
