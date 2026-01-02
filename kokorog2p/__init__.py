@@ -80,6 +80,15 @@ from kokorog2p.words_mismatch import (
     count_words,
 )
 
+# Markdown annotation support
+from kokorog2p.markdown import (
+    phonemize_with_markdown,
+    preprocess_markdown,
+    apply_markdown_features,
+    remove_markdown,
+    LINK_REGEX,
+)
+
 # Version info
 try:
     from kokorog2p._version import __version__, __version_tuple__
@@ -330,4 +339,10 @@ __all__ = [
     "detect_mismatches",
     "check_word_alignment",
     "count_words",
+    # Markdown annotation support
+    "phonemize_with_markdown",
+    "preprocess_markdown",
+    "apply_markdown_features",
+    "remove_markdown",
+    "LINK_REGEX",
 ]
