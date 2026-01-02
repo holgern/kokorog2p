@@ -9,6 +9,7 @@ include = ["kokorog2p*"]
 [tool.setuptools.package-data]
 "kokorog2p.en.data" = ["*.json"]
 "kokorog2p.ja.data" = ["*.txt"]
+"kokorog2p.ko.data" = ["*.py", "*.csv"]
 
 [project]
 name = "kokorog2p"
@@ -121,6 +122,7 @@ ignore_missing_imports = true
 module = [
     "kokorog2p.ja.*",
     "kokorog2p.zh.*",
+    "kokorog2p.ko.*",
     "kokorog2p.de.numbers",
     "kokorog2p.goruut_g2p",
     "kokorog2p.backends.goruut.*",

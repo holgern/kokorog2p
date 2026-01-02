@@ -5,13 +5,15 @@ A unified multi-language G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
 provides:
 
-- **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese
+- **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese,
+  Korean
 - **Dictionary-based lookup** with comprehensive lexicons
   - English: 179k+ entries (gold tier), 187k+ silver tier (both loaded by default)
   - German: 738k+ entries from Olaph/IPA-Dict
   - French: Gold-tier dictionary
-  - Czech, Chinese, Japanese: Rule-based and specialized engines
-- **Flexible memory usage**: Control dictionary loading with `load_silver` and `load_gold` parameters
+  - Czech, Chinese, Japanese, Korean: Rule-based and specialized engines
+- **Flexible memory usage**: Control dictionary loading with `load_silver` and
+  `load_gold` parameters
   - Disable silver: saves ~22-31 MB
   - Disable both: saves ~50+ MB for ultra-fast initialization
 - **espeak-ng integration** as a fallback for out-of-vocabulary words
@@ -65,6 +67,10 @@ print(phonemes)
 # Chinese
 phonemes = phonemize("你好", language="zh")
 print(phonemes)
+
+# Korean
+phonemes = phonemize("안녕하세요", language="ko")
+print(phonemes)
 ```
 
 ## Advanced Usage
@@ -108,19 +114,28 @@ for token in tokens:
 
 ## Supported Languages
 
-| Language     | Code    | Dictionary Size                      | Number Support | Status     |
-| ------------ | ------- | ------------------------------------ | -------------- | ---------- |
-| English (US) | `en-us` | 179k gold + 187k silver (default)    | ✓              | Production |
-| English (GB) | `en-gb` | 173k gold + 220k silver (default)    | ✓              | Production |
-| German       | `de`    | 738k+ entries (gold)                 | ✓              | Production |
-| French       | `fr`    | Gold dictionary                      | ✓              | Production |
-| Czech        | `cs`    | Rule-based                           | -              | Production |
-| Chinese      | `zh`    | pypinyin                             | -              | Production |
-| Japanese     | `ja`    | pyopenjtalk                          | -              | Production |
+| Language     | Code    | Dictionary Size                   | Number Support | Status     |
+| ------------ | ------- | --------------------------------- | -------------- | ---------- |
+| English (US) | `en-us` | 179k gold + 187k silver (default) | ✓              | Production |
+| English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | Production |
+| German       | `de`    | 738k+ entries (gold)              | ✓              | Production |
+| French       | `fr`    | Gold dictionary                   | ✓              | Production |
+| Czech        | `cs`    | Rule-based                        | -              | Production |
+| Chinese      | `zh`    | pypinyin                          | -              | Production |
+| Japanese     | `ja`    | pyopenjtalk                       | -              | Production |
+| Korean       | `ko`    | g2pK rule-based                   | ✓              | Production |
 
 **Note:** Both gold and silver dictionaries are loaded by default for English. You can:
+
 - Use `load_silver=False` to save ~22-31 MB (gold only, ~179k entries)
 - Use `load_gold=False, load_silver=False` to save ~50+ MB (espeak fallback only)
+
+**Korean Note:** Korean G2P works out of the box with rule-based phonemization. For
+improved accuracy with morphological analysis, install MeCab:
+
+```bash
+pip install mecab-python3
+```
 
 ## Phoneme Inventory
 

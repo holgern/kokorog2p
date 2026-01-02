@@ -2,7 +2,7 @@
 
 This library provides grapheme-to-phoneme conversion for text-to-speech
 applications, supporting multiple languages including English, German, French,
-Czech, Chinese, and Japanese.
+Czech, Chinese, Japanese, and Korean.
 
 Supported Languages:
     - English (US/GB): 100k+ dictionary, POS tagging, stress assignment
@@ -11,6 +11,7 @@ Supported Languages:
     - Czech: Rule-based phonology
     - Chinese: pypinyin with tone sandhi
     - Japanese: pyopenjtalk with mora-based phonemes
+    - Korean: MeCab-based phonological rules
 
 Example:
     >>> from kokorog2p import phonemize, get_g2p
@@ -23,6 +24,8 @@ Example:
     >>> # French
     >>> phonemize("Bonjour!", language="fr")
     'bɔ̃ʒuʁ!'
+    >>> # Korean
+    >>> phonemize("안녕하세요", language="ko")
     >>> # Full control with tokens
     >>> g2p = get_g2p("de")
     >>> tokens = g2p("Das Wetter ist schön.")
@@ -220,6 +223,16 @@ def get_g2p(
         from kokorog2p.de import GermanG2P
 
         g2p = GermanG2P(
+            language=language,
+            use_espeak_fallback=use_espeak_fallback,
+            load_silver=load_silver,
+            load_gold=load_gold,
+            **kwargs,
+        )
+    elif lang in ("ko", "ko-kr", "kor", "korean"):
+        from kokorog2p.ko import KoreanG2P
+
+        g2p = KoreanG2P(
             language=language,
             use_espeak_fallback=use_espeak_fallback,
             load_silver=load_silver,

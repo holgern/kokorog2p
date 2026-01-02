@@ -1,4 +1,5 @@
-"""Benchmark script to measure memory and initialization time with/without silver/gold datasets.
+"""Benchmark script to measure memory and initialization time
+with/without silver/gold datasets.
 
 This benchmark compares:
 1. Memory usage with silver/gold enabled vs disabled

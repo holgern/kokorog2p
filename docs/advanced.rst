@@ -18,15 +18,15 @@ Control dictionary loading to optimize memory and initialization time:
    # Default: Gold + Silver dictionaries (~365k entries, ~57 MB)
    # Provides maximum vocabulary coverage
    g2p = get_g2p("en-us")
-   
+
    # Memory-optimized: Gold dictionary only (~179k entries, ~35 MB)
    # Saves ~22-31 MB memory and ~400-470 ms initialization time
    g2p_fast = get_g2p("en-us", load_silver=False)
-   
+
    # Ultra-fast initialization: No dictionaries (~7 MB, espeak fallback only)
    # Saves ~50+ MB memory, fastest initialization
    g2p_minimal = get_g2p("en-us", load_silver=False, load_gold=False)
-   
+
    # Check dictionary size
    print(f"Gold entries: {len(g2p.lexicon.golds):,}")
    print(f"Silver entries: {len(g2p.lexicon.silvers):,}")
@@ -420,11 +420,11 @@ Managing Cache
    # Different settings = different cache entry
    g2p3 = get_g2p("en-us", use_spacy=False)
    assert g2p1 is not g2p3  # Different instance
-   
+
    # load_silver and load_gold also affect caching
    g2p4 = get_g2p("en-us", load_silver=False)
    assert g2p1 is not g2p4  # Different instance (different silver setting)
-   
+
    g2p5 = get_g2p("en-us", load_gold=False)
    assert g2p1 is not g2p5  # Different instance (different gold setting)
 

@@ -240,16 +240,16 @@ class Lexicon:
             vocab = GB_VOCAB if british else US_VOCAB
             for word, ps in self.golds.items():
                 if isinstance(ps, str):
-                    assert all(c in vocab for c in ps), (
-                        f"Invalid phoneme in {word}: {ps}"
-                    )
+                    assert all(
+                        c in vocab for c in ps
+                    ), f"Invalid phoneme in {word}: {ps}"
                 else:
                     assert "DEFAULT" in ps, f"Missing DEFAULT in {word}"
                     for v in ps.values():
                         if v is not None:
-                            assert all(c in vocab for c in v), (
-                                f"Invalid phoneme in {word}: {v}"
-                            )
+                            assert all(
+                                c in vocab for c in v
+                            ), f"Invalid phoneme in {word}: {v}"
 
     @staticmethod
     def _grow_dictionary(d: dict[str, Any]) -> dict[str, Any]:

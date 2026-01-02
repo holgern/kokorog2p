@@ -19,6 +19,12 @@ exclude = ["setup/*", "notebooks/*"]
 "__init__.py" = ["F401", "I001"]  # ignore unused and unsorted imports in __init__.py
 "__manifest__.py" = ["B018"]  # useless expression
 "cli.py" = ["C901"]  # Allow higher complexity for CLI commands with recursive logic
+"kokorog2p/ko/data/rules.py" = ["E501"]  # Korean linguistic rules with long strings
+"kokorog2p/ko/english.py" = ["E501", "C901"]  # Complex English-to-Hangul conversion
+"kokorog2p/ko/g2pk.py" = ["E501", "F841", "B007", "B028"]  # Korean G2P main engine
+"kokorog2p/ko/numerals.py" = ["E501", "C901"]  # Korean number processing
+"kokorog2p/ko/regular.py" = ["F841"]  # Unused rule variables for future verbose mode
+"kokorog2p/ko/special.py" = ["F841"]  # Unused rule variables for future verbose mode
 
 [lint.isort]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

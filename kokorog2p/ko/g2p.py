@@ -1,0 +1,164 @@
+"""Korean G2P (Grapheme-to-Phoneme) converter.
+
+This module provides Korean text to phoneme conversion using MeCab for morphological
+analysis and custom phonological rules based on Korean Standard Pronunciation.
+
+Based on g2pK by kyubyong: https://github.com/kyubyong/g2pK
+
+Copyright 2024 kokorog2p contributors
+Licensed under the Apache License, Version 2.0
+"""
+
+from kokorog2p.base import G2PBase
+from kokorog2p.token import GToken
+
+
+class KoreanG2P(G2PBase):
+    """Korean G2P using MeCab and Korean phonological rules.
+
+    This class converts Korean text to phonemes using:
+    1. Idiom/abbreviation replacement
+    2. English to Hangul conversion
+    3. MeCab POS tagging
+    4. Number spelling
+    5. Hangul decomposition
+    6. Phonological rules application
+    7. Jamo composition
+
+    Example:
+        >>> g2p = KoreanG2P()
+        >>> tokens = g2p("안녕하세요")
+    """
+
+    def __init__(
+        self,
+        language: str = "ko",
+        use_espeak_fallback: bool = False,
+        load_silver: bool = True,
+        load_gold: bool = True,
+        use_dict: bool = True,
+        group_vowels: bool = False,
+        to_syl: bool = False,
+        **kwargs,
+    ) -> None:
+        """Initialize the Korean G2P.
+
+        Args:
+            language: Language code (e.g., 'ko', 'ko-kr').
+            use_espeak_fallback: Whether to use espeak for unknown words.
+                Not typically used for Korean. Defaults to False.
+            load_silver: Reserved for API consistency. Korean doesn't use
+                dictionary tiers. Defaults to True.
+            load_gold: Reserved for API consistency. Korean doesn't use
+                dictionary tiers. Defaults to True.
+            use_dict: Whether to use MeCab dictionary for POS tagging.
+                Defaults to True. If False, skips MeCab annotation.
+            group_vowels: If True, merge similar vowels (e.g., ㅐ->ㅔ).
+                Defaults to False.
+            to_syl: If True, compose jamo back to syllables.
+                Defaults to False (returns decomposed jamo).
+            **kwargs: Additional arguments.
+        """
+        super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
+        self.load_silver = load_silver
+        self.load_gold = load_gold
+        self.use_dict = use_dict
+        self.group_vowels = group_vowels
+        self.to_syl = to_syl
+        self._g2pk_instance = None
+
+    @property
+    def g2pk(self):
+        """Lazy initialization of g2pK backend."""
+        if self._g2pk_instance is None:
+            from .g2pk import G2p
+
+            self._g2pk_instance = G2p()
+        return self._g2pk_instance
+
+    def __call__(self, text: str) -> list[GToken]:
+        """Convert Korean text to tokens with phonemes.
+
+        Args:
+            text: Input Korean text to convert.
+
+        Returns:
+            List of GToken objects with phonemes.
+        """
+        if not text or not text.strip():
+            return []
+
+        # Convert to phonemes using g2pK
+        phonemes = self.g2pk(
+            text,
+            descriptive=False,
+            verbose=False,
+            group_vowels=self.group_vowels,
+            to_syl=self.to_syl,
+            use_dict=self.use_dict,
+        )
+
+        # Create a single token with the phoneme string
+        # Korean G2P returns jamo characters which are the phonemes
+        token = GToken(
+            text=text,
+            tag="KO",
+            whitespace="",
+            phonemes=phonemes if phonemes else None,
+        )
+        token.rating = "ko" if phonemes else None
+        return [token]
+
+    def lookup(self, word: str, tag: str | None = None) -> str | None:
+        """Look up a Korean word and return its phonetic representation.
+
+        Args:
+            word: The word to look up.
+            tag: Optional POS tag (not used in Korean G2P).
+
+        Returns:
+            Phoneme string or None if empty.
+        """
+        if not word or not word.strip():
+            return None
+
+        # Use g2pK to convert the word
+        phonemes = self.g2pk(
+            word,
+            descriptive=False,
+            verbose=False,
+            group_vowels=self.group_vowels,
+            to_syl=self.to_syl,
+            use_dict=self.use_dict,
+        )
+
+        return phonemes if phonemes else None
+
+    def _phonemize_internal(self, text: str) -> tuple[str, list[GToken] | None]:
+        """Internal phonemization logic.
+
+        Args:
+            text: Input text.
+
+        Returns:
+            Tuple of (phoneme_string, token_list).
+        """
+        phonemes = self.g2pk(
+            text,
+            descriptive=False,
+            verbose=False,
+            group_vowels=self.group_vowels,
+            to_syl=self.to_syl,
+            use_dict=self.use_dict,
+        )
+
+        # Create a token
+        token = GToken(
+            text=text,
+            tag="KO",
+            whitespace="",
+            phonemes=phonemes if phonemes else None,
+        )
+        token.rating = "ko" if phonemes else None
+
+        return phonemes, [token] if phonemes else None
