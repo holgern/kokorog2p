@@ -123,7 +123,9 @@ for token in tokens:
 
 ## Mixed-Language Support
 
-kokorog2p can automatically detect and handle mixed-language texts using the high-accuracy lingua-py library. This is especially useful for technical documents, social media, or any text that contains words from multiple languages.
+kokorog2p can automatically detect and handle mixed-language texts using the
+high-accuracy lingua-py library. This is especially useful for technical documents,
+social media, or any text that contains words from multiple languages.
 
 ### Installation
 
@@ -212,11 +214,13 @@ g2p.clear_detection_cache()
 ### Configuration Tips
 
 **Confidence Threshold:**
+
 - `0.5`: More aggressive, may mis-detect ambiguous words
 - `0.7`: **Recommended** - balanced precision and recall
 - `0.9`: Conservative, most words fall back to primary language
 
 **Allowed Languages:**
+
 - Only specify languages that actually appear in your text
 - Fewer languages = faster detection and better accuracy
 - Must be explicitly defined by the user (no defaults)
@@ -253,6 +257,7 @@ for token in tokens:
 ```
 
 Output:
+
 ```
 Das                  de     das
 System               de     zʏsteːm
