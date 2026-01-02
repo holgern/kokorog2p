@@ -71,7 +71,6 @@ ja = [
 ko = [
     "jamo>=0.4.1",
     "nltk>=3.8.1",
-    "mecab-python3",
 ]
 he = [
     "phonikud"
