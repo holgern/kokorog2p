@@ -161,6 +161,7 @@ def validate_sentence(
         "minimal_pairs",
         "mixed_difficulty",
         "gb_specific",  # GB-specific phoneme features
+        "childes_natural",  # Natural speech from CHILDES corpus
     }
     if sentence.get("category") not in valid_categories:
         errors.append(
