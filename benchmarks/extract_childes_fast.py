@@ -25,7 +25,16 @@ from collections import Counter
 
 def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFrame:
     """Load CHILDES dataset."""
-    lang_map = {"en-us": "en-US", "en-gb": "en-GB"}
+    lang_map = {
+        "en-us": "en-US",
+        "en-gb": "en-GB",
+        "de": "de-DE",
+        "de-de": "de-DE",
+        "fr": "fr-FR",
+        "fr-fr": "fr-FR",
+        "es": "es-ES",
+        "es-es": "es-ES",
+    }
     lang_dir = lang_map.get(language)
     if not lang_dir:
         raise ValueError(f"Unsupported language: {language}")
@@ -41,7 +50,7 @@ def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFram
     return df
 
 
-def convert_espeak_to_kokoro_fast(ipa_espeak: str) -> str:
+def convert_espeak_to_kokoro_fast(ipa_espeak: str, language: str = "en-us") -> str:
     """Fast espeak to Kokoro conversion (without validation).
 
     Uses simplified conversion rules. May need manual review.
@@ -49,28 +58,51 @@ def convert_espeak_to_kokoro_fast(ipa_espeak: str) -> str:
     # espeak format: "word1 | word2 | word3"
     ipa = ipa_espeak.replace(" | ", " ").strip()
 
-    # Apply basic conversions from kokorog2p.phonemes
-    conversions = [
-        # Diphthongs
-        ("a͡ɪ", "I"),
-        ("a͡ʊ", "W"),
-        ("e͡ɪ", "A"),
-        ("ɔ͡ɪ", "Y"),
-        # Affricates
-        ("d͡ʒ", "ʤ"),
-        ("t͡ʃ", "ʧ"),
-        # Common substitutions
-        ("r", "ɹ"),
-        ("x", "k"),
-        ("ç", "k"),
-        ("ɬ", "l"),
-        # Rhotacized vowels
-        ("ɚɹ", "əɹ"),
-        ("ɚ", "əɹ"),
-        # Other
-        ("e", "A"),
-        ("ɐ", "ə"),
-    ]
+    # Language-specific conversions
+    if language in ("en-us", "en-gb"):
+        # Apply basic conversions from kokorog2p.phonemes
+        conversions = [
+            # Diphthongs
+            ("a͡ɪ", "I"),
+            ("a͡ʊ", "W"),
+            ("e͡ɪ", "A"),
+            ("ɔ͡ɪ", "Y"),
+            # Affricates
+            ("d͡ʒ", "ʤ"),
+            ("t͡ʃ", "ʧ"),
+            # Common substitutions
+            ("r", "ɹ"),
+            ("x", "k"),
+            ("ç", "k"),
+            ("ɬ", "l"),
+            # Rhotacized vowels
+            ("ɚɹ", "əɹ"),
+            ("ɚ", "əɹ"),
+            # Other
+            ("e", "A"),
+            ("ɐ", "ə"),
+        ]
+    elif language in ("de", "de-de"):
+        # German conversions
+        conversions = [
+            # Affricates with tie bars
+            ("t͡s", "ʦ"),
+            ("t͡ʃ", "ʧ"),
+            ("d͡ʒ", "ʤ"),
+            # Remove combining diacritics
+            ("\u032f", ""),  # non-syllabic marker
+            ("\u0329", ""),  # syllabic marker
+            # Keep German-specific phonemes as is
+        ]
+    else:
+        # Generic conversions for other languages
+        conversions = [
+            ("t͡s", "ʦ"),
+            ("t͡ʃ", "ʧ"),
+            ("d͡ʒ", "ʤ"),
+            ("\u032f", ""),
+            ("\u0329", ""),
+        ]
 
     for old, new in conversions:
         ipa = ipa.replace(old, new)
@@ -135,7 +167,7 @@ def extract_fast(
 
         # Convert espeak IPA
         try:
-            kokoro_phonemes = convert_espeak_to_kokoro_fast(row["ipa_espeak"])
+            kokoro_phonemes = convert_espeak_to_kokoro_fast(row["ipa_espeak"], language)
         except Exception:
             continue
 
@@ -212,7 +244,12 @@ def merge_with_existing(
 
 def main():
     parser = argparse.ArgumentParser(description="Fast CHILDES extraction")
-    parser.add_argument("--language", "-l", required=True, choices=["en-us", "en-gb"])
+    parser.add_argument(
+        "--language",
+        "-l",
+        required=True,
+        choices=["en-us", "en-gb", "de", "de-de", "fr", "fr-fr", "es", "es-es"],
+    )
     parser.add_argument(
         "--count", "-n", type=int, required=True, help="Number of sentences to extract"
     )

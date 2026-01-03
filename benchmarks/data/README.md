@@ -19,9 +19,9 @@ Each benchmark file contains carefully curated sentences designed to:
 
 | File | Language | Sentences | Phonemes | Status |
 |------|----------|-----------|----------|--------|
-| `en_us_synthetic.json` | English (US) | 95 | 46/46 (100%) | ✅ Complete |
-| `en_gb_synthetic.json` | English (GB) | 60 | 45/45 (100%) | ✅ Complete |
-| `de_synthetic.json` | German | - | - | 🚧 Planned |
+| `en_us_synthetic.json` | English (US) | 205 | 46/46 (100%) | ✅ Complete |
+| `en_gb_synthetic.json` | English (GB) | 201 | 45/45 (100%) | ✅ Complete |
+| `de_synthetic.json` | German | 189 | 307 unique | ✅ Complete |
 | `fr_synthetic.json` | French | - | - | 🚧 Planned |
 | `cs_synthetic.json` | Czech | - | - | 🚧 Planned |
 
@@ -262,6 +262,27 @@ Same as above
 - **R-dropping**: GB uses length marks `ː` (car → kɑː), US keeps `ɹ` (car → kɑɹ)
 - **No flapping**: GB keeps `t` (butter), US uses `ɾ` (butter)
 - **No glottal stop**: GB uses `t` (button), US uses `ʔ` (button)
+
+## German Phonemes
+
+The German dataset (`de_synthetic.json`) contains 189 sentences with 307 unique phoneme combinations.
+
+### Key German Phonological Features
+- **Umlauts**: ä ö ü (special German vowels)
+- **Final obstruent devoicing** (Auslautverhärtung): `b→p`, `d→t`, `g→k` word-finally
+- **CH sounds**:
+  - `ç` - ich-Laut (after front vowels: ich, nicht, möchte)
+  - `x` - ach-Laut (after back vowels: nach, Buch, auch)
+- **Long vowels**: Marked with `ː` (e.g., `aː`, `eː`, `oː`)
+- **Diphthongs**: `aɪ` (ei), `aʊ` (au), `ɔɪ` (eu/äu)
+- **Affricates**: `ʦ` (z/tz), `ʧ` (tsch), `pf`
+- **Consonant r**: `ʁ` (uvular fricative)
+
+### German Dataset Composition
+- **41 hand-crafted sentences** covering core German phonology
+- **148 natural speech examples** from CHILDES corpus (adult speech)
+- **Categories**: greetings, geography, weather, conversation, phoneme_coverage, numbers, family, complex
+- **100% accuracy** with German G2P + espeak fallback
 
 ## Performance Expectations
 
