@@ -44,6 +44,15 @@ GB_VOCAB: Final[frozenset[str]] = SHARED_PHONES | GB_ONLY_PHONES
 # - Length/special: ː (length marker), ᶄ, ᶉ (special markers)
 JA_VOCAB: Final[frozenset[str]] = frozenset("abdefghijkmnoprstuwzɕɴʔʥʦʨːᶄᶉ")
 
+# French phoneme vocabulary (35 characters)
+# - Basic vowels: a e i o u y
+# - Nasal vowels: ɑ̃ ɛ̃ œ̃ ɔ̃ (represented as combining character + ̃)
+# - Oral vowels: ɑ ɔ ə ɛ ø œ
+# - Consonants: b d f g j k l m n p s t v w z
+# - Special: ʁ (uvular fricative), ʃ (sh), ʒ (zh), ɡ (g), ɥ (ɥ)
+# Note: Includes punctuation marks: ' , -
+FR_VOCAB: Final[frozenset[str]] = frozenset("',-abdefijklmnopstuvwyzøœɑɔəɛɡɥʁʃʒ̃")
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================

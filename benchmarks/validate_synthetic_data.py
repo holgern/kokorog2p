@@ -26,7 +26,7 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
     Returns:
         Frozenset of valid phoneme characters
     """
-    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB, JA_VOCAB
+    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB, JA_VOCAB, FR_VOCAB
 
     if language == "en-us":
         return US_VOCAB
@@ -34,9 +34,11 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return GB_VOCAB
     elif language in ("ja", "ja-jp"):
         return JA_VOCAB
-    elif language in ("de", "fr", "cs"):
+    elif language in ("fr", "fr-fr"):
+        return FR_VOCAB
+    elif language in ("de", "cs"):
         # For now, return US vocab as baseline
-        # TODO: Add proper German/French/Czech vocab
+        # TODO: Add proper German/Czech vocab
         return US_VOCAB
     else:
         raise ValueError(f"Unknown language: {language}")

@@ -23,7 +23,7 @@ Each benchmark file contains carefully curated sentences designed to:
 | `en_gb_synthetic.json` | English (GB) | 201 | 45/45 (100%) | ✅ Complete |
 | `de_synthetic.json` | German | 189 | 307 unique | ✅ Complete |
 | `ja_synthetic.json` | Japanese | 371 | 29/29 (100%) | ✅ Complete |
-| `fr_synthetic.json` | French | - | - | 🚧 Planned |
+| `fr_synthetic.json` | French | 154 | 35/35 (100%) | ✅ Complete |
 | `cs_synthetic.json` | Czech | - | - | 🚧 Planned |
 
 ## File Format
@@ -128,6 +128,9 @@ python benchmarks/benchmark_de_comparison.py
 # Test all Japanese configurations
 python benchmarks/benchmark_ja_comparison.py
 
+# Test all French configurations
+python benchmarks/benchmark_fr_comparison.py
+
 # Test specific language
 python benchmarks/benchmark_en_us_comparison.py --language en-us
 python benchmarks/benchmark_en_gb_comparison.py --language en-gb
@@ -135,6 +138,7 @@ python benchmarks/benchmark_en_gb_comparison.py --language en-gb
 # Test single configuration
 python benchmarks/benchmark_en_us_comparison.py --config "Gold + Espeak"
 python benchmarks/benchmark_ja_comparison.py --config "pyopenjtalk"
+python benchmarks/benchmark_fr_comparison.py --config "Gold only"
 
 # Verbose output with errors
 python benchmarks/benchmark_en_us_comparison.py --verbose
@@ -144,6 +148,7 @@ python benchmarks/benchmark_en_us_comparison.py --output results_en_us.json
 python benchmarks/benchmark_en_gb_comparison.py --output results_en_gb.json
 python benchmarks/benchmark_de_comparison.py --output results_de.json
 python benchmarks/benchmark_ja_comparison.py --output results_ja.json
+python benchmarks/benchmark_fr_comparison.py --output results_fr.json
 ```
 
 The benchmark tests:
@@ -326,6 +331,68 @@ The Japanese dataset (`ja_synthetic.json`) contains 371 sentences with 29 unique
 | pyopenjtalk + espeak | 100% | 6,286 sent/s | Recommended (fastest + accurate) |
 | pyopenjtalk | 100% | 1,716 sent/s | Good default |
 | cutlet | N/A | - | Requires MeCab installation |
+
+## French Phonemes
+
+The French dataset (`fr_synthetic.json`) contains 154 sentences with 35 unique phoneme characters achieving 100% phoneme coverage.
+
+### Key French Phonological Features
+
+**Nasal vowels** (with combining tilde ̃):
+- `ɑ̃` - nasal A (dans, enfant, temps)
+- `ɛ̃` - nasal E (vin, pain, bien)
+- `œ̃` - nasal EU (un, parfum)
+- `ɔ̃` - nasal O (bon, monde, nom)
+
+**Special consonants**:
+- `ʁ` - uvular fricative (French R: rouge, Paris)
+- `ʃ` - voiceless postalveolar fricative (ch: chat, chaud)
+- `ʒ` - voiced postalveolar fricative (j: je, rouge)
+- `ɥ` - labial-palatal approximant (ui: huit, nuit)
+
+**Oral vowels**:
+- `a` - open front (chat)
+- `ɑ` - open back (pâte)
+- `e` - close front (été)
+- `ɛ` - open-mid front (père)
+- `ə` - schwa (le, de)
+- `i` - close front (si)
+- `o` - close-mid back (beau)
+- `ɔ` - open-mid back (porte)
+- `ø` - close-mid front rounded (peu)
+- `œ` - open-mid front rounded (peur)
+- `u` - close back rounded (tout)
+- `y` - close front rounded (tu)
+
+**Standard consonants**:
+- `b d f ɡ j k l m n p s t v w z` - similar to other languages
+
+**Punctuation/markers**:
+- `'` - apostrophe (l'ami)
+- `,` - comma
+- `-` - hyphen
+
+### French Dataset Composition
+- **35 hand-crafted sentences** covering greetings, common phrases, numbers
+- **119 natural speech examples** from CHILDES fr-FR corpus (adult speech)
+- **Categories**: greetings (4), common_words (8), conversation (5), numbers (3), phoneme_coverage (6), childes_natural (119)
+- **100% accuracy** with French gold lexicon (15,011 entries)
+
+### French Benchmark Results
+| Configuration | Accuracy | Speed | Notes |
+|--------------|----------|-------|-------|
+| Gold only | 100% | 9,399 sent/s | ✅ Recommended (best speed + accuracy) |
+| Gold + Goruut | 100% | 7,783 sent/s | Good alternative |
+| Gold + Espeak | 100% | 7,669 sent/s | Good alternative |
+| Espeak only | 44.2% | 1,059 sent/s | Not recommended |
+| Goruut only | 20.8% | 54 sent/s | Very slow, not recommended |
+
+### French CHILDES Extraction Notes
+The French dataset has a smaller size (154 sentences) compared to other languages due to:
+- High OOV rate in CHILDES data (~63% of sentences had unknown phonemes)
+- Strict quality filtering (only sentences with valid phonemes accepted)
+- Lower retention rate (~37%) after phoneme validation
+- Focus on quality over quantity
 
 ## Performance Expectations
 
