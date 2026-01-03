@@ -2,6 +2,7 @@
 
 import pytest
 
+from kokorog2p.en.g2p import EnglishG2P
 from kokorog2p.token import GToken
 
 
@@ -815,3 +816,127 @@ class TestContractionRobustness:
 
         # Alternative bug signature (split tokens)
         assert not ("dˈu" in result and "ˈɛnt" in result)
+
+
+class TestGoruutFallback:
+    """Test goruut fallback functionality for English G2P."""
+
+    @pytest.fixture
+    def g2p_goruut(self):
+        """Create EnglishG2P with goruut fallback."""
+        pytest.importorskip("pygoruut")
+        return EnglishG2P(
+            use_espeak_fallback=False,
+            use_goruut_fallback=True,
+            load_gold=False,
+            load_silver=False,
+        )
+
+    @pytest.fixture
+    def g2p_espeak(self):
+        """Create EnglishG2P with espeak fallback for comparison."""
+        return EnglishG2P(
+            use_espeak_fallback=True,
+            use_goruut_fallback=False,
+            load_gold=False,
+            load_silver=False,
+        )
+
+    def test_mutual_exclusion_error(self):
+        """Test that both fallbacks can't be enabled simultaneously."""
+        with pytest.raises(ValueError, match="Cannot use both"):
+            EnglishG2P(use_espeak_fallback=True, use_goruut_fallback=True)
+
+    def test_goruut_fallback_basic(self, g2p_goruut):
+        """Test basic goruut fallback for unknown words."""
+        # Use a made-up word not in dictionary
+        result = g2p_goruut.phonemize("xyzabc")
+
+        # Should produce some phonemes (not empty or unknown marker)
+        assert result
+        assert result != "❓"
+        assert len(result) > 0
+
+    def test_goruut_fallback_produces_phonemes(self, g2p_goruut):
+        """Test that goruut produces valid phonemes for common words."""
+        result = g2p_goruut.phonemize("hello")
+
+        # Should contain recognizable IPA characters
+        assert any(c in result for c in "həɛlˈO")
+        assert result != "❓"
+
+    def test_goruut_vs_espeak_both_work(self, g2p_goruut, g2p_espeak):
+        """Test that both goruut and espeak produce phonemes (may differ)."""
+        word = "supercalifragilisticexpialidocious"
+
+        result_goruut = g2p_goruut.phonemize(word)
+        result_espeak = g2p_espeak.phonemize(word)
+
+        # Both should produce something
+        assert result_goruut
+        assert result_espeak
+
+        # Both should be non-trivial (not just unknown markers)
+        assert len(result_goruut) > 5
+        assert len(result_espeak) > 5
+
+    def test_no_fallback_returns_unknown(self):
+        """Test that without fallback, unknown words return unknown marker."""
+        g2p_none = EnglishG2P(
+            use_espeak_fallback=False,
+            use_goruut_fallback=False,
+            load_gold=False,
+            load_silver=False,
+        )
+
+        result = g2p_none.phonemize("xyzabc")
+
+        # Should contain unknown marker
+        assert "❓" in result
+
+    def test_goruut_fallback_with_real_words(self, g2p_goruut):
+        """Test goruut fallback with various real English words."""
+        words = ["test", "world", "python", "programming"]
+
+        for word in words:
+            result = g2p_goruut.phonemize(word)
+            # Should produce phonemes, not unknown marker
+            assert result
+            assert "❓" not in result
+
+    def test_goruut_british_variant(self):
+        """Test goruut fallback with British English."""
+        pytest.importorskip("pygoruut")
+
+        g2p_gb = EnglishG2P(
+            language="en-gb",
+            use_espeak_fallback=False,
+            use_goruut_fallback=True,
+            load_gold=False,
+            load_silver=False,
+        )
+
+        result = g2p_gb.phonemize("hello")
+
+        # Should produce phonemes
+        assert result
+        assert result != "❓"
+
+    def test_goruut_fallback_initialization(self, g2p_goruut):
+        """Test that goruut fallback is properly initialized."""
+        # Fallback should exist
+        assert g2p_goruut.fallback is not None
+
+        # Should be GoruutFallback instance
+        from kokorog2p.en.fallback import GoruutFallback
+
+        assert isinstance(g2p_goruut.fallback, GoruutFallback)
+
+    def test_goruut_sentence_phonemization(self, g2p_goruut):
+        """Test goruut fallback with full sentences."""
+        text = "The quick brown fox jumps over the lazy dog."
+        result = g2p_goruut.phonemize(text)
+
+        # Should produce substantial output
+        assert len(result) > 20
+        assert "❓" not in result

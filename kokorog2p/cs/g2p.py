@@ -230,11 +230,11 @@ def _indices_where_in(v: list[str | None], keyset: dict[str, str]) -> list[int]:
 
 
 class CzechG2P(G2PBase):
-    """Czech G2P converter using rule-based phoneme conversion.
+    """Czech G2P converter using rule-based phoneme conversion with fallback options.
 
     This class provides grapheme-to-phoneme conversion for Czech text
     using phonological rules for voicing assimilation, palatalization,
-    and other Czech-specific features.
+    and other Czech-specific features, with optional fallback to espeak or goruut.
 
     Example:
         >>> g2p = CzechG2P()
@@ -247,6 +247,7 @@ class CzechG2P(G2PBase):
         self,
         language: str = "cs-cz",
         use_espeak_fallback: bool = False,
+        use_goruut_fallback: bool = False,
         unk: str = "?",
         load_silver: bool = True,
         load_gold: bool = True,
@@ -255,7 +256,8 @@ class CzechG2P(G2PBase):
 
         Args:
             language: Language code (default: 'cs-cz').
-            use_espeak_fallback: Whether to use espeak for OOV words (not used).
+            use_espeak_fallback: Whether to use espeak for OOV words.
+            use_goruut_fallback: Whether to use goruut for OOV words.
             unk: Character to use for unknown characters.
             load_silver: If True, load silver tier dictionary if available.
                 Currently Czech uses rule-based G2P, so this parameter
@@ -265,11 +267,40 @@ class CzechG2P(G2PBase):
                 Currently Czech uses rule-based G2P, so this parameter
                 is reserved for future use and consistency.
                 Defaults to True for consistency.
+
+        Raises:
+            ValueError: If both use_espeak_fallback and use_goruut_fallback are True.
         """
+        # Validate mutual exclusion
+        if use_espeak_fallback and use_goruut_fallback:
+            raise ValueError(
+                "Cannot use both espeak and goruut fallback simultaneously. "
+                "Please set only one of use_espeak_fallback or "
+                "use_goruut_fallback to True."
+            )
+
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
         self.unk = unk
         self.load_silver = load_silver
         self.load_gold = load_gold
+        self.use_goruut_fallback = use_goruut_fallback
+        self._fallback = None
+
+        # Initialize fallback (lazy)
+        if use_goruut_fallback:
+            try:
+                from kokorog2p.cs.fallback import CzechGoruutFallback
+
+                self._fallback = CzechGoruutFallback()
+            except ImportError:
+                pass
+        elif use_espeak_fallback:
+            try:
+                from kokorog2p.cs.fallback import CzechEspeakFallback
+
+                self._fallback = CzechEspeakFallback()
+            except ImportError:
+                pass
 
     def __call__(self, text: str) -> list[GToken]:
         """Convert text to a list of tokens with phonemes.
@@ -301,10 +332,22 @@ class CzechG2P(G2PBase):
                 token.phonemes = self._get_punct_phonemes(word)
                 token.set("rating", 4)
             else:
-                # Convert word to phonemes
+                # Convert word to phonemes using rules
                 phonemes = self._word_to_phonemes(word)
-                token.phonemes = phonemes
-                token.set("rating", 4)
+
+                # Optionally use fallback if enabled
+                # (Useful for loan words or foreign abbreviations)
+                if not phonemes and self._fallback:
+                    fallback_phonemes, rating = self._fallback(word)
+                    if fallback_phonemes:
+                        phonemes = fallback_phonemes
+                        token.set("rating", 2)  # Fallback rating
+                    else:
+                        token.set("rating", 4)  # Rule-based
+                else:
+                    token.set("rating", 4)  # Rule-based
+
+                token.phonemes = phonemes if phonemes else self.unk
 
             tokens.append(token)
 

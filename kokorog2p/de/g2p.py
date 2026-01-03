@@ -167,12 +167,11 @@ def normalize_to_kokoro(phonemes: str) -> str:
 
 
 class GermanG2P(G2PBase):
-    """German G2P converter using dictionary lookup with rule-based fallback.
+    """German G2P converter using dictionary lookup with fallback options.
 
     This class provides grapheme-to-phoneme conversion for German text
-    using a large dictionary (738k+ entries) with fallback to phonological
-    rules for final devoicing, ich/ach-Laut alternation, and other
-    German-specific features.
+    using a large dictionary (738k+ entries) with fallback to espeak-ng
+    or goruut for out-of-vocabulary words and phonological rules.
 
     Example:
         >>> g2p = GermanG2P()
@@ -185,6 +184,7 @@ class GermanG2P(G2PBase):
         self,
         language: str = "de-de",
         use_espeak_fallback: bool = True,
+        use_goruut_fallback: bool = False,
         use_lexicon: bool = True,
         strip_stress: bool = True,
         load_silver: bool = True,
@@ -195,6 +195,7 @@ class GermanG2P(G2PBase):
         Args:
             language: Language code (default: 'de-de').
             use_espeak_fallback: Whether to use espeak for OOV words.
+            use_goruut_fallback: Whether to use goruut for OOV words.
             use_lexicon: Whether to use dictionary lookup (default: True).
             strip_stress: Whether to remove stress markers from lexicon output.
             load_silver: If True, load silver tier dictionary if available.
@@ -204,11 +205,23 @@ class GermanG2P(G2PBase):
             load_gold: If True, load gold tier dictionary.
                 Defaults to True for maximum quality and coverage.
                 Set to False when ultra-fast initialization is needed.
+
+        Raises:
+            ValueError: If both use_espeak_fallback and use_goruut_fallback are True.
         """
+        # Validate mutual exclusion
+        if use_espeak_fallback and use_goruut_fallback:
+            raise ValueError(
+                "Cannot use both espeak and goruut fallback simultaneously. "
+                "Please set only one of use_espeak_fallback or "
+                "use_goruut_fallback to True."
+            )
+
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
         self._lexicon: GermanLexicon | None = None  # noqa: F823
-        self._espeak = None
+        self._fallback = None
         self._strip_stress = strip_stress
+        self.use_goruut_fallback = use_goruut_fallback
 
         if use_lexicon:
             try:
@@ -222,11 +235,19 @@ class GermanG2P(G2PBase):
             except ImportError:
                 pass
 
-        if use_espeak_fallback:
+        # Initialize fallback (lazy)
+        if use_goruut_fallback:
             try:
-                from kokorog2p.backends.espeak import EspeakBackend
+                from kokorog2p.de.fallback import GermanGoruutFallback
 
-                self._espeak = EspeakBackend(language="de")
+                self._fallback = GermanGoruutFallback()
+            except ImportError:
+                pass
+        elif use_espeak_fallback:
+            try:
+                from kokorog2p.de.fallback import GermanEspeakFallback
+
+                self._fallback = GermanEspeakFallback()
             except ImportError:
                 pass
 
@@ -275,11 +296,12 @@ class GermanG2P(G2PBase):
                         token.phonemes = normalize_to_kokoro(phonemes)
                         token.set("rating", 3)  # Rule-based
 
-                # Fallback to espeak
-                if not phonemes and self._espeak:
-                    phonemes = self._espeak.phonemize(word)
-                    token.phonemes = normalize_to_kokoro(phonemes)
-                    token.set("rating", 2)  # Espeak fallback
+                # Fallback to espeak or goruut
+                if not phonemes and self._fallback:
+                    fallback_phonemes, rating = self._fallback(word)
+                    if fallback_phonemes:
+                        token.phonemes = fallback_phonemes
+                        token.set("rating", 2)  # Fallback
 
                 if not phonemes:
                     token.phonemes = "?"

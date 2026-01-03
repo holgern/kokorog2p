@@ -9,17 +9,17 @@ import re
 import unicodedata
 
 from kokorog2p.base import G2PBase
-from kokorog2p.fr.fallback import FrenchFallback
+from kokorog2p.fr.fallback import FrenchFallback, FrenchGoruutFallback
 from kokorog2p.fr.lexicon import FrenchLexicon, TokenContext
 from kokorog2p.fr.numbers import expand_currency, expand_numbers, expand_time
 from kokorog2p.token import GToken
 
 
 class FrenchG2P(G2PBase):
-    """French G2P converter using dictionary lookup and espeak fallback.
+    """French G2P converter using dictionary lookup with fallback options.
 
     This class provides grapheme-to-phoneme conversion for French text,
-    using a gold dictionary with espeak-ng as a fallback for OOV words.
+    using a gold dictionary with espeak-ng or goruut as fallback for OOV words.
 
     Example:
         >>> g2p = FrenchG2P()
@@ -45,6 +45,7 @@ class FrenchG2P(G2PBase):
         self,
         language: str = "fr-fr",
         use_espeak_fallback: bool = True,
+        use_goruut_fallback: bool = False,
         use_spacy: bool = True,
         expand_nums: bool = True,
         unk: str = "?",
@@ -56,6 +57,7 @@ class FrenchG2P(G2PBase):
         Args:
             language: Language code (default: 'fr-fr').
             use_espeak_fallback: Whether to use espeak for OOV words.
+            use_goruut_fallback: Whether to use goruut for OOV words.
             use_spacy: Whether to use spaCy for tokenization and POS tagging.
             expand_nums: Whether to expand numbers to words.
             unk: Character to use for unknown words when fallback is disabled.
@@ -66,27 +68,42 @@ class FrenchG2P(G2PBase):
             load_gold: If True, load gold tier dictionary.
                 Defaults to True for maximum quality and coverage.
                 Set to False when ultra-fast initialization is needed.
+
+        Raises:
+            ValueError: If both use_espeak_fallback and use_goruut_fallback are True.
         """
+        # Validate mutual exclusion
+        if use_espeak_fallback and use_goruut_fallback:
+            raise ValueError(
+                "Cannot use both espeak and goruut fallback simultaneously. "
+                "Please set only one of use_espeak_fallback or "
+                "use_goruut_fallback to True."
+            )
+
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
 
         self.unk = unk
         self.use_spacy = use_spacy
         self.expand_nums = expand_nums
+        self.use_goruut_fallback = use_goruut_fallback
 
         # Initialize lexicon
         self.lexicon = FrenchLexicon(load_silver=load_silver, load_gold=load_gold)
 
         # Initialize fallback (lazy)
-        self._fallback: FrenchFallback | None = None
+        self._fallback: FrenchFallback | FrenchGoruutFallback | None = None
 
         # Initialize spaCy (lazy)
         self._nlp: object | None = None
 
     @property
-    def fallback(self) -> FrenchFallback | None:
-        """Lazily initialize the espeak fallback."""
-        if self.use_espeak_fallback and self._fallback is None:
-            self._fallback = FrenchFallback()
+    def fallback(self) -> FrenchFallback | FrenchGoruutFallback | None:
+        """Lazily initialize the appropriate fallback."""
+        if self._fallback is None:
+            if self.use_goruut_fallback:
+                self._fallback = FrenchGoruutFallback()
+            elif self.use_espeak_fallback:
+                self._fallback = FrenchFallback()
         return self._fallback
 
     @property

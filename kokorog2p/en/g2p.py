@@ -1,17 +1,17 @@
 """English G2P (Grapheme-to-Phoneme) converter."""
 
 from kokorog2p.base import G2PBase
-from kokorog2p.en.fallback import EspeakFallback
+from kokorog2p.en.fallback import EspeakFallback, GoruutFallback
 from kokorog2p.en.lexicon import Lexicon, TokenContext
 from kokorog2p.token import GToken
 
 
 class EnglishG2P(G2PBase):
-    """English G2P converter using dictionary lookup and espeak fallback.
+    """English G2P converter using dictionary lookup with fallback options.
 
     This class provides grapheme-to-phoneme conversion for English text,
-    using a tiered dictionary system (gold/silver) with espeak-ng as a
-    fallback for out-of-vocabulary words.
+    using a tiered dictionary system (gold/silver) with espeak-ng or goruut
+    as fallback for out-of-vocabulary words.
 
     Example:
         >>> g2p = EnglishG2P(language="en-us")
@@ -24,6 +24,7 @@ class EnglishG2P(G2PBase):
         self,
         language: str = "en-us",
         use_espeak_fallback: bool = True,
+        use_goruut_fallback: bool = False,
         use_spacy: bool = True,
         unk: str = "❓",
         load_silver: bool = True,
@@ -34,6 +35,7 @@ class EnglishG2P(G2PBase):
         Args:
             language: Language code ('en-us' or 'en-gb').
             use_espeak_fallback: Whether to use espeak for OOV words.
+            use_goruut_fallback: Whether to use goruut for OOV words.
             use_spacy: Whether to use spaCy for tokenization and POS tagging.
             unk: Character to use for unknown words when fallback is disabled.
             load_silver: If True, load silver tier dictionary (~100k extra entries).
@@ -42,11 +44,23 @@ class EnglishG2P(G2PBase):
             load_gold: If True, load gold tier dictionary (~170k common words).
                 Defaults to True for maximum quality and coverage.
                 Set to False when only silver tier or no dictionaries needed.
+
+        Raises:
+            ValueError: If both use_espeak_fallback and use_goruut_fallback are True.
         """
+        # Validate mutual exclusion
+        if use_espeak_fallback and use_goruut_fallback:
+            raise ValueError(
+                "Cannot use both espeak and goruut fallback simultaneously. "
+                "Please set only one of use_espeak_fallback or "
+                "use_goruut_fallback to True."
+            )
+
         super().__init__(language=language, use_espeak_fallback=use_espeak_fallback)
 
         self.unk = unk
         self.use_spacy = use_spacy
+        self.use_goruut_fallback = use_goruut_fallback
 
         # Initialize lexicon
         self.lexicon = Lexicon(
@@ -54,16 +68,19 @@ class EnglishG2P(G2PBase):
         )
 
         # Initialize fallback (lazy)
-        self._fallback: EspeakFallback | None = None
+        self._fallback: EspeakFallback | GoruutFallback | None = None
 
         # Initialize spaCy (lazy)
         self._nlp: object | None = None
 
     @property
-    def fallback(self) -> EspeakFallback | None:
-        """Lazily initialize the espeak fallback."""
-        if self.use_espeak_fallback and self._fallback is None:
-            self._fallback = EspeakFallback(british=self.is_british)
+    def fallback(self) -> EspeakFallback | GoruutFallback | None:
+        """Lazily initialize the appropriate fallback."""
+        if self._fallback is None:
+            if self.use_goruut_fallback:
+                self._fallback = GoruutFallback(british=self.is_british)
+            elif self.use_espeak_fallback:
+                self._fallback = EspeakFallback(british=self.is_british)
         return self._fallback
 
     @property
