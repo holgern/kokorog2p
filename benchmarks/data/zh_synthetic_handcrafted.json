@@ -1,0 +1,1102 @@
+[
+  {
+    "id": 1,
+    "text": "你好",
+    "phonemes": "ㄋㄧ2ㄏㄠ3",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Hello - most common greeting"
+  },
+  {
+    "id": 2,
+    "text": "谢谢",
+    "phonemes": "ㄒㄝ4ㄒㄝ5",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Thank you - with tone sandhi (xie4 xie5)"
+  },
+  {
+    "id": 3,
+    "text": "再见",
+    "phonemes": "ㄗㄞ4ㄐ言4",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Goodbye"
+  },
+  {
+    "id": 4,
+    "text": "早上好",
+    "phonemes": "ㄗㄠ3ㄕㄤ4ㄏㄠ3",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "Good morning"
+  },
+  {
+    "id": 5,
+    "text": "晚安",
+    "phonemes": "万3ㄢ1",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Good night"
+  },
+  {
+    "id": 6,
+    "text": "对不起",
+    "phonemes": "ㄉ为4ㄅㄨ5ㄑㄧ3",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "Sorry - apologizing"
+  },
+  {
+    "id": 7,
+    "text": "没关系",
+    "phonemes": "ㄇㄟ2ㄍ万1ㄒㄧ5",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "It's okay - responding to apology"
+  },
+  {
+    "id": 8,
+    "text": "不客气",
+    "phonemes": "ㄅㄨ2ㄎㄜ4ㄑㄧ5",
+    "category": "greetings",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "You're welcome"
+  },
+  {
+    "id": 9,
+    "text": "爱",
+    "phonemes": "ㄞ4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Love - single character"
+  },
+  {
+    "id": 10,
+    "text": "家",
+    "phonemes": "ㄐ压1",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Home/family"
+  },
+  {
+    "id": 11,
+    "text": "朋友",
+    "phonemes": "ㄆㄥ2又5",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Friend"
+  },
+  {
+    "id": 12,
+    "text": "工作",
+    "phonemes": "ㄍ中1ㄗ我4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Work"
+  },
+  {
+    "id": 13,
+    "text": "学习",
+    "phonemes": "ㄒ月2ㄒㄧ2",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Study"
+  },
+  {
+    "id": 14,
+    "text": "时间",
+    "phonemes": "ㄕ十2ㄐ言1",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Time"
+  },
+  {
+    "id": 15,
+    "text": "名字",
+    "phonemes": "ㄇ应2ㄗㄭ5",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Name"
+  },
+  {
+    "id": 16,
+    "text": "世界",
+    "phonemes": "ㄕ十4ㄐㄝ4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "World"
+  },
+  {
+    "id": 17,
+    "text": "中国",
+    "phonemes": "ㄓ中1ㄍ我2",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "China"
+  },
+  {
+    "id": 18,
+    "text": "北京",
+    "phonemes": "ㄅㄟ3ㄐ应1",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Beijing"
+  },
+  {
+    "id": 19,
+    "text": "上海",
+    "phonemes": "ㄕㄤ4ㄏㄞ3",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Shanghai"
+  },
+  {
+    "id": 20,
+    "text": "我爱你",
+    "phonemes": "我3ㄞ4ㄋㄧ3",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "I love you - common phrase"
+  },
+  {
+    "id": 21,
+    "text": "很高兴",
+    "phonemes": "ㄏㄣ3/ㄍㄠ1ㄒ应4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "Very happy - word boundary marker /"
+  },
+  {
+    "id": 22,
+    "text": "好吃",
+    "phonemes": "ㄏㄠ3ㄔ十1",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Delicious"
+  },
+  {
+    "id": 23,
+    "text": "好看",
+    "phonemes": "ㄏㄠ3ㄎㄢ4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Good-looking/pretty"
+  },
+  {
+    "id": 24,
+    "text": "漂亮",
+    "phonemes": "ㄆ要4ㄌ阳5",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Beautiful"
+  },
+  {
+    "id": 25,
+    "text": "美丽",
+    "phonemes": "ㄇㄟ3ㄌㄧ4",
+    "category": "common_words",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Beautiful (elegant form)"
+  },
+  {
+    "id": 26,
+    "text": "一",
+    "phonemes": "ㄧ1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "One - 1st tone"
+  },
+  {
+    "id": 27,
+    "text": "二",
+    "phonemes": "ㄦ4",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Two - 4th tone"
+  },
+  {
+    "id": 28,
+    "text": "三",
+    "phonemes": "ㄙㄢ1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Three - 1st tone"
+  },
+  {
+    "id": 29,
+    "text": "四",
+    "phonemes": "ㄙㄭ4",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Four - 4th tone"
+  },
+  {
+    "id": 30,
+    "text": "五",
+    "phonemes": "ㄨ3",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Five - 3rd tone"
+  },
+  {
+    "id": 31,
+    "text": "六",
+    "phonemes": "ㄌ又4",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Six - 4th tone"
+  },
+  {
+    "id": 32,
+    "text": "七",
+    "phonemes": "ㄑㄧ1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Seven - 1st tone"
+  },
+  {
+    "id": 33,
+    "text": "八",
+    "phonemes": "ㄅㄚ1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Eight - 1st tone"
+  },
+  {
+    "id": 34,
+    "text": "九",
+    "phonemes": "ㄐ又3",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Nine - 3rd tone"
+  },
+  {
+    "id": 35,
+    "text": "十",
+    "phonemes": "ㄕ十2",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Ten - 2nd tone"
+  },
+  {
+    "id": 36,
+    "text": "百",
+    "phonemes": "ㄅㄞ3",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Hundred"
+  },
+  {
+    "id": 37,
+    "text": "千",
+    "phonemes": "ㄑ言1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Thousand"
+  },
+  {
+    "id": 38,
+    "text": "万",
+    "phonemes": "万4",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Ten thousand - special final"
+  },
+  {
+    "id": 39,
+    "text": "一二三",
+    "phonemes": "ㄧ1ㄦ4ㄙㄢ1",
+    "category": "numbers",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "One two three - sequence"
+  },
+  {
+    "id": 40,
+    "text": "饭",
+    "phonemes": "ㄈㄢ4",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Rice/meal"
+  },
+  {
+    "id": 41,
+    "text": "茶",
+    "phonemes": "ㄔㄚ2",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Tea"
+  },
+  {
+    "id": 42,
+    "text": "水",
+    "phonemes": "ㄕ为3",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Water"
+  },
+  {
+    "id": 43,
+    "text": "面",
+    "phonemes": "ㄇ言4",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Noodles"
+  },
+  {
+    "id": 44,
+    "text": "肉",
+    "phonemes": "ㄖㄡ4",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Meat"
+  },
+  {
+    "id": 45,
+    "text": "鱼",
+    "phonemes": "ㄩ2",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Fish"
+  },
+  {
+    "id": 46,
+    "text": "菜",
+    "phonemes": "ㄘㄞ4",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Vegetable/dish"
+  },
+  {
+    "id": 47,
+    "text": "果",
+    "phonemes": "ㄍ我3",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Fruit"
+  },
+  {
+    "id": 48,
+    "text": "水果",
+    "phonemes": "ㄕ为2ㄍ我3",
+    "category": "food",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Fruit (compound word)"
+  },
+  {
+    "id": 49,
+    "text": "什么",
+    "phonemes": "ㄕㄣ2ㄇㄜ5",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "What - question word"
+  },
+  {
+    "id": 50,
+    "text": "为什么",
+    "phonemes": "为4ㄕㄣ2ㄇㄜ5",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 3,
+    "contains_oov": false,
+    "notes": "Why"
+  },
+  {
+    "id": 51,
+    "text": "怎么",
+    "phonemes": "ㄗㄣ3ㄇㄜ5",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "How"
+  },
+  {
+    "id": 52,
+    "text": "哪里",
+    "phonemes": "ㄋㄚ2ㄌㄧ3",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Where"
+  },
+  {
+    "id": 53,
+    "text": "谁",
+    "phonemes": "ㄕ为2",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Who"
+  },
+  {
+    "id": 54,
+    "text": "哪个",
+    "phonemes": "ㄋㄟ3ㄍㄜ4",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Which one"
+  },
+  {
+    "id": 55,
+    "text": "你叫什么名字",
+    "phonemes": "ㄋㄧ3/ㄐ要4/ㄕㄣ2ㄇㄜ5/ㄇ应2ㄗㄭ5",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 6,
+    "contains_oov": false,
+    "notes": "What is your name?"
+  },
+  {
+    "id": 56,
+    "text": "这是什么",
+    "phonemes": "ㄓㄜ4/ㄕ十4/ㄕㄣ2ㄇㄜ5",
+    "category": "questions",
+    "difficulty": "basic",
+    "word_count": 4,
+    "contains_oov": false,
+    "notes": "What is this?"
+  },
+  {
+    "id": 57,
+    "text": "爸爸",
+    "phonemes": "ㄅㄚ4ㄅㄚ5",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Dad - ㄅ (b)"
+  },
+  {
+    "id": 58,
+    "text": "妈妈",
+    "phonemes": "ㄇㄚ1ㄇㄚ5",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Mom - ㄇ (m)"
+  },
+  {
+    "id": 59,
+    "text": "爬",
+    "phonemes": "ㄆㄚ2",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Climb - ㄆ (p)"
+  },
+  {
+    "id": 60,
+    "text": "发",
+    "phonemes": "ㄈㄚ1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Send/emit - ㄈ (f)"
+  },
+  {
+    "id": 61,
+    "text": "大",
+    "phonemes": "ㄉㄚ4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Big - ㄉ (d)"
+  },
+  {
+    "id": 62,
+    "text": "他",
+    "phonemes": "ㄊㄚ1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "He - ㄊ (t)"
+  },
+  {
+    "id": 63,
+    "text": "那",
+    "phonemes": "ㄋㄚ4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "That - ㄋ (n)"
+  },
+  {
+    "id": 64,
+    "text": "拉",
+    "phonemes": "ㄌㄚ1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Pull - ㄌ (l)"
+  },
+  {
+    "id": 65,
+    "text": "个",
+    "phonemes": "ㄍㄜ5",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Classifier - ㄍ (g)"
+  },
+  {
+    "id": 66,
+    "text": "可",
+    "phonemes": "ㄎㄜ3",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Can - ㄎ (k)"
+  },
+  {
+    "id": 67,
+    "text": "河",
+    "phonemes": "ㄏㄜ2",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "River - ㄏ (h)"
+  },
+  {
+    "id": 68,
+    "text": "姐",
+    "phonemes": "ㄐㄝ3",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Older sister - ㄐ (j)"
+  },
+  {
+    "id": 69,
+    "text": "去",
+    "phonemes": "ㄑㄩ4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Go - ㄑ (q)"
+  },
+  {
+    "id": 70,
+    "text": "西",
+    "phonemes": "ㄒㄧ1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "West - ㄒ (x)"
+  },
+  {
+    "id": 71,
+    "text": "知",
+    "phonemes": "ㄓ十1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Know - ㄓ (zh)"
+  },
+  {
+    "id": 72,
+    "text": "吃",
+    "phonemes": "ㄔ十1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Eat - ㄔ (ch)"
+  },
+  {
+    "id": 73,
+    "text": "是",
+    "phonemes": "ㄕ十4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Is - ㄕ (sh)"
+  },
+  {
+    "id": 74,
+    "text": "日",
+    "phonemes": "ㄖ十4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Day/sun - ㄖ (r)"
+  },
+  {
+    "id": 75,
+    "text": "字",
+    "phonemes": "ㄗㄭ4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Character - ㄗ (z)"
+  },
+  {
+    "id": 76,
+    "text": "次",
+    "phonemes": "ㄘㄭ4",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Time/occasion - ㄘ (c)"
+  },
+  {
+    "id": 77,
+    "text": "思",
+    "phonemes": "ㄙㄭ1",
+    "category": "phoneme_initials",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Think - ㄙ (s)"
+  },
+  {
+    "id": 78,
+    "text": "啊",
+    "phonemes": "ㄚ5",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Ah - ㄚ (a)"
+  },
+  {
+    "id": 79,
+    "text": "我",
+    "phonemes": "我3",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "I/me - 我 (uo special final)"
+  },
+  {
+    "id": 80,
+    "text": "哥",
+    "phonemes": "ㄍㄜ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Older brother - ㄜ (e)"
+  },
+  {
+    "id": 81,
+    "text": "衣",
+    "phonemes": "ㄧ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Clothes - ㄧ (i)"
+  },
+  {
+    "id": 82,
+    "text": "乌",
+    "phonemes": "ㄨ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Crow - ㄨ (u)"
+  },
+  {
+    "id": 83,
+    "text": "鱼",
+    "phonemes": "ㄩ2",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Fish - ㄩ (ü)"
+  },
+  {
+    "id": 84,
+    "text": "白",
+    "phonemes": "ㄅㄞ2",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "White - ㄞ (ai)"
+  },
+  {
+    "id": 85,
+    "text": "飞",
+    "phonemes": "ㄈㄟ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Fly - ㄟ (ei)"
+  },
+  {
+    "id": 86,
+    "text": "高",
+    "phonemes": "ㄍㄠ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Tall/high - ㄠ (ao)"
+  },
+  {
+    "id": 87,
+    "text": "走",
+    "phonemes": "ㄗㄡ3",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Walk - ㄡ (ou)"
+  },
+  {
+    "id": 88,
+    "text": "安",
+    "phonemes": "ㄢ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Peace - ㄢ (an)"
+  },
+  {
+    "id": 89,
+    "text": "人",
+    "phonemes": "ㄖㄣ2",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Person - ㄣ (en)"
+  },
+  {
+    "id": 90,
+    "text": "房",
+    "phonemes": "ㄈㄤ2",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "House - ㄤ (ang)"
+  },
+  {
+    "id": 91,
+    "text": "风",
+    "phonemes": "ㄈㄥ1",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Wind - ㄥ (eng)"
+  },
+  {
+    "id": 92,
+    "text": "儿",
+    "phonemes": "ㄦ2",
+    "category": "phoneme_finals",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Child/diminutive - ㄦ (er)"
+  },
+  {
+    "id": 93,
+    "text": "妈",
+    "phonemes": "ㄇㄚ1",
+    "category": "tone_coverage",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Mom - 1st tone (high level)"
+  },
+  {
+    "id": 94,
+    "text": "麻",
+    "phonemes": "ㄇㄚ2",
+    "category": "tone_coverage",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Hemp - 2nd tone (rising)"
+  },
+  {
+    "id": 95,
+    "text": "马",
+    "phonemes": "ㄇㄚ3",
+    "category": "tone_coverage",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Horse - 3rd tone (dipping)"
+  },
+  {
+    "id": 96,
+    "text": "骂",
+    "phonemes": "ㄇㄚ4",
+    "category": "tone_coverage",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Scold - 4th tone (falling)"
+  },
+  {
+    "id": 97,
+    "text": "吗",
+    "phonemes": "ㄇㄚ5",
+    "category": "tone_coverage",
+    "difficulty": "basic",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Question particle - 5th tone (neutral)"
+  },
+  {
+    "id": 98,
+    "text": "光",
+    "phonemes": "ㄍ王1",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Light - ㄍ王 (uang)"
+  },
+  {
+    "id": 99,
+    "text": "窗",
+    "phonemes": "ㄔ王1",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Window - ㄔ王 (uang after ch)"
+  },
+  {
+    "id": 100,
+    "text": "双",
+    "phonemes": "ㄕ王1",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Pair - ㄕ王 (uang after sh)"
+  },
+  {
+    "id": 101,
+    "text": "想",
+    "phonemes": "ㄒ阳3",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Think - ㄒ阳 (iang)"
+  },
+  {
+    "id": 102,
+    "text": "强",
+    "phonemes": "ㄑ阳2",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Strong - ㄑ阳 (iang after q)"
+  },
+  {
+    "id": 103,
+    "text": "床",
+    "phonemes": "ㄔ王2",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Bed - ㄔ王 (uang)"
+  },
+  {
+    "id": 104,
+    "text": "装",
+    "phonemes": "ㄓ王1",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 1,
+    "contains_oov": false,
+    "notes": "Install/dress - ㄓ王 (uang after zh)"
+  },
+  {
+    "id": 105,
+    "text": "花儿",
+    "phonemes": "ㄏ穵1ㄦ2",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Flower - erhua (儿化音)"
+  },
+  {
+    "id": 106,
+    "text": "玩儿",
+    "phonemes": "万R2",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Play - erhua with R marker"
+  },
+  {
+    "id": 107,
+    "text": "聪明",
+    "phonemes": "ㄘ中1ㄇ应5",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Clever - complex compound"
+  },
+  {
+    "id": 108,
+    "text": "快乐",
+    "phonemes": "ㄎ外4ㄌㄜ4",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Happy - ㄎ外 (uai)"
+  },
+  {
+    "id": 109,
+    "text": "幸福",
+    "phonemes": "ㄒ应4ㄈㄨ5",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Blessed/happy"
+  },
+  {
+    "id": 110,
+    "text": "健康",
+    "phonemes": "ㄐ言4ㄎㄤ1",
+    "category": "complex_phonemes",
+    "difficulty": "intermediate",
+    "word_count": 2,
+    "contains_oov": false,
+    "notes": "Healthy"
+  }
+]

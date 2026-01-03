@@ -63,6 +63,22 @@ FR_VOCAB: Final[frozenset[str]] = frozenset("',-abdefijklmnopstuvwyzøœɑɔəɛ
 # Note: Without MeCab, ŋ and ̚ are not produced (simplified phonology)
 KO_VOCAB: Final[frozenset[str]] = frozenset("aehijklmnopstuwøɛɯɰʌʨʰ͈")
 
+# Chinese (Mandarin) phoneme vocabulary (59 characters)
+# Uses Zhuyin (Bopomofo) notation, NOT IPA
+# - Zhuyin initials (21): ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙ
+# - Zhuyin finals (16): ㄚㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦㄧㄨㄩ
+# - Special finals (17): ㄭ (ii after z/c/s), 十 (iii after zh/ch/sh/r),
+#   月 (ve/üe), 万 (wan), 中 (ong), 为 (wei), 压 (ia), 又 (you),
+#   外 (wai), 应 (ing), 我 (uo), 王 (uang), 穵 (uar), 要 (iao),
+#   言 (ian), 阳 (iang), R (erhua marker)
+# - Tone markers (5): 1 (high level), 2 (rising), 3 (dipping), 4 (falling), 5 (neutral)
+# - Punctuation: / (word boundary/pause marker)
+# Note: Character-based like Japanese/Korean - each character represents one phoneme
+# Note: Zhuyin is traditional Chinese phonetic notation used by Kokoro TTS
+ZH_VOCAB: Final[frozenset[str]] = frozenset(
+    "/12345Rㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄚㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦㄧㄨㄩㄭ万中为十压又外应我月王穵要言阳"
+)
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================

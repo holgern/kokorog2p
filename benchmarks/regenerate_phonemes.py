@@ -12,6 +12,7 @@ from kokorog2p.de import GermanG2P
 from kokorog2p.ja import JapaneseG2P
 from kokorog2p.fr import FrenchG2P
 from kokorog2p.ko import KoreanG2P
+from kokorog2p.zh import ChineseG2P
 
 
 def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> None:
@@ -65,6 +66,11 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
             use_espeak_fallback=False,
             use_dict=True,
         )
+    elif language in ("zh", "zh-cn", "cmn"):
+        g2p = ChineseG2P(
+            use_espeak_fallback=False,
+            version="1.1",  # Use ZHFrontend with Zhuyin notation
+        )
     else:
         raise ValueError(f"Unsupported language: {language}")
 
@@ -83,7 +89,12 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
         tokens = g2p(text)
 
         # Extract ALL phonemes (including punctuation)
-        new_phonemes = " ".join(t.phonemes for t in tokens if t.phonemes)
+        # For Chinese/Japanese/Korean, phonemes are character-based (no spaces)
+        # For other languages, join with spaces
+        if language in ("zh", "zh-cn", "cmn", "ja", "ja-jp", "ko", "ko-kr"):
+            new_phonemes = "".join(t.phonemes for t in tokens if t.phonemes)
+        else:
+            new_phonemes = " ".join(t.phonemes for t in tokens if t.phonemes)
 
         # Update if different
         if old_phonemes != new_phonemes:

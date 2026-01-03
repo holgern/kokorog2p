@@ -21,12 +21,19 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
     """Get the phoneme vocabulary for a language.
 
     Args:
-        language: Language code (e.g., "en-us", "en-gb", "de", "fr", "ja")
+        language: Language code (e.g., "en-us", "en-gb", "de", "fr", "ja", "ko", "zh")
 
     Returns:
         Frozenset of valid phoneme characters
     """
-    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB, JA_VOCAB, FR_VOCAB, KO_VOCAB
+    from kokorog2p.phonemes import (
+        US_VOCAB,
+        GB_VOCAB,
+        JA_VOCAB,
+        FR_VOCAB,
+        KO_VOCAB,
+        ZH_VOCAB,
+    )
 
     if language == "en-us":
         return US_VOCAB
@@ -38,6 +45,8 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return FR_VOCAB
     elif language in ("ko", "ko-kr"):
         return KO_VOCAB
+    elif language in ("zh", "zh-cn", "cmn"):
+        return ZH_VOCAB
     elif language in ("de", "cs"):
         # For now, return US vocab as baseline
         # TODO: Add proper German/Czech vocab
@@ -168,7 +177,7 @@ def validate_sentence(
         "mixed_difficulty",
         "gb_specific",  # GB-specific phoneme features
         "childes_natural",  # Natural speech from CHILDES corpus
-        # Japanese/Korean/multilingual categories
+        # Japanese/Korean/Chinese/multilingual categories
         "greetings",
         "questions",
         "numbers",
@@ -176,6 +185,11 @@ def validate_sentence(
         "adjectives",
         "conversation",
         "food",  # Food and drink vocabulary
+        # Chinese-specific categories
+        "phoneme_initials",  # Zhuyin initial coverage
+        "phoneme_finals",  # Zhuyin final coverage
+        "tone_coverage",  # All 5 Mandarin tones
+        "complex_phonemes",  # Complex syllables and compounds
     }
     if sentence.get("category") not in valid_categories:
         errors.append(
