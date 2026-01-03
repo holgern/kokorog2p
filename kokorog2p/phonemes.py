@@ -36,6 +36,14 @@ GB_ONLY_PHONES: Final[frozenset[str]] = frozenset("Qaɒː")
 US_VOCAB: Final[frozenset[str]] = SHARED_PHONES | US_ONLY_PHONES
 GB_VOCAB: Final[frozenset[str]] = SHARED_PHONES | GB_ONLY_PHONES
 
+# Japanese phoneme vocabulary (29 characters)
+# - Basic vowels: a e i o u
+# - Consonants: b d f g h j k m n p r s t w z
+# - Special: ɕ (palatal fricative), ɴ (moraic n), ʔ (glottal stop)
+# - Affricates: ʥ (voiced affricate), ʦ (voiceless affricate), ʨ (palatal affricate)
+# - Length/special: ː (length marker), ᶄ, ᶉ (special markers)
+JA_VOCAB: Final[frozenset[str]] = frozenset("abdefghijkmnoprstuwzɕɴʔʥʦʨːᶄᶉ")
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================

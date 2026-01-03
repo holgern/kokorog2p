@@ -34,6 +34,8 @@ def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFram
         "fr-fr": "fr-FR",
         "es": "es-ES",
         "es-es": "es-ES",
+        "ja": "ja-JP",
+        "ja-jp": "ja-JP",
     }
     lang_dir = lang_map.get(language)
     if not lang_dir:
@@ -248,7 +250,18 @@ def main():
         "--language",
         "-l",
         required=True,
-        choices=["en-us", "en-gb", "de", "de-de", "fr", "fr-fr", "es", "es-es"],
+        choices=[
+            "en-us",
+            "en-gb",
+            "de",
+            "de-de",
+            "fr",
+            "fr-fr",
+            "es",
+            "es-es",
+            "ja",
+            "ja-jp",
+        ],
     )
     parser.add_argument(
         "--count", "-n", type=int, required=True, help="Number of sentences to extract"

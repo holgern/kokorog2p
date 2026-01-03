@@ -8,6 +8,8 @@ including punctuation marks and context-dependent pronunciations.
 import json
 from pathlib import Path
 from kokorog2p.en import EnglishG2P
+from kokorog2p.de import GermanG2P
+from kokorog2p.ja import JapaneseG2P
 
 
 def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> None:
@@ -28,14 +30,29 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
     language = data.get("metadata", {}).get("language", "en-us")
     print(f"Detected language: {language}")
 
-    # Create G2P with gold+silver (reference configuration)
-    g2p = EnglishG2P(
-        language=language,
-        use_espeak_fallback=False,
-        use_spacy=False,
-        load_gold=True,
-        load_silver=True,
-    )
+    # Create appropriate G2P based on language
+    if language in ("en-us", "en-gb"):
+        g2p = EnglishG2P(
+            language=language,
+            use_espeak_fallback=False,
+            use_spacy=False,
+            load_gold=True,
+            load_silver=True,
+        )
+    elif language in ("de", "de-de"):
+        g2p = GermanG2P(
+            use_espeak_fallback=False,
+            load_gold=True,
+            load_silver=False,
+        )
+    elif language in ("ja", "ja-jp"):
+        g2p = JapaneseG2P(
+            use_espeak_fallback=False,
+            load_gold=True,
+            load_silver=True,
+        )
+    else:
+        raise ValueError(f"Unsupported language: {language}")
 
     updated_count = 0
     unchanged_count = 0

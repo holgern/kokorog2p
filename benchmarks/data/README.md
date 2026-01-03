@@ -22,6 +22,7 @@ Each benchmark file contains carefully curated sentences designed to:
 | `en_us_synthetic.json` | English (US) | 205 | 46/46 (100%) | ✅ Complete |
 | `en_gb_synthetic.json` | English (GB) | 201 | 45/45 (100%) | ✅ Complete |
 | `de_synthetic.json` | German | 189 | 307 unique | ✅ Complete |
+| `ja_synthetic.json` | Japanese | 371 | 29/29 (100%) | ✅ Complete |
 | `fr_synthetic.json` | French | - | - | 🚧 Planned |
 | `cs_synthetic.json` | Czech | - | - | 🚧 Planned |
 
@@ -121,12 +122,19 @@ python benchmarks/benchmark_en_us_comparison.py
 # Test all GB English configurations
 python benchmarks/benchmark_en_gb_comparison.py
 
+# Test all German configurations
+python benchmarks/benchmark_de_comparison.py
+
+# Test all Japanese configurations
+python benchmarks/benchmark_ja_comparison.py
+
 # Test specific language
 python benchmarks/benchmark_en_us_comparison.py --language en-us
 python benchmarks/benchmark_en_gb_comparison.py --language en-gb
 
 # Test single configuration
 python benchmarks/benchmark_en_us_comparison.py --config "Gold + Espeak"
+python benchmarks/benchmark_ja_comparison.py --config "pyopenjtalk"
 
 # Verbose output with errors
 python benchmarks/benchmark_en_us_comparison.py --verbose
@@ -134,6 +142,8 @@ python benchmarks/benchmark_en_us_comparison.py --verbose
 # Export results to JSON
 python benchmarks/benchmark_en_us_comparison.py --output results_en_us.json
 python benchmarks/benchmark_en_gb_comparison.py --output results_en_gb.json
+python benchmarks/benchmark_de_comparison.py --output results_de.json
+python benchmarks/benchmark_ja_comparison.py --output results_ja.json
 ```
 
 The benchmark tests:
@@ -283,6 +293,39 @@ The German dataset (`de_synthetic.json`) contains 189 sentences with 307 unique 
 - **148 natural speech examples** from CHILDES corpus (adult speech)
 - **Categories**: greetings, geography, weather, conversation, phoneme_coverage, numbers, family, complex
 - **100% accuracy** with German G2P + espeak fallback
+
+## Japanese Phonemes
+
+The Japanese dataset (`ja_synthetic.json`) contains 371 sentences with 29 unique phoneme characters achieving 100% phoneme coverage.
+
+### Key Japanese Phonological Features
+- **Character-based phonemes**: Unlike European languages, each character in the phoneme string is a single phoneme (not space-separated)
+- **Basic vowels**: a e i o u
+- **Consonants**: b d f g h j k m n p r s t w z
+- **Special phonemes**:
+  - `ɕ` - palatal fricative (shi sound)
+  - `ɴ` - moraic n (syllabic n)
+  - `ʔ` - glottal stop
+- **Affricates**: 
+  - `ʥ` - voiced affricate (ji sound)
+  - `ʦ` - voiceless affricate (tsu sound)
+  - `ʨ` - palatal affricate (chi sound)
+- **Length marker**: `ː` - long vowel marker
+- **Special markers**: `ᶄ` `ᶉ` - special pronunciation markers
+
+### Japanese Dataset Composition
+- **31 hand-crafted sentences** covering common phrases, greetings, questions, numbers
+- **340 natural speech examples** from CHILDES ja-JP corpus (adult speech)
+- **Categories**: greetings, common_words, questions, numbers, verbs, adjectives, conversation, childes_natural
+- **100% accuracy** with pyopenjtalk backend
+- **Backend**: Uses pyopenjtalk (recommended) or cutlet for kana/kanji → phoneme conversion
+
+### Japanese Benchmark Results
+| Configuration | Accuracy | Speed | Notes |
+|--------------|----------|-------|-------|
+| pyopenjtalk + espeak | 100% | 6,286 sent/s | Recommended (fastest + accurate) |
+| pyopenjtalk | 100% | 1,716 sent/s | Good default |
+| cutlet | N/A | - | Requires MeCab installation |
 
 ## Performance Expectations
 
