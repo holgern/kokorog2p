@@ -24,9 +24,13 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
     with open(input_file) as f:
         data = json.load(f)
 
+    # Auto-detect language from metadata
+    language = data.get("metadata", {}).get("language", "en-us")
+    print(f"Detected language: {language}")
+
     # Create G2P with gold+silver (reference configuration)
     g2p = EnglishG2P(
-        language="en-us",
+        language=language,
         use_espeak_fallback=False,
         use_spacy=False,
         load_gold=True,

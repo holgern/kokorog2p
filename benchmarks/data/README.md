@@ -20,7 +20,7 @@ Each benchmark file contains carefully curated sentences designed to:
 | File | Language | Sentences | Phonemes | Status |
 |------|----------|-----------|----------|--------|
 | `en_us_synthetic.json` | English (US) | 95 | 46/46 (100%) | ✅ Complete |
-| `en_gb_synthetic.json` | English (GB) | - | - | 🚧 Planned |
+| `en_gb_synthetic.json` | English (GB) | 60 | 45/45 (100%) | ✅ Complete |
 | `de_synthetic.json` | German | - | - | 🚧 Planned |
 | `fr_synthetic.json` | French | - | - | 🚧 Planned |
 | `cs_synthetic.json` | Czech | - | - | 🚧 Planned |
@@ -86,12 +86,13 @@ Each synthetic dataset follows this JSON schema:
 2. **stress_patterns** - Primary (ˈ) and secondary (ˌ) stress
 3. **contractions** - don't, won't, I'm, etc.
 4. **common_words** - High-frequency vocabulary
-5. **diphthongs** - A, I, O, W, Y sounds
+5. **diphthongs** - A, I, O/Q, W, Y sounds
 6. **oov_words** - Out-of-vocabulary words (tests fallback)
 7. **numbers_punctuation** - Numbers and punctuation handling
 8. **compounds** - Hyphenated and compound words
 9. **minimal_pairs** - Words differing by one phoneme
 10. **mixed_difficulty** - Complex real-world sentences
+11. **gb_specific** - GB-specific phoneme features (for en-gb only)
 
 ## Usage
 
@@ -114,20 +115,25 @@ The validator checks:
 ### Run Benchmarks
 
 ```bash
-# Test all configurations
-python benchmarks/benchmark_fallback_comparison.py
+# Test all US English configurations
+python benchmarks/benchmark_en_us_comparison.py
+
+# Test all GB English configurations
+python benchmarks/benchmark_en_gb_comparison.py
 
 # Test specific language
-python benchmarks/benchmark_fallback_comparison.py --language en-us
+python benchmarks/benchmark_en_us_comparison.py --language en-us
+python benchmarks/benchmark_en_gb_comparison.py --language en-gb
 
 # Test single configuration
-python benchmarks/benchmark_fallback_comparison.py --config "Gold + Espeak"
+python benchmarks/benchmark_en_us_comparison.py --config "Gold + Espeak"
 
 # Verbose output with errors
-python benchmarks/benchmark_fallback_comparison.py --verbose
+python benchmarks/benchmark_en_us_comparison.py --verbose
 
 # Export results to JSON
-python benchmarks/benchmark_fallback_comparison.py --output results.json
+python benchmarks/benchmark_en_us_comparison.py --output results_en_us.json
+python benchmarks/benchmark_en_gb_comparison.py --output results_en_gb.json
 ```
 
 The benchmark tests:
@@ -237,6 +243,25 @@ This ensures benchmarks test for:
 - `ᵻ` - Reduced vowel (boxes)
 - `ɾ` - Alveolar flap (butter, water)
 - `ʔ` - Glottal stop (button)
+
+## British English Phonemes (45 total)
+
+### Shared with US (41)
+Same as above
+
+### GB-Specific (4)
+- `a` - TRAP vowel (cat, bat) - replaces US `æ`
+- `Q` - GOAT diphthong (əʊ) (go, show) - replaces US `O`
+- `ɒ` - LOT vowel (hot, got, stop)
+- `ː` - Length mark (car → kɑː, more → mɔː)
+
+### Key GB vs US Differences
+- **TRAP vowel**: GB uses `a`, US uses `æ`
+- **GOAT diphthong**: GB uses `Q` (əʊ), US uses `O` (oʊ)
+- **LOT vowel**: GB has distinct `ɒ`, US merges with `ɑ`
+- **R-dropping**: GB uses length marks `ː` (car → kɑː), US keeps `ɹ` (car → kɑɹ)
+- **No flapping**: GB keeps `t` (butter), US uses `ɾ` (butter)
+- **No glottal stop**: GB uses `t` (button), US uses `ʔ` (button)
 
 ## Performance Expectations
 

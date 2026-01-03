@@ -160,6 +160,7 @@ def validate_sentence(
         "compounds",
         "minimal_pairs",
         "mixed_difficulty",
+        "gb_specific",  # GB-specific phoneme features
     }
     if sentence.get("category") not in valid_categories:
         errors.append(
