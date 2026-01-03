@@ -86,11 +86,11 @@ def create_g2p(language: str, config: dict[str, Any]):
     Returns:
         G2P instance
     """
-    if language == "en-us":
+    if language in ("en-us", "en-gb"):
         from kokorog2p.en import EnglishG2P
 
         return EnglishG2P(
-            language="en-us",
+            language=language,
             use_espeak_fallback=config.get("use_espeak", False),
             use_goruut_fallback=config.get("use_goruut", False),
             load_gold=config.get("load_gold", True),
