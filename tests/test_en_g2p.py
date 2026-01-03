@@ -679,3 +679,139 @@ class TestDoubleContractions:
             assert len(word_tokens) == 1
             assert "could" in word_tokens[0].text.lower()
             assert "ve" in word_tokens[0].text.lower()
+
+
+@pytest.mark.spacy
+class TestContractionRobustness:
+    """Tests for robust contraction handling.
+
+    These tests validate that the lexicon-aware pre-tokenization approach
+    correctly handles contractions with various apostrophe characters and
+    prevents spaCy from splitting them incorrectly.
+    """
+
+    @pytest.fixture
+    def g2p_spacy(self):
+        """Create an EnglishG2P instance with spaCy enabled."""
+        from kokorog2p.en import EnglishG2P
+
+        return EnglishG2P(language="en-us", use_spacy=True)
+
+    def test_dont_with_straight_apostrophe(self, g2p_spacy):
+        """Test 'don't' with straight apostrophe (U+0027)."""
+        text = "I don't understand them, but I love them."
+        result = g2p_spacy.phonemize(text)
+
+        # Should contain correct phoneme for don't
+        assert "dˈOnt" in result
+
+        # Should NOT contain the bug signature (split don't)
+        assert "dˈu" not in result or "ˈɛnt" not in result
+
+        # Verify token is intact
+        tokens = g2p_spacy(text)
+        dont_tokens = [t for t in tokens if "don't" in t.text.lower()]
+        assert len(dont_tokens) == 1
+        assert dont_tokens[0].text == "don't"
+        assert dont_tokens[0].phonemes == "dˈOnt"
+
+    def test_dont_with_curly_apostrophe(self, g2p_spacy):
+        """Test 'don't' with right single quotation mark (U+2019)."""
+        text = "I don't understand"
+        result = g2p_spacy.phonemize(text)
+
+        # Should be normalized and phonemized correctly
+        assert "dˈOnt" in result
+
+        # Token should be normalized to straight apostrophe
+        tokens = g2p_spacy(text)
+        dont_tokens = [t for t in tokens if "don" in t.text.lower() and "'" in t.text]
+        assert len(dont_tokens) == 1
+        assert dont_tokens[0].phonemes == "dˈOnt"
+
+    def test_dont_with_grave_accent(self, g2p_spacy):
+        """Test 'don't' with grave accent (U+0060) - common typo."""
+        text = "I don`t understand"
+        result = g2p_spacy.phonemize(text)
+
+        # Should be normalized to apostrophe and phonemized correctly
+        assert "dˈOnt" in result
+
+        # Should NOT have separate "don" and "t" tokens
+        tokens = g2p_spacy(text)
+        word_texts = [t.text for t in tokens if t.is_word]
+        assert "don" not in word_texts  # Should be "don't", not "don"
+
+    def test_dont_with_acute_accent(self, g2p_spacy):
+        """Test 'don't' with acute accent (U+00B4) - another typo."""
+        text = "I don´t understand"
+        result = g2p_spacy.phonemize(text)
+
+        # Should be normalized and phonemized correctly
+        assert "dˈOnt" in result
+
+    def test_multiple_apostrophe_types_mixed(self, g2p_spacy):
+        """Test text with multiple different apostrophe types."""
+        # Mix straight, curly, and grave apostrophes
+        text = "I don't think you're right, but we`ve tried."
+        result = g2p_spacy.phonemize(text)
+
+        # All contractions should work correctly
+        assert "dˈOnt" in result  # don't
+        assert "jˌʊɹ" in result or "jʊɹ" in result  # you're (with or without stress)
+        assert "wiv" in result or "wˌiv" in result  # we've
+
+    def test_contraction_prevents_split_phonemization(self, g2p_spacy):
+        """Test that contractions in lexicon are NOT split by spaCy."""
+        text = "don't can't won't"
+        tokens = g2p_spacy(text)
+
+        word_tokens = [t for t in tokens if t.is_word]
+
+        # Should be exactly 3 tokens, not 6
+        assert len(word_tokens) == 3
+
+        # Each should be a complete contraction
+        assert word_tokens[0].text == "don't"
+        assert word_tokens[1].text == "can't"
+        assert word_tokens[2].text == "won't"
+
+        # Each should have correct phonemes from lexicon
+        assert word_tokens[0].phonemes == "dˈOnt"
+        assert word_tokens[1].phonemes == "kˈænt"
+        assert word_tokens[2].phonemes == "wˈOnt"  # Note: has stress marker
+
+    def test_contraction_with_case_variations(self, g2p_spacy):
+        """Test contractions work with different case variations."""
+        test_cases = [
+            ("I don't know", "dˈOnt"),
+            ("I Don't know", "dˈOnt"),
+            ("I DON'T know", "dˈOnt"),
+        ]
+
+        for text, expected_phoneme in test_cases:
+            tokens = g2p_spacy(text)
+            # Find the don't token
+            dont_tokens = [
+                t for t in tokens if "don" in t.text.lower() and "'" in t.text
+            ]
+            assert len(dont_tokens) == 1
+            assert dont_tokens[0].phonemes == expected_phoneme
+
+    def test_user_reported_sentence(self, g2p_spacy):
+        """Test the exact sentence reported by user that was failing."""
+        text = "I don't understand them, but I love them."
+        result = g2p_spacy.phonemize(text)
+
+        # Expected output
+        expected_dont = "dˈOnt"
+
+        # Should have correct phoneme
+        assert expected_dont in result
+
+        # Should NOT have the bug the user reported
+        bug_signature = 'dˈɑn"tˈi'
+        assert bug_signature not in result
+
+        # Alternative bug signature (split tokens)
+        assert not ("dˈu" in result and "ˈɛnt" in result)

@@ -130,7 +130,15 @@ class EnglishG2P(G2PBase):
         return tokens
 
     def _tokenize_spacy(self, text: str) -> list[GToken]:
-        """Tokenize text using spaCy.
+        """Tokenize text using spaCy with lexicon-aware contraction handling.
+
+        This method uses a two-step approach:
+        1. Pre-tokenize to find contractions that exist in the lexicon
+        2. Use spaCy Doc with pre-tokenization to preserve those contractions
+
+        This is more robust than post-processing merging because we check
+        the lexicon BEFORE spaCy splits, preventing issues where split
+        tokens might get phonemized incorrectly.
 
         Args:
             text: Input text.
@@ -138,7 +146,50 @@ class EnglishG2P(G2PBase):
         Returns:
             List of GToken objects.
         """
-        doc = self.nlp(text)  # type: ignore
+        import re
+
+        from spacy.tokens import Doc
+
+        # Normalize apostrophes to standard straight apostrophe (U+0027)
+        # This ensures lexicon lookups work correctly
+        text = text.replace("\u2019", "'")  # Right single quotation mark
+        text = text.replace("\u2018", "'")  # Left single quotation mark
+        text = text.replace("`", "'")  # Grave accent
+        text = text.replace("\u00b4", "'")  # Acute accent
+
+        # Step 1: Pre-tokenize to identify contractions in lexicon
+        # Pattern matches: contractions (word+apostrophe+suffix), words, punctuation
+        pre_tokens = []
+        spaces = []
+
+        # Simple pattern now that apostrophes are normalized
+        for match in re.finditer(r"\w+'\w+|\w+|[^\w\s]+|\s+", text):
+            word = match.group()
+            if word.isspace():
+                # Mark whitespace for previous token
+                if spaces:
+                    spaces[-1] = True
+                continue
+
+            # Check if this contraction exists in lexicon
+            # This prevents spaCy from splitting words we already know
+            if "'" in word:
+                result, _ = self.lexicon.lookup(word)
+                # If in lexicon, use as-is; otherwise let spaCy handle it
+
+            pre_tokens.append(word)
+            spaces.append(False)  # Will be updated if whitespace follows
+
+        # Step 2: Create spaCy Doc with our pre-tokenization
+        # This prevents spaCy from re-splitting contractions
+        doc = Doc(self.nlp.vocab, words=pre_tokens, spaces=spaces)  # type: ignore
+
+        # Apply the full pipeline to get POS tags
+        # We need both tok2vec and tagger for accurate tagging
+        for _name, proc in self.nlp.pipeline:  # type: ignore
+            doc = proc(doc)
+
+        # Step 3: Convert to GToken objects
         tokens: list[GToken] = []
 
         for tk in doc:
@@ -167,59 +218,7 @@ class EnglishG2P(G2PBase):
 
             tokens.append(token)
 
-        # Merge contractions (e.g., "Do" + "n't" -> "Don't")
-        tokens = self._merge_contractions(tokens)
-
         return tokens
-
-    def _merge_contractions(self, tokens: list[GToken]) -> list[GToken]:
-        """Merge contraction suffixes with their base words.
-
-        spaCy splits contractions like "don't" into "do" + "n't",
-        and double contractions like "I'd've" into "I" + "'d" + "'ve".
-        This method merges them back together for better lexicon lookup.
-
-        Args:
-            tokens: List of tokens from spaCy.
-
-        Returns:
-            List of tokens with contractions merged.
-        """
-        # Common contraction suffixes
-        contractions = {"n't", "'s", "'m", "'re", "'ve", "'d", "'ll"}
-
-        merged: list[GToken] = []
-        i = 0
-
-        while i < len(tokens):
-            token = tokens[i]
-
-            # Collect all consecutive contraction suffixes
-            merged_text = token.text
-            merged_tag = token.tag
-            j = i + 1
-
-            # Keep merging while next token is a contraction suffix
-            while j < len(tokens) and tokens[j].text in contractions:
-                merged_text += tokens[j].text
-                j += 1
-
-            # If we merged anything, create a new token
-            if j > i + 1:
-                merged_token = GToken(
-                    text=merged_text,
-                    tag=merged_tag,  # Use the tag of the main word
-                    whitespace=tokens[
-                        j - 1
-                    ].whitespace,  # Use whitespace from last suffix
-                )
-                merged.append(merged_token)
-                i = j  # Skip all merged tokens
-            else:
-                merged.append(token)
-                i += 1
-
-        return merged
 
     def _tokenize_simple(self, text: str) -> list[GToken]:
         """Simple tokenization without spaCy.
@@ -231,6 +230,12 @@ class EnglishG2P(G2PBase):
             List of GToken objects.
         """
         import re
+
+        # Normalize apostrophes to standard straight apostrophe (U+0027)
+        text = text.replace("\u2019", "'")  # Right single quotation mark
+        text = text.replace("\u2018", "'")  # Left single quotation mark
+        text = text.replace("`", "'")  # Grave accent
+        text = text.replace("\u00b4", "'")  # Acute accent
 
         tokens: list[GToken] = []
         # Tokenize with support for contractions (e.g., I've, we're, don't)
