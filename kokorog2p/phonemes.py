@@ -79,6 +79,19 @@ ZH_VOCAB: Final[frozenset[str]] = frozenset(
     "/12345Rㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄚㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦㄧㄨㄩㄭ万中为十压又外应我月王穵要言阳"
 )
 
+# Italian phoneme vocabulary (30 characters)
+# - Basic vowels: a e i o u (always pronounced clearly, no reduction)
+# - Consonants: b d f k l m n p r s t v z
+# - Palatals: ɲ (gn as in "gnocchi"), ʎ (gli as in "famiglia")
+# - Fricatives: ʃ (sc before e/i as in "pesce")
+# - Affricates: ʦ (z voiceless), ʣ (z voiced), ʧ (c/ci voiceless), ʤ (g/gi voiced)
+# - Special: ɡ (IPA g, U+0261), j (semivowel as in "ieri"), w (semivowel as in "uomo")
+# - Stress marks: ˈ (primary stress)
+# - Gemination: ː (length marker for double consonants)
+# Note: Italian has predictable stress, but stress marks help with exceptions
+# Note: All 5 vowels are always pronounced fully (no schwa reduction like English)
+IT_VOCAB: Final[frozenset[str]] = frozenset("abedfijklmnoprstuvwzɡɲʃʎʦʣʧʤˈː")
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================

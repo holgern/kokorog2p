@@ -269,22 +269,29 @@ Learning             en-us  lˈɜːnɪŋ
 
 ## Supported Languages
 
-| Language     | Code    | Dictionary Size                   | Number Support | Status     |
-| ------------ | ------- | --------------------------------- | -------------- | ---------- |
-| English (US) | `en-us` | 179k gold + 187k silver (default) | ✓              | Production |
-| English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | Production |
-| German       | `de`    | 738k+ entries (gold)              | ✓              | Production |
-| French       | `fr`    | Gold dictionary                   | ✓              | Production |
-| Czech        | `cs`    | Rule-based                        | -              | Production |
-| Chinese      | `zh`    | pypinyin                          | -              | Production |
-| Japanese     | `ja`    | pyopenjtalk                       | -              | Production |
-| Korean       | `ko`    | g2pK rule-based                   | ✓              | Production |
-| Hebrew       | `he`    | phonikud-based (requires nikud)   | -              | Production |
+| Language     | Code    | Dictionary Size                   | Number Support | Notation   | Status     |
+| ------------ | ------- | --------------------------------- | -------------- | ---------- | ---------- |
+| English (US) | `en-us` | 179k gold + 187k silver (default) | ✓              | IPA        | Production |
+| English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | IPA        | Production |
+| German       | `de`    | 738k+ entries (gold)              | ✓              | IPA        | Production |
+| French       | `fr`    | Gold dictionary                   | ✓              | IPA        | Production |
+| Czech        | `cs`    | Rule-based                        | -              | IPA        | Production |
+| Chinese      | `zh`    | pypinyin + ZHFrontend             | ✓              | Zhuyin     | Production |
+| Japanese     | `ja`    | pyopenjtalk                       | -              | IPA        | Production |
+| Korean       | `ko`    | g2pK rule-based                   | ✓              | IPA        | Production |
+| Hebrew       | `he`    | phonikud-based (requires nikud)   | -              | IPA        | Production |
 
 **Note:** Both gold and silver dictionaries are loaded by default for English. You can:
 
 - Use `load_silver=False` to save ~22-31 MB (gold only, ~179k entries)
 - Use `load_gold=False, load_silver=False` to save ~50+ MB (espeak fallback only)
+
+**Chinese Note:** Chinese G2P uses Zhuyin (Bopomofo) phonetic notation for Kokoro TTS compatibility. Arabic numerals are automatically converted to Chinese (e.g., "123" → "一百二十三"). For version 1.1 (recommended):
+
+```python
+from kokorog2p.zh import ChineseG2P
+g2p = ChineseG2P(version="1.1")  # Uses ZHFrontend with Zhuyin notation
+```
 
 **Korean Note:** Korean G2P works out of the box with rule-based phonemization. For
 improved accuracy with morphological analysis, install MeCab:
