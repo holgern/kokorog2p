@@ -3,6 +3,7 @@
 ## Overview
 
 The Japanese benchmark script is located at:
+
 - **benchmarks/benchmark_ja_comparison.py**
 
 This script tests all Japanese G2P configurations and measures accuracy and speed.
@@ -25,18 +26,20 @@ python benchmarks/benchmark_ja_comparison.py --output results.json
 
 ## Benchmark Results (371 sentences)
 
-| Configuration | Accuracy | Speed | Recommendation |
-|--------------|----------|-------|----------------|
-| pyopenjtalk + espeak | 100.0% | 6,286 sent/s | ✅ **Best** |
-| pyopenjtalk | 100.0% | 1,716 sent/s | Good |
-| cutlet + espeak | N/A | - | Requires MeCab |
-| cutlet | N/A | - | Requires MeCab |
+| Configuration        | Accuracy | Speed        | Recommendation |
+| -------------------- | -------- | ------------ | -------------- |
+| pyopenjtalk + espeak | 100.0%   | 6,286 sent/s | ✅ **Best**    |
+| pyopenjtalk          | 100.0%   | 1,716 sent/s | Good           |
+| cutlet + espeak      | N/A      | -            | Requires MeCab |
+| cutlet               | N/A      | -            | Requires MeCab |
 
-**Recommendation**: Use **pyopenjtalk + espeak** configuration for Japanese for best speed and accuracy.
+**Recommendation**: Use **pyopenjtalk + espeak** configuration for Japanese for best
+speed and accuracy.
 
 ## Dataset Composition
 
 The dataset consists of:
+
 - **31 hand-crafted sentences** covering:
   - Greetings (こんにちは, おはよう, etc.)
   - Common words and phrases
@@ -69,31 +72,35 @@ a b d e f g h i j k m n o p r s t u w z ɕ ɴ ʔ ʥ ʦ ʨ ː ᶄ ᶉ
 
 ## Character-Based Phoneme System
 
-**Important**: Unlike European languages where phonemes are space-separated by word, Japanese phonemes are **character-based**. Each character in the phoneme string represents a single phoneme.
+**Important**: Unlike European languages where phonemes are space-separated by word,
+Japanese phonemes are **character-based**. Each character in the phoneme string
+represents a single phoneme.
 
 **Example**:
+
 - Text: `こんにちは`
 - Phonemes: `koɴniʨiwa` (9 characters = 9 phonemes)
   - k-o-ɴ-n-i-ʨ-i-w-a
 
 ## Category Breakdown
 
-| Category | Sentences | Description |
-|----------|-----------|-------------|
-| childes_natural | 340 | Natural adult speech from CHILDES corpus |
-| greetings | 5 | Common Japanese greetings |
-| common_words | 4 | Frequently used vocabulary |
-| conversation | 7 | Conversational phrases |
-| verbs | 5 | Common verb forms |
-| adjectives | 4 | Basic adjectives |
-| questions | 3 | Question patterns |
-| numbers | 3 | Number pronunciation |
+| Category        | Sentences | Description                              |
+| --------------- | --------- | ---------------------------------------- |
+| childes_natural | 340       | Natural adult speech from CHILDES corpus |
+| greetings       | 5         | Common Japanese greetings                |
+| common_words    | 4         | Frequently used vocabulary               |
+| conversation    | 7         | Conversational phrases                   |
+| verbs           | 5         | Common verb forms                        |
+| adjectives      | 4         | Basic adjectives                         |
+| questions       | 3         | Question patterns                        |
+| numbers         | 3         | Number pronunciation                     |
 
 ## G2P Backend Information
 
 ### pyopenjtalk (Recommended)
 
 The default and recommended backend for Japanese G2P. It provides:
+
 - Accurate kana/kanji → phoneme conversion
 - MeCab-based morphological analysis
 - Built-in pronunciation dictionary
@@ -102,11 +109,13 @@ The default and recommended backend for Japanese G2P. It provides:
 ### cutlet (Alternative)
 
 An alternative backend that requires:
+
 - External MeCab installation
 - Additional system setup
 - May have different accuracy characteristics
 
-**Note**: The benchmark currently shows 0% accuracy for cutlet because MeCab is not installed in the test environment.
+**Note**: The benchmark currently shows 0% accuracy for cutlet because MeCab is not
+installed in the test environment.
 
 ## Validation Results
 
@@ -117,6 +126,7 @@ python benchmarks/validate_synthetic_data.py benchmarks/data/ja_synthetic.json
 ```
 
 **Results**:
+
 - ✅ All 371 sentences validated
 - ✅ 100% phoneme coverage (29/29 unique characters)
 - ✅ No invalid phonemes
@@ -125,6 +135,7 @@ python benchmarks/validate_synthetic_data.py benchmarks/data/ja_synthetic.json
 ## CHILDES Corpus Source
 
 The natural speech examples were extracted from:
+
 - **Corpus**: CHILDES IPA corpus
 - **Language**: ja-JP (Japanese)
 - **Source size**: 246 MB (~850K sentences)
@@ -136,6 +147,7 @@ The natural speech examples were extracted from:
   - Deduplicated against hand-crafted sentences
 
 **Extraction rate**: ~0.06% (340 sentences from 300K+ candidates)
+
 - High filtering rate due to strict quality criteria
 - Focus on natural, grammatical adult speech
 - Removal of incomplete utterances and non-standard forms
@@ -175,14 +187,17 @@ python benchmarks/benchmark_ja_comparison.py --verbose
 
 ## Known Limitations
 
-1. **Katakana romanization**: Some katakana words (especially English loanwords) may have non-standard phoneme outputs
-2. **Kanji readings**: Multiple readings (kun/on) are context-dependent; the G2P uses MeCab for disambiguation
+1. **Katakana romanization**: Some katakana words (especially English loanwords) may
+   have non-standard phoneme outputs
+2. **Kanji readings**: Multiple readings (kun/on) are context-dependent; the G2P uses
+   MeCab for disambiguation
 3. **Pitch accent**: Japanese pitch accent is not represented in the phoneme output
 4. **Dialectal variation**: Dataset represents standard Tokyo Japanese pronunciation
 
 ## Future Improvements
 
 Potential areas for enhancement:
+
 - [ ] Add more katakana loanword examples
 - [ ] Include compound word edge cases
 - [ ] Add regional dialect variations
@@ -199,6 +214,7 @@ Potential areas for enhancement:
 ## Contributing
 
 To improve the Japanese dataset:
+
 1. Add more diverse sentence patterns
 2. Test with specialized vocabulary (technical, literary, etc.)
 3. Validate pronunciation with native speakers

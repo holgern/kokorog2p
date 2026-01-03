@@ -95,7 +95,7 @@ IT_VOCAB: Final[frozenset[str]] = frozenset("abedfijklmnoprstuvwzɡɲʃʎʦʣʧ�
 # Spanish Phoneme Vocabulary (30 phonemes)
 # - Vowels: a, e, i, o, u (5 pure vowels, always pronounced clearly)
 # - Basic consonants: b, d, f, k, l, m, n, p, s, t, ɡ (IPA g)
-# - Palatals: ɲ (ñ as in "niño"), ʎ (ll in some dialects, "lluvia"), ʧ (ch as in "chico")
+# - Palatals: ɲ (ñ "niño"), ʎ (ll "lluvia"), ʧ (ch "chico")
 # - Jota: x (j/g before e/i as in "jamón", "gente")
 # - Theta: θ (z/c before e/i in European Spanish, "zapato", "cielo")
 # - Taps/Trills: ɾ (single r, "pero"), r (rr or initial r, "perro", "rosa")

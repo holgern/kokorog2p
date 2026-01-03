@@ -229,7 +229,7 @@ class SpanishG2P(G2PBase):
         # Find stressed vowels before normalization
         stressed_vowels = set()
         normalized_text = []
-        for i, char in enumerate(text):
+        for _i, char in enumerate(text):
             if char in "áéíóú":
                 # Remember the position of the normalized vowel
                 stressed_vowels.add(len(normalized_text))

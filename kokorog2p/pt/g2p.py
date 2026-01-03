@@ -1,6 +1,7 @@
 """Brazilian Portuguese G2P (Grapheme-to-Phoneme) converter.
 
-A rule-based Grapheme-to-Phoneme engine for Brazilian Portuguese, designed for Kokoro TTS.
+A rule-based Grapheme-to-Phoneme engine for Brazilian Portuguese,
+designed for Kokoro TTS.
 
 Brazilian Portuguese Phonology Features:
 - 7 oral vowels (a, e, ɛ, i, o, ɔ, u) with open/closed e/o variants
@@ -221,7 +222,7 @@ class PortugueseG2P(G2PBase):
         stressed_vowels = set()
         open_vowels = set()  # Track é/ó (open) vs ê/ô (closed)
         normalized_text = []
-        for i, char in enumerate(text):
+        for _i, char in enumerate(text):
             if char in "áéíóúâêôãõ":
                 # Remember position
                 pos = len(normalized_text)
@@ -317,7 +318,8 @@ class PortugueseG2P(G2PBase):
 
             # Nasal combinations
             # am, an, em, en, im, in, om, on, um, un -> nasal vowel + m/n
-            # At end of word or before consonant (but NOT before h in digraphs like nh, lh, ch)
+            # At end of word or before consonant
+            # (but NOT before h in digraphs like nh, lh, ch)
             elif (
                 i + 1 < n
                 and text[i] in NASAL_VOWELS

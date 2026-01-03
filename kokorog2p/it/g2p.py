@@ -240,7 +240,7 @@ class ItalianG2P(G2PBase):
         # Find stressed vowels before normalization
         stressed_vowels = set()
         normalized_text = []
-        for i, char in enumerate(text):
+        for _i, char in enumerate(text):
             if char in "àèéìòóù":
                 # Remember the position of the normalized vowel
                 stressed_vowels.add(len(normalized_text))
@@ -266,7 +266,6 @@ class ItalianG2P(G2PBase):
 
         while i < n:
             matched = False
-            chars_consumed = 0
 
             # uo -> wo at word start (uomo -> womo)
             if i == 0 and i + 1 < n and text[i : i + 2] == "uo":
