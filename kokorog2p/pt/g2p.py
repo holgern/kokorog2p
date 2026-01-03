@@ -194,34 +194,20 @@ class PortugueseG2P(G2PBase):
 
         return tokens
 
-    def _word_to_phonemes(self, word: str) -> str:
-        """Convert a single word to phonemes.
+    def _normalize_text(self, text: str) -> tuple[str, set[int], set[int]]:
+        """Normalize accented characters and track stress positions.
 
         Args:
-            word: Word to convert.
+            text: Input text with possible accents.
 
         Returns:
-            Phoneme string in IPA.
+            Tuple of (normalized_text, stressed_vowel_positions,
+            open_vowel_positions).
         """
-        if not word:
-            return ""
-
-        # Check lexicon first
-        word_lower = word.lower()
-        if word_lower in self._LEXICON:
-            base_phonemes = self._LEXICON[word_lower]
-            if not self.mark_stress:
-                base_phonemes = base_phonemes.replace("ˈ", "")
-            return base_phonemes
-
-        # Convert to lowercase for processing
-        text = word.lower()
-
-        # Find stressed vowels before normalization
-        # Track both position and vowel quality (open vs closed)
         stressed_vowels = set()
         open_vowels = set()  # Track é/ó (open) vs ê/ô (closed)
         normalized_text = []
+
         for _i, char in enumerate(text):
             if char in "áéíóúâêôãõ":
                 # Remember position
@@ -247,7 +233,342 @@ class PortugueseG2P(G2PBase):
             else:
                 normalized_text.append(char)
 
-        text = "".join(normalized_text)
+        return "".join(normalized_text), stressed_vowels, open_vowels
+
+    def _process_vowel(
+        self,
+        text: str,
+        i: int,
+        n: int,
+        stressed_vowels: set[int],
+        open_vowels: set[int],
+    ) -> tuple[list[str], int]:
+        """Process a vowel and possible diphthong.
+
+        Args:
+            text: Normalized text.
+            i: Current position.
+            n: Text length.
+            stressed_vowels: Set of stressed vowel positions.
+            open_vowels: Set of open vowel positions.
+
+        Returns:
+            Tuple of (phonemes, new_position).
+        """
+        vowel = text[i]
+        result = []
+
+        if vowel == "e":
+            # Use open ɛ only if stressed AND has acute accent (é)
+            if i in stressed_vowels and i in open_vowels:
+                result.append("ɛ")
+            else:
+                result.append("e")
+            # Check for eu diphthong -> ew (meu, seu)
+            if i + 1 < n and text[i + 1] == "u":
+                result.append("w")
+                i += 1
+
+        elif vowel == "o":
+            # Use open ɔ only if stressed AND has acute accent (ó)
+            if i in stressed_vowels and i in open_vowels:
+                result.append("ɔ")
+            else:
+                result.append("o")
+            # Check for ou diphthong -> ow (vou, sou)
+            if i + 1 < n and text[i + 1] == "u":
+                result.append("w")
+                i += 1
+
+        elif vowel == "u":
+            result.append("u")
+            # Check for ui diphthong -> uj (muito)
+            if i + 1 < n and text[i + 1] == "i":
+                result.append("j")
+                i += 1
+
+        elif vowel == "a":
+            result.append("a")
+            # Check for au diphthong -> aw (Tchau, mau)
+            if i + 1 < n and text[i + 1] == "u":
+                result.append("w")
+                i += 1
+
+        elif vowel == "i":
+            result.append("i")
+
+        # Add stress marker if applicable
+        if self.mark_stress and i in stressed_vowels:
+            result.append("ˈ")
+
+        return result, i + 1
+
+    def _process_t_consonant(
+        self, text: str, i: int, n: int, stressed_vowels: set[int]
+    ) -> tuple[list[str], int, bool]:
+        """Process 't' consonant with possible affrication.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+        matched = False
+
+        if self.affricate_ti_di:
+            # Final "te" -> ʧi
+            if (
+                i + 1 < n
+                and text[i + 1] == "e"
+                and (i + 1) not in stressed_vowels
+                and i + 2 >= n
+            ):
+                result.extend(["ʧ", "i"])
+                return result, i + 2, True
+            # t + i (unstressed) -> ʧ
+            if i + 1 < n and text[i + 1] == "i" and (i + 1) not in stressed_vowels:
+                result.append("ʧ")
+                return result, i + 1, True
+
+        result.append("t")
+        return result, i + 1, matched
+
+    def _process_d_consonant(
+        self, text: str, i: int, n: int, stressed_vowels: set[int]
+    ) -> tuple[list[str], int, bool]:
+        """Process 'd' consonant with possible affrication.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+        matched = False
+
+        if self.affricate_ti_di:
+            # d + i (unstressed) -> ʤ
+            if i + 1 < n and text[i + 1] == "i" and (i + 1) not in stressed_vowels:
+                result.append("ʤ")
+                return result, i + 1, True
+
+        result.append("d")
+        return result, i + 1, matched
+
+    def _process_nasal_vowel(
+        self, text: str, i: int, n: int, stressed_vowels: set[int]
+    ) -> tuple[list[str], int, bool]:
+        """Process nasal vowel combination.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        if not (
+            i + 1 < n
+            and text[i] in NASAL_VOWELS
+            and text[i + 1] in "mn"
+            and (i + 2 >= n or text[i + 2] not in "aeiouãõh")
+        ):
+            return [], i, False
+
+        result = []
+        vowel = text[i]
+
+        # Nasalize vowel
+        nasal_map = {"a": "ã", "e": "ẽ", "i": "ĩ", "o": "õ", "u": "ũ"}
+        if vowel in nasal_map:
+            result.append(nasal_map[vowel])
+
+        # Add stress if needed
+        if self.mark_stress and i in stressed_vowels:
+            result.append("ˈ")
+
+        # Add nasal consonant
+        result.append(text[i + 1])
+
+        return result, i + 2, True
+
+    def _process_multi_char_sequences(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process multi-character grapheme sequences.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # tch -> ʧ (Tchau, tchau)
+        if i + 2 < n and text[i : i + 3] == "tch":
+            result.append("ʧ")
+            return result, i + 3, True
+
+        # nh -> ɲ (ninho)
+        if i + 1 < n and text[i : i + 2] == "nh":
+            result.append("ɲ")
+            return result, i + 2, True
+
+        # lh -> ʎ (filho)
+        if i + 1 < n and text[i : i + 2] == "lh":
+            result.append("ʎ")
+            return result, i + 2, True
+
+        # ch -> ʃ (chá)
+        if i + 1 < n and text[i : i + 2] == "ch":
+            result.append("ʃ")
+            return result, i + 2, True
+
+        # rr -> r or ʁ (strong r: carro)
+        if i + 1 < n and text[i : i + 2] == "rr":
+            result.append("r")  # Use r for strong trill
+            return result, i + 2, True
+
+        # ss -> s (isso -> iso)
+        if i + 1 < n and text[i : i + 2] == "ss":
+            result.append("s")
+            return result, i + 2, True
+
+        # qu + vowel -> kw or k
+        if i + 2 < n and text[i : i + 2] == "qu":
+            if text[i + 2] in "ei":
+                result.append("k")
+            else:
+                result.append("k")
+                result.append("w")
+            return result, i + 2, True
+
+        # gu + vowel -> ɡw or ɡ
+        if i + 2 < n and text[i : i + 2] == "gu":
+            if text[i + 2] in "ei":
+                result.append("ɡ")
+            else:
+                result.append("ɡ")
+                result.append("w")
+            return result, i + 2, True
+
+        return [], i, False
+
+    def _process_simple_consonants(
+        self, text: str, i: int, n: int, stressed_vowels: set[int]
+    ) -> tuple[list[str], int, bool]:
+        """Process simple consonants with context rules.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        char = text[i]
+        result = []
+
+        # Simple consonants (b, f, k, p, v)
+        if char in SIMPLE_CONSONANTS:
+            result.append(SIMPLE_CONSONANTS[char])
+            return result, i + 1, True
+
+        # c: before e/i -> s, otherwise k
+        if char == "c":
+            if i + 1 < n and text[i + 1] in "ei":
+                result.append("s")
+            else:
+                result.append("k")
+            return result, i + 1, True
+
+        # ç -> s
+        if char == "ç":
+            result.append("s")
+            return result, i + 1, True
+
+        # g: before e/i -> ʒ, otherwise ɡ
+        if char == "g":
+            if i + 1 < n and text[i + 1] in "ei":
+                result.append("ʒ")
+            else:
+                result.append("ɡ")
+            return result, i + 1, True
+
+        # j -> ʒ
+        if char == "j":
+            result.append("ʒ")
+            return result, i + 1, True
+
+        # x -> ʃ
+        if char == "x":
+            result.append("ʃ")
+            return result, i + 1, True
+
+        # z: final -> s, otherwise z
+        if char == "z":
+            if i + 1 >= n:
+                result.append("s")
+            else:
+                result.append("z")
+            return result, i + 1, True
+
+        # s: between vowels -> z, otherwise s
+        if char == "s":
+            if (
+                i > 0
+                and i + 1 < n
+                and text[i - 1] in "aeiouãõ"
+                and text[i + 1] in "aeiouãõ"
+            ):
+                result.append("z")
+            else:
+                result.append("s")
+            return result, i + 1, True
+
+        # r: initial -> r, otherwise ɾ
+        if char == "r":
+            if i == 0:
+                result.append("r")
+            else:
+                result.append("ɾ")
+            return result, i + 1, True
+
+        # l: before consonant/final -> w, otherwise l
+        if char == "l":
+            if i + 1 >= n or text[i + 1] not in "aeiouãõ":
+                result.append("w")
+            else:
+                result.append("l")
+            return result, i + 1, True
+
+        # m, n -> pass through
+        if char in "mn":
+            result.append(char)
+            return result, i + 1, True
+
+        # w, y -> w, j
+        if char in "wy":
+            if char == "w":
+                result.append("w")
+            else:
+                result.append("j")
+            return result, i + 1, True
+
+        return [], i, False
+
+    def _word_to_phonemes(self, word: str) -> str:
+        """Convert a single word to phonemes.
+
+        Args:
+            word: Word to convert.
+
+        Returns:
+            Phoneme string in IPA.
+        """
+        if not word:
+            return ""
+
+        # Check lexicon first
+        word_lower = word.lower()
+        if word_lower in self._LEXICON:
+            base_phonemes = self._LEXICON[word_lower]
+            if not self.mark_stress:
+                base_phonemes = base_phonemes.replace("ˈ", "")
+            return base_phonemes
+
+        # Convert to lowercase for processing
+        text = word.lower()
+
+        # Normalize and track stress
+        text, stressed_vowels, open_vowels = self._normalize_text(text)
 
         result: list[str] = []
         i = 0
@@ -257,345 +578,66 @@ class PortugueseG2P(G2PBase):
             matched = False
 
             # Multi-character sequences first
-
-            # tch -> ʧ (Tchau, tchau)
-            if i + 2 < n and text[i : i + 3] == "tch":
-                result.append("ʧ")
-                i += 3
+            phonemes, new_i, was_matched = self._process_multi_char_sequences(
+                text, i, n
+            )
+            if was_matched:
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # nh -> ɲ (ninho)
-            elif i + 1 < n and text[i : i + 2] == "nh":
-                result.append("ɲ")
-                i += 2
-                matched = True
-
-            # lh -> ʎ (filho)
-            elif i + 1 < n and text[i : i + 2] == "lh":
-                result.append("ʎ")
-                i += 2
-                matched = True
-
-            # ch -> ʃ (chá)
-            elif i + 1 < n and text[i : i + 2] == "ch":
-                result.append("ʃ")
-                i += 2
-                matched = True
-
-            # rr -> r or ʁ (strong r: carro)
-            elif i + 1 < n and text[i : i + 2] == "rr":
-                result.append("r")  # Use r for strong trill
-                i += 2
-                matched = True
-
-            # qu + vowel -> kw or k
-            # qu + e/i -> k (quero, qui), qu + a/o/u -> kw (quatro, quota)
-            elif i + 2 < n and text[i : i + 2] == "qu":
-                if text[i + 2] in "ei":
-                    result.append("k")
-                    i += 2  # Skip 'qu', next char will be processed
-                    matched = True
-                else:
-                    # qu + a/o/u -> kw
-                    result.append("k")
-                    result.append("w")
-                    i += 2  # Skip 'qu', next char (a/o/u) will be processed
+            # Try nasal combinations if not yet matched
+            if not matched:
+                phonemes, new_i, was_matched = self._process_nasal_vowel(
+                    text, i, n, stressed_vowels
+                )
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
 
-            # gu + vowel -> ɡw or ɡ
-            # gu + e/i -> ɡ (guerra, guia), gu + a/o -> ɡw (água,iguano)
-            elif i + 2 < n and text[i : i + 2] == "gu":
-                if text[i + 2] in "ei":
-                    result.append("ɡ")
-                    i += 2  # Skip 'gu', next char will be processed
-                    matched = True
-                else:
-                    # gu + a/o -> ɡw
-                    result.append("ɡ")
-                    result.append("w")
-                    i += 2  # Skip 'gu', next char (a/o) will be processed
-                    matched = True
-
-            # Nasal combinations
-            # am, an, em, en, im, in, om, on, um, un -> nasal vowel + m/n
-            # At end of word or before consonant
-            # (but NOT before h in digraphs like nh, lh, ch)
-            elif (
-                i + 1 < n
-                and text[i] in NASAL_VOWELS
-                and text[i + 1] in "mn"
-                and (i + 2 >= n or text[i + 2] not in "aeiouãõh")
-            ):
-                # Nasalize the vowel
-                vowel = text[i]
-                if vowel == "a":
-                    result.append("ã")
-                elif vowel == "e":
-                    result.append("ẽ")
-                elif vowel == "i":
-                    result.append("ĩ")
-                elif vowel == "o":
-                    result.append("õ")
-                elif vowel == "u":
-                    result.append("ũ")
-                # Add stress marker if applicable
-                if self.mark_stress and i in stressed_vowels:
-                    result.append("ˈ")
-                # Always add the nasal consonant
-                result.append(text[i + 1])
-                i += 2
-                matched = True
-
-            # Already-nasalized vowels (ã, õ from tilde in input)
-            elif text[i] in "ãõ":
+            # Already-nasalized vowels
+            if not matched and text[i] in "ãõ":
                 result.append(text[i])
                 if self.mark_stress and i in stressed_vowels:
                     result.append("ˈ")
                 i += 1
                 matched = True
 
-            # Single consonants - simple mappings
-            elif text[i] in SIMPLE_CONSONANTS:
-                result.append(SIMPLE_CONSONANTS[text[i]])
-                i += 1
+            # t/d consonants with affrication
+            if not matched and text[i] == "t":
+                phonemes, new_i, was_matched = self._process_t_consonant(
+                    text, i, n, stressed_vowels
+                )
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # c -> k or s
-            # c + e/i -> s (cedo, cinco)
-            # c + a/o/u -> k (casa, como, curto)
-            elif text[i] == "c":
-                if i + 1 < n and text[i + 1] in "ei":
-                    result.append("s")
-                else:
-                    result.append("k")
-                i += 1
+            if not matched and text[i] == "d":
+                phonemes, new_i, was_matched = self._process_d_consonant(
+                    text, i, n, stressed_vowels
+                )
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # ç -> s (always)
-            elif text[i] == "ç":
-                result.append("s")
-                i += 1
-                matched = True
-
-            # g -> ɡ or ʒ
-            # g + e/i -> ʒ (gente, girar)
-            # g + a/o/u -> ɡ (gato, gol, gula)
-            elif text[i] == "g":
-                if i + 1 < n and text[i + 1] in "ei":
-                    result.append("ʒ")
-                else:
-                    result.append("ɡ")
-                i += 1
-                matched = True
-
-            # j -> ʒ (always)
-            elif text[i] == "j":
-                result.append("ʒ")
-                i += 1
-                matched = True
-
-            # x -> ʃ (most common)
-            # TODO: Handle other x cases (ks, z, s) in future
-            elif text[i] == "x":
-                result.append("ʃ")
-                i += 1
-                matched = True
-
-            # z -> z or s
-            # At end of word: s (xadrez -> ʃadɾes)
-            # Otherwise: z (zero, fazer)
-            elif text[i] == "z":
-                # Check if at end of word
-                if i + 1 >= n:
-                    result.append("s")
-                else:
-                    result.append("z")
-                i += 1
-                matched = True
-
-            # ss -> s (isso -> iso)
-            elif i + 1 < n and text[i : i + 2] == "ss":
-                result.append("s")
-                i += 2
-                matched = True
-
-            # s -> s or z
-            # At start of word or after consonant: s (sal, pensar)
-            # Between vowels: z (casa, mesa)
-            # At end of word or before consonant: s (mas, este)
-            elif text[i] == "s":
-                # Check if between vowels
-                if (
-                    i > 0
-                    and i + 1 < n
-                    and text[i - 1] in "aeiouãõ"
-                    and text[i + 1] in "aeiouãõ"
-                ):
-                    result.append("z")
-                else:
-                    result.append("s")
-                i += 1
-                matched = True
-
-            # r -> r (strong) or ɾ (weak)
-            # At start of word: r (rato)
-            # Single r between vowels: ɾ (caro)
-            # After consonant in cluster (br, pr, tr, etc.): ɾ (Brasil, prato)
-            elif text[i] == "r":
-                # Strong r only at start of word
-                if i == 0:
-                    result.append("r")
-                else:
-                    # Weak r everywhere else (between vowels or after consonants)
-                    result.append("ɾ")
-                i += 1
-                matched = True
-
-            # l -> l or w
-            # At end of word or before consonant: w (Brasil, alto)
-            # Otherwise: l (lua, ali)
-            elif text[i] == "l":
-                if i + 1 >= n or text[i + 1] not in "aeiouãõ":
-                    result.append("w")
-                else:
-                    result.append("l")
-                i += 1
-                matched = True
-
-            # t -> t or ʧ
-            # t+i (unstressed): ʧ (tia -> ʧia, partida -> paɾʧida)
-            # Final "te" (unstressed): ʧi (noite -> noiʧi, diferente -> difeɾenʧi)
-            # But NOT: stressed té
-            elif text[i] == "t":
-                if self.affricate_ti_di:
-                    # Case 1: final "te" (unstressed) -> ʧi
-                    # The "e" becomes "i" in unstressed final position, then affricates
-                    if (
-                        i + 1 < n
-                        and text[i + 1] == "e"
-                        and (i + 1) not in stressed_vowels
-                        and i + 2 >= n  # Must be at end of word
-                    ):
-                        result.append("ʧ")
-                        result.append("i")  # The "e" becomes "i"
-                        i += 2  # Skip both 't' and 'e'
-                        matched = True
-                    # Case 2: t + i (unstressed) -> ʧ
-                    elif (
-                        i + 1 < n
-                        and text[i + 1] == "i"
-                        and (i + 1) not in stressed_vowels
-                    ):
-                        result.append("ʧ")
-                        i += 1
-                        matched = True
-
-                if not matched:
-                    result.append("t")
-                    i += 1
+            # Other consonants
+            if not matched:
+                phonemes, new_i, was_matched = self._process_simple_consonants(
+                    text, i, n, stressed_vowels
+                )
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
-
-            # d -> d or ʤ
-            # d+i (unstressed): ʤ (dia -> ʤia, dinheiro -> ʤiɲeiɾo)
-            # But NOT: stressed dí, or function words like "de"
-            elif text[i] == "d":
-                if self.affricate_ti_di:
-                    # d + i (unstressed) -> ʤ
-                    if (
-                        i + 1 < n
-                        and text[i + 1] == "i"
-                        and (i + 1) not in stressed_vowels
-                    ):
-                        result.append("ʤ")
-                        i += 1
-                        matched = True
-
-                if not matched:
-                    result.append("d")
-                    i += 1
-                    matched = True
-                    # Case 2: final "de" -> do NOT affricate (too variable)
-                    # The benchmark expects "de", "tarde" to NOT affricate
-
-                if not matched:
-                    result.append("d")
-                    i += 1
-                    matched = True
-
-            # m -> m
-            elif text[i] == "m":
-                result.append("m")
-                i += 1
-                matched = True
-
-            # n -> n
-            elif text[i] == "n":
-                result.append("n")
-                i += 1
-                matched = True
-
-            # w -> w (rare, mostly in loanwords)
-            elif text[i] == "w":
-                result.append("w")
-                i += 1
-                matched = True
-
-            # y -> j (in loanwords: yoga)
-            elif text[i] == "y":
-                result.append("j")
-                i += 1
-                matched = True
 
             # Vowels (with possible diphthongs)
-            elif text[i] in "aeiou":
-                vowel = text[i]
-
-                if vowel == "e":
-                    # Use open ɛ only if stressed AND has acute accent (é)
-                    # ê (circumflex) always uses closed e
-                    if i in stressed_vowels and i in open_vowels:
-                        result.append("ɛ")
-                    else:
-                        result.append("e")
-                    # Check for eu diphthong -> ew (meu, seu)
-                    if i + 1 < n and text[i + 1] == "u":
-                        result.append("w")  # Add semivowel
-                        i += 1  # Skip the 'u'
-
-                elif vowel == "o":
-                    # Same for o: use open ɔ only if stressed AND has acute accent (ó)
-                    # ô (circumflex) always uses closed o
-                    if i in stressed_vowels and i in open_vowels:
-                        result.append("ɔ")
-                    else:
-                        result.append("o")
-                    # Check for ou diphthong -> ow (vou, sou)
-                    if i + 1 < n and text[i + 1] == "u":
-                        result.append("w")  # Add semivowel
-                        i += 1  # Skip the 'u'
-
-                elif vowel == "u":
-                    result.append("u")
-                    # Check for ui diphthong -> uj (muito)
-                    if i + 1 < n and text[i + 1] == "i":
-                        result.append("j")  # Add semivowel
-                        i += 1  # Skip the 'i'
-
-                elif vowel == "a":
-                    result.append("a")
-                    # Check for au diphthong -> aw (Tchau, mau)
-                    if i + 1 < n and text[i + 1] == "u":
-                        result.append("w")  # Add semivowel
-                        i += 1  # Skip the 'u'
-
-                elif vowel == "i":
-                    result.append("i")
-
-                # Add stress marker if applicable
-                if self.mark_stress and i in stressed_vowels:
-                    result.append("ˈ")
-
-                i += 1
+            if not matched and text[i] in "aeiou":
+                phonemes, new_i = self._process_vowel(
+                    text, i, n, stressed_vowels, open_vowels
+                )
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
             # Unknown character - skip

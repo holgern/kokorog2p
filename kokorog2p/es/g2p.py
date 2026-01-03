@@ -202,6 +202,181 @@ class SpanishG2P(G2PBase):
         puncts = frozenset(";:,.!?-\"'()[]")
         return "".join(c for c in text if c in puncts)
 
+    def _process_multi_char_sequences(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process multi-character grapheme sequences.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # ch -> ʧ (chico)
+        if i + 1 < n and text[i : i + 2] == "ch":
+            result.append("ʧ")
+            return result, i + 2, True
+
+        # ll -> ʎ or j depending on dialect (most use j, some use ʎ)
+        # For now, use ʎ for traditional pronunciation
+        if i + 1 < n and text[i : i + 2] == "ll":
+            result.append("ʎ")
+            return result, i + 2, True
+
+        # rr -> r (trill)
+        if i + 1 < n and text[i : i + 2] == "rr":
+            result.append("r")
+            return result, i + 2, True
+
+        # qu + e/i -> k (queso, quien)
+        if i + 2 < n and text[i : i + 2] == "qu" and text[i + 2] in "ei":
+            result.append("k")
+            return result, i + 2, True
+
+        # gu + e/i -> ɡ (guerra, guiso)
+        if i + 2 < n and text[i : i + 2] == "gu" and text[i + 2] in "ei":
+            result.append("ɡ")
+            return result, i + 2, True
+
+        # gü + e/i -> ɡw (güero, pingüino)
+        if i + 2 < n and text[i : i + 3] == "gü" and i + 3 < n and text[i + 3] in "ei":
+            result.append("ɡ")
+            result.append("w")
+            return result, i + 2, True
+
+        return [], i, False
+
+    def _process_context_consonants(
+        self, text: str, i: int, n: int, result: list[str]
+    ) -> tuple[list[str], int, bool]:
+        """Process consonants with context-dependent rules (c, z, g, j, h, x, r).
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        char = text[i]
+        phonemes = []
+
+        # ñ -> ɲ (niño)
+        if char == "ñ":
+            phonemes.append("ɲ")
+            return phonemes, i + 1, True
+
+        # c before e/i -> θ (in European Spanish) or s (in Latin American)
+        # Exception: after x (as in excelente), use s
+        if char == "c":
+            if i + 1 < n and text[i + 1] in "ei":
+                # Check if previous phoneme is 's' (from 'x' -> 'ks')
+                if result and result[-1] == "s":
+                    # After x, use s: excelente → ekselente
+                    phonemes.append("s")
+                elif self.dialect == "es":
+                    phonemes.append("θ")
+                else:
+                    phonemes.append("s")
+            else:
+                # c before a/o/u -> k
+                phonemes.append("k")
+            return phonemes, i + 1, True
+
+        # z -> θ (in European Spanish) or s (in Latin American)
+        if char == "z":
+            if self.dialect == "es":
+                phonemes.append("θ")
+            else:
+                phonemes.append("s")
+            return phonemes, i + 1, True
+
+        # g before e/i -> x (jota sound)
+        if char == "g":
+            if i + 1 < n and text[i + 1] in "ei":
+                phonemes.append("x")
+            else:
+                # g before a/o/u -> ɡ
+                phonemes.append("ɡ")
+            return phonemes, i + 1, True
+
+        # j -> x (jota)
+        if char == "j":
+            phonemes.append("x")
+            return phonemes, i + 1, True
+
+        # h is silent
+        if char == "h":
+            return phonemes, i + 1, True
+
+        # x -> ks (except in Mexican Spanish where it can be [x])
+        # Special case: xc before e/i -> ks (not ksθ/kss)
+        if char == "x":
+            phonemes.append("k")
+            phonemes.append("s")
+            # Skip following 'c' if it comes before e/i (excelente → ekselente)
+            if i + 1 < n and text[i + 1] == "c" and i + 2 < n and text[i + 2] in "ei":
+                return phonemes, i + 2, True
+            return phonemes, i + 1, True
+
+        # r -> ɾ (tap) or r (trill at word start or after n/l/s)
+        if char == "r":
+            # Trill at word start or after n, l, s
+            if i == 0 or (i > 0 and text[i - 1] in "nls"):
+                phonemes.append("r")
+            else:
+                phonemes.append("ɾ")
+            return phonemes, i + 1, True
+
+        return [], i, False
+
+    def _process_simple_consonants(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process simple consonants (b, v, d, w, y, and SIMPLE_CONSONANTS).
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        char = text[i]
+        phonemes = []
+
+        # b/v -> b (they're the same phoneme in Spanish)
+        if char in "bv":
+            phonemes.append("b")
+            return phonemes, i + 1, True
+
+        # d -> d
+        if char == "d":
+            phonemes.append("d")
+            return phonemes, i + 1, True
+
+        # Simple consonants
+        if char in SIMPLE_CONSONANTS:
+            phonemes.append(SIMPLE_CONSONANTS[char])
+            return phonemes, i + 1, True
+
+        # w -> w (in loanwords)
+        if char == "w":
+            phonemes.append("w")
+            return phonemes, i + 1, True
+
+        # y -> j (consonantal y) or i (vowel in diphthongs)
+        if char == "y":
+            # At start of word or syllable, it's consonantal [j]: yo, ayer
+            # Between vowels or at end, check context
+            if i == 0:
+                # Word-initial: yo → jo
+                phonemes.append("j")
+            elif i == n - 1:
+                # Word-final: muy, soy, hoy → i
+                phonemes.append("i")
+            elif i + 1 < n and text[i + 1] in "aeiou":
+                # Before vowel: ayer → ajer (consonantal)
+                phonemes.append("j")
+            else:
+                # Default: use i for conjunction and word-final position
+                phonemes.append("i")
+            return phonemes, i + 1, True
+
+        return [], i, False
+
     def _word_to_phonemes(self, word: str) -> str:
         """Convert a single word to phonemes using Spanish rules.
 
@@ -257,189 +432,36 @@ class SpanishG2P(G2PBase):
             matched = False
 
             # Try multi-character sequences first
-
-            # ch -> ʧ (chico)
-            if i + 1 < n and text[i : i + 2] == "ch":
-                result.append("ʧ")
-                i += 2
+            phonemes, new_i, was_matched = self._process_multi_char_sequences(
+                text, i, n
+            )
+            if was_matched:
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # ll -> ʎ or j depending on dialect (most use j, some use ʎ)
-            # For now, use ʎ for traditional pronunciation
-            elif i + 1 < n and text[i : i + 2] == "ll":
-                result.append("ʎ")
-                i += 2
-                matched = True
-
-            # rr -> r (trill)
-            elif i + 1 < n and text[i : i + 2] == "rr":
-                result.append("r")
-                i += 2
-                matched = True
-
-            # qu + e/i -> k (queso, quien)
-            elif i + 2 < n and text[i : i + 2] == "qu" and text[i + 2] in "ei":
-                result.append("k")
-                i += 2  # Skip 'qu', the vowel will be processed next
-                matched = True
-
-            # gu + e/i -> ɡ (guerra, guiso)
-            elif i + 2 < n and text[i : i + 2] == "gu" and text[i + 2] in "ei":
-                result.append("ɡ")
-                i += 2  # Skip 'gu', the vowel will be processed next
-                matched = True
-
-            # gü + e/i -> ɡw (güero, pingüino)
-            elif (
-                i + 2 < n
-                and text[i : i + 3] == "gü"
-                and i + 3 < n
-                and text[i + 3] in "ei"
-            ):
-                result.append("ɡ")
-                result.append("w")
-                i += 2  # Skip 'gü', the vowel will be processed next
-                matched = True
-
-            # ñ -> ɲ (niño)
-            elif text[i] == "ñ":
-                result.append("ɲ")
-                i += 1
-                matched = True
-
-            # c before e/i -> θ (in European Spanish) or s (in Latin American)
-            # Exception: after x (as in excelente), use s
-            elif text[i] == "c":
-                if i + 1 < n and text[i + 1] in "ei":
-                    # Check if previous phoneme is 's' (from 'x' -> 'ks')
-                    if result and result[-1] == "s":
-                        # After x, use s: excelente → ekselente
-                        result.append("s")
-                    elif self.dialect == "es":
-                        result.append("θ")
-                    else:
-                        result.append("s")
-                    i += 1
-                    matched = True
-                else:
-                    # c before a/o/u -> k
-                    result.append("k")
-                    i += 1
+            # Try context consonants (c, z, g, j, h, x, r)
+            if not matched:
+                phonemes, new_i, was_matched = self._process_context_consonants(
+                    text, i, n, result
+                )
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
 
-            # z -> θ (in European Spanish) or s (in Latin American)
-            elif text[i] == "z":
-                if self.dialect == "es":
-                    result.append("θ")
-                else:
-                    result.append("s")
-                i += 1
-                matched = True
-
-            # g before e/i -> x (jota sound)
-            elif text[i] == "g":
-                if i + 1 < n and text[i + 1] in "ei":
-                    result.append("x")
-                    i += 1
+            # Try simple consonants (b, v, d, w, y, etc.)
+            if not matched:
+                phonemes, new_i, was_matched = self._process_simple_consonants(
+                    text, i, n
+                )
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
-                else:
-                    # g before a/o/u -> ɡ
-                    result.append("ɡ")
-                    i += 1
-                    matched = True
-
-            # j -> x (jota)
-            elif text[i] == "j":
-                result.append("x")
-                i += 1
-                matched = True
-
-            # h is silent
-            elif text[i] == "h":
-                i += 1
-                matched = True
-
-            # x -> ks (except in Mexican Spanish where it can be [x])
-            # Special case: xc before e/i -> ks (not ksθ/kss)
-            elif text[i] == "x":
-                result.append("k")
-                result.append("s")
-                # Skip following 'c' if it comes before e/i (excelente → ekselente)
-                if (
-                    i + 1 < n
-                    and text[i + 1] == "c"
-                    and i + 2 < n
-                    and text[i + 2] in "ei"
-                ):
-                    i += 2  # Skip 'xc'
-                else:
-                    i += 1
-                matched = True
-
-            # r -> ɾ (tap) or r (trill at word start or after n/l/s)
-            elif text[i] == "r":
-                # Trill at word start or after n, l, s
-                if i == 0 or (i > 0 and text[i - 1] in "nls"):
-                    result.append("r")
-                else:
-                    result.append("ɾ")
-                i += 1
-                matched = True
-
-            # n before c/g/qu/k -> ŋ? Actually, Spanish doesn't have ŋ phonemically
-            # Keep as 'n' for simplicity
-
-            # b/v -> b (they're the same phoneme in Spanish)
-            # Soft variants [β] occur between vowels, but we'll use 'b' for simplicity
-            elif text[i] in "bv":
-                result.append("b")
-                i += 1
-                matched = True
-
-            # d -> d (soft [ð] between vowels, but we'll use 'd')
-            elif text[i] == "d":
-                result.append("d")
-                i += 1
-                matched = True
-
-            # Simple consonants
-            elif text[i] in SIMPLE_CONSONANTS:
-                result.append(SIMPLE_CONSONANTS[text[i]])
-                i += 1
-                matched = True
-
-            # w -> w (in loanwords)
-            elif text[i] == "w":
-                result.append("w")
-                i += 1
-                matched = True
-
-            # y -> j (consonantal y) or i (vowel in diphthongs)
-            elif text[i] == "y":
-                # At start of word or syllable, it's consonantal [j]: yo, ayer
-                # Between vowels or at end, check context
-                if i == 0:
-                    # Word-initial: yo → jo
-                    result.append("j")
-                elif i == n - 1:
-                    # Word-final: muy, soy, hoy → i
-                    result.append("i")
-                elif (
-                    i > 0
-                    and text[i - 1] not in "aeiou"
-                    and i + 1 < n
-                    and text[i + 1] in "aeiou"
-                ):
-                    # After consonant, before vowel: ayer → ajer
-                    result.append("j")
-                else:
-                    # Default: use i for conjunction and word-final position
-                    result.append("i")
-                i += 1
-                matched = True
 
             # Vowels
-            elif text[i] in "aeiou":
+            if not matched and text[i] in "aeiou":
                 vowel = text[i]
                 result.append(vowel)
                 # Add stress mark AFTER the vowel if this vowel is stressed

@@ -161,7 +161,8 @@ def validate_sentence(
     # Validate ID matches index
     if sentence.get("id") != index + 1:
         errors.append(
-            f"Sentence {index}: ID mismatch (expected {index + 1}, got {sentence.get('id')})"
+            f"Sentence {index}: ID mismatch "
+            f"(expected {index + 1}, got {sentence.get('id')})"
         )
 
     # Validate phonemes

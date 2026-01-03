@@ -11,8 +11,10 @@ This script:
 
 Usage:
     python benchmarks/extract_childes_sentences.py --language en-gb --count 50
-    python benchmarks/extract_childes_sentences.py --language en-us --count 100 --output additions.json
-    python benchmarks/extract_childes_sentences.py --language en-gb --fill-gaps --phonemes "Q,ɒ,ː,a"
+    python benchmarks/extract_childes_sentences.py --language en-us --count 100 \
+        --output additions.json
+    python benchmarks/extract_childes_sentences.py --language en-gb \
+        --fill-gaps --phonemes "Q,ɒ,ː,a"
 """
 
 import argparse
@@ -78,7 +80,7 @@ def filter_quality_sentences(
 
     # Filter by adult speech
     if adult_only:
-        filtered = filtered[filtered["is_child"] == False]
+        filtered = filtered[not filtered["is_child"]]
 
     # Filter by sentence length
     filtered = filtered[
@@ -272,7 +274,7 @@ def extract_sentences(
     print(f"\nExtracting {count} sentences using '{strategy}' strategy...")
 
     # Iterate through dataset
-    for idx, row in df.iterrows():
+    for _idx, row in df.iterrows():
         if len(results) >= count:
             break
 
@@ -363,7 +365,8 @@ def extract_sentences(
                 else ("intermediate" if word_count <= 8 else "advanced"),
                 "word_count": word_count,
                 "contains_oov": False,  # Assume dictionary coverage
-                "notes": f"Extracted from CHILDES (speaker: {row.get('speaker_role', 'unknown')})",
+                "notes": f"Extracted from CHILDES "
+                f"(speaker: {row.get('speaker_role', 'unknown')})",
                 "source": "childes",
             }
         )
@@ -396,11 +399,14 @@ def export_to_json(
             "version": "1.0.0",
             "language": language,
             "created_date": "2026-01-03",
-            "description": f"CHILDES-extracted sentences for {language.upper()} - Natural child-directed speech",
+            "description": f"CHILDES-extracted sentences for {language.upper()} - "
+            f"Natural child-directed speech",
             "phoneme_set": "kokoro",
             "total_sentences": len(sentences),
             "source": "CHILDES corpus (ipa-childes-split dataset)",
-            "extraction_method": "Filtered adult speech, 3-10 tokens, validated against kokorog2p",
+            "extraction_method": (
+                "Filtered adult speech, 3-10 tokens, validated against kokorog2p"
+            ),
         },
         "sentences": sentences,
     }

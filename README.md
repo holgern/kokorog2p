@@ -302,8 +302,8 @@ Learning             en-us  lˈɜːnɪŋ
 - Use `load_gold=False, load_silver=False` to save ~50+ MB (espeak fallback only)
 
 **Chinese Note:** Chinese G2P uses Zhuyin (Bopomofo) phonetic notation for Kokoro TTS
-compatibility. Arabic numerals are automatically converted to Chinese (e.g., "123" →
-"一百二十三"). For version 1.1 (recommended):
+compatibility. Arabic numerals are automatically converted to Chinese (e.g., "123" → "一
+百二十三"). For version 1.1 (recommended):
 
 ```python
 from kokorog2p.zh import ChineseG2P

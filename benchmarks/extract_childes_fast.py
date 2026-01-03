@@ -9,10 +9,12 @@ This version:
 
 Usage:
     # Extract 140 new sentences for GB
-    python benchmarks/extract_childes_fast.py --language en-gb --count 140 --merge benchmarks/data/en_gb_synthetic.json
+    python benchmarks/extract_childes_fast.py --language en-gb --count 140 \
+        --merge benchmarks/data/en_gb_synthetic.json
 
     # Extract for US
-    python benchmarks/extract_childes_fast.py --language en-us --count 105 --merge benchmarks/data/en_us_synthetic.json
+    python benchmarks/extract_childes_fast.py --language en-us --count 105 \
+        --merge benchmarks/data/en_us_synthetic.json
 """
 
 import argparse
@@ -133,7 +135,7 @@ def extract_fast(
 
     # Pre-filter dataframe for speed
     df_filtered = df[
-        (df["is_child"] == False)  # Adult only
+        (not df["is_child"])  # Adult only
         & (df["num_tokens"] >= min_tokens)
         & (df["num_tokens"] <= max_tokens)
         & (df["ipa_espeak"].notna())
@@ -142,7 +144,7 @@ def extract_fast(
     print(f"Filtered to {len(df_filtered):,} candidate sentences")
 
     processed = 0
-    for idx, row in df_filtered.iterrows():
+    for _idx, row in df_filtered.iterrows():
         if len(results) >= count:
             break
 
@@ -242,7 +244,8 @@ def merge_with_existing(
         json.dump(data, f, indent=2, ensure_ascii=False)
 
     print(
-        f"\n✓ Merged {len(new_sentences)} new + {existing_count} existing = {len(all_sentences)} total"
+        f"✓ Merged {len(new_sentences)} new + {existing_count} existing = "
+        f"{len(all_sentences)} total"
     )
     print(f"✓ Output: {output_path}")
 

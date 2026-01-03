@@ -238,7 +238,8 @@ def main():
             result = benchmark_config(g2p, data, config["name"])
             results.append(result)
             print(
-                f"  ✓ {result.accuracy_percent:.1f}% accuracy, {result.sentences_per_second:.0f} sent/s"
+                f"  ✓ {result.accuracy_percent:.1f}% accuracy, "
+                f"{result.sentences_per_second:.0f} sent/s"
             )
         except Exception as e:
             print(f"  ✗ Error: {e}")

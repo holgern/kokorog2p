@@ -334,7 +334,8 @@ def main():
     coverage = len(all_chars & ZH_VOCAB) / len(ZH_VOCAB) * 100
 
     print(
-        f"\nPhoneme coverage: {coverage:.1f}% ({len(all_chars & ZH_VOCAB)}/{len(ZH_VOCAB)})"
+        f"Phoneme coverage: {coverage:.1f}% "
+        f"({len(all_chars & ZH_VOCAB)}/{len(ZH_VOCAB)})"
     )
 
     if missing_from_dataset:

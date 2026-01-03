@@ -211,6 +211,268 @@ class ItalianG2P(G2PBase):
         puncts = frozenset(";:,.!?-\"'()[]")
         return "".join(c for c in text if c in puncts)
 
+    def _process_digraphs(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process two-letter graphemes (gn, gli, gl, sc, ch, gh, qu).
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # gn -> ɲ (gnocchi), check for doubling after
+        if i + 1 < n and text[i : i + 2] == "gn":
+            result.append("ɲ")
+            new_i = i + 2
+            # Check if followed by another consonant for gemination
+            if self.mark_gemination and new_i < n and text[new_i] == "n":
+                result.append("ː")
+                new_i += 1
+            return result, new_i, True
+
+        # gli -> ʎ (famiglia), but only before vowel or word-final
+        if i + 2 < n and text[i : i + 3] == "gli":
+            if i + 3 >= n or text[i + 3] in VOWELS:
+                result.append("ʎ")
+                return result, i + 3, True
+            # gl before non-vowel -> g + l
+            result.append("ɡ")
+            return result, i + 1, True
+
+        # gl before i -> ʎ
+        if i + 1 < n and text[i : i + 2] == "gl" and i + 2 < n and text[i + 2] == "i":
+            result.append("ʎ")
+            return result, i + 2, True
+
+        # sc before e/i -> ʃ (pesce)
+        if i + 1 < n and text[i : i + 2] == "sc":
+            if i + 2 < n and text[i + 2] in "ei":
+                result.append("ʃ")
+            else:
+                # sc before other -> sk
+                result.append("s")
+                result.append("k")
+            return result, i + 2, True
+
+        # ch -> k (che, chi)
+        if i + 1 < n and text[i : i + 2] == "ch":
+            result.append("k")
+            return result, i + 2, True
+
+        # gh -> ɡ (ghetto, ghiro)
+        if i + 1 < n and text[i : i + 2] == "gh":
+            result.append("ɡ")
+            return result, i + 2, True
+
+        # qu -> kw
+        if i + 1 < n and text[i : i + 2] == "qu":
+            result.append("k")
+            result.append("w")
+            return result, i + 2, True
+
+        return [], i, False
+
+    def _process_trigraphs(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process three-letter graphemes (cqu, cch, ggh) and special uo.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # uo -> wo at word start (uomo -> womo)
+        if i == 0 and i + 1 < n and text[i : i + 2] == "uo":
+            result.append("w")
+            result.append("o")
+            return result, i + 2, True
+
+        # cqu -> kːw (acqua)
+        if i + 2 < n and text[i : i + 3] == "cqu":
+            result.append("k")
+            result.append("ː")
+            result.append("w")
+            return result, i + 3, True
+
+        # cch -> kːk  (occhi)
+        if i + 2 < n and text[i : i + 3] == "cch":
+            result.append("k")
+            result.append("ː")
+            return result, i + 2, True
+
+        # ggh -> ɡːɡ (agghiacciare)
+        if i + 2 < n and text[i : i + 3] == "ggh":
+            result.append("ɡ")
+            result.append("ː")
+            return result, i + 2, True
+
+        return [], i, False
+
+    def _process_c_consonant(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process 'c' with context rules.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # cci/cce -> ʧː (cappuccino)
+        if i + 2 < n and text[i : i + 2] == "cc" and text[i + 2] in "ei":
+            if self.mark_gemination:
+                result.append("ʧ")
+                result.append("ː")
+                return result, i + 2, True
+            result.append("ʧ")
+            return result, i + 1, True
+
+        # ci/ce -> ʧ (ciao, cento)
+        if i + 1 < n and text[i + 1] in "ei":
+            result.append("ʧ")
+            return result, i + 1, True
+
+        if i + 1 < n and text[i + 1] == "c":
+            # Double c before a/o/u -> k:
+            result.append("k")
+            result.append("ː")
+            return result, i + 2, True
+
+        # c before a/o/u -> k
+        result.append("k")
+        return result, i + 1, True
+
+    def _process_g_consonant(
+        self, text: str, i: int, n: int
+    ) -> tuple[list[str], int, bool]:
+        """Process 'g' with context rules.
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        result = []
+
+        # ggi/gge -> ʤː (oggi)
+        if i + 2 < n and text[i : i + 2] == "gg" and text[i + 2] in "ei":
+            new_i = i + 2
+            if self.mark_gemination:
+                result.append("ʤ")
+                result.append("ː")
+                # For ggio/ggia, skip the 'i' (formaggio -> formaʤːo)
+                if text[new_i] == "i" and new_i + 1 < n and text[new_i + 1] in "aou":
+                    new_i += 1
+            else:
+                result.append("ʤ")
+                # For ggio/ggia, skip the 'i' even without gemination
+                if text[new_i] == "i" and new_i + 1 < n and text[new_i + 1] in "aou":
+                    new_i += 1
+            return result, new_i, True
+
+        # gi/ge -> ʤ (giorno, gente)
+        if i + 1 < n and text[i + 1] in "ei":
+            result.append("ʤ")
+            new_i = i + 1
+            # Handle 'i' after soft g
+            if text[new_i] == "i" and new_i + 1 < n:
+                next_char = text[new_i + 1]
+                if next_char == "o":
+                    # Check if followed by r or n
+                    if new_i + 2 < n and text[new_i + 2] in "rn":
+                        # Keep the 'i' (giorno, giornale)
+                        pass
+                    else:
+                        # Drop the 'i' (gioca, giocatore)
+                        new_i += 1
+                elif next_char in "au":
+                    # Drop the 'i' (mangia, giulia)
+                    new_i += 1
+            return result, new_i, True
+
+        if i + 1 < n and text[i + 1] == "g":
+            # Double g before a/o/u -> ɡ:
+            result.append("ɡ")
+            result.append("ː")
+            return result, i + 2, True
+
+        # g before a/o/u -> ɡ
+        result.append("ɡ")
+        return result, i + 1, True
+
+    def _process_simple_chars(
+        self, text: str, i: int, n: int, stressed_vowels: set[int]
+    ) -> tuple[list[str], int, bool]:
+        """Process simple characters (z, h, s, consonants, vowels, j, w, x, y).
+
+        Returns:
+            Tuple of (phonemes, new_position, matched).
+        """
+        char = text[i]
+        result = []
+
+        # z -> ʦ or ʣ
+        if char == "z":
+            if self.mark_gemination and i + 1 < n and text[i + 1] == "z":
+                result.append("ʦ")
+                result.append("ː")
+                return result, i + 2, True
+            result.append("ʦ")
+            return result, i + 1, True
+
+        # h is silent
+        if char == "h":
+            return result, i + 1, True
+
+        # s -> s
+        if char == "s":
+            if self.mark_gemination and i + 1 < n and text[i + 1] == "s":
+                result.append("s")
+                result.append("ː")
+                return result, i + 2, True
+            result.append("s")
+            return result, i + 1, True
+
+        # Simple consonants
+        if char in SIMPLE_CONSONANTS:
+            consonant = SIMPLE_CONSONANTS[char]
+            if self.mark_gemination and i + 1 < n and text[i + 1] == char:
+                result.append(consonant)
+                result.append("ː")
+                return result, i + 2, True
+            result.append(consonant)
+            return result, i + 1, True
+
+        # Vowels
+        if char in "aeiou":
+            result.append(char)
+            if self.mark_stress and i in stressed_vowels:
+                result.append("ˈ")
+            return result, i + 1, True
+
+        # j -> j (semivowel)
+        if char == "j":
+            result.append("j")
+            return result, i + 1, True
+
+        # w -> w (in loan words)
+        if char == "w":
+            result.append("w")
+            return result, i + 1, True
+
+        # x -> ks (in loan words)
+        if char == "x":
+            result.append("k")
+            result.append("s")
+            return result, i + 1, True
+
+        # y -> i (in loan words)
+        if char == "y":
+            result.append("i")
+            return result, i + 1, True
+
+        return [], i, False
+
     def _word_to_phonemes(self, word: str) -> str:
         """Convert a single word to phonemes using Italian rules.
 
@@ -267,264 +529,44 @@ class ItalianG2P(G2PBase):
         while i < n:
             matched = False
 
-            # uo -> wo at word start (uomo -> womo)
-            if i == 0 and i + 1 < n and text[i : i + 2] == "uo":
-                result.append("w")
-                result.append("o")
-                i += 2
+            # Try trigraphs first (uo, cqu, cch, ggh)
+            phonemes, new_i, was_matched = self._process_trigraphs(text, i, n)
+            if was_matched:
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # Try multi-character sequences first
-            # Check for double consonants first (cch, ggh, cqu, etc.)
-
-            # cqu -> kːw (acqua)
-            if i + 2 < n and text[i : i + 3] == "cqu":
-                result.append("k")
-                result.append("ː")
-                result.append("w")
-                i += 3
-                matched = True
-
-            # cch -> kːk  (occhi)
-            elif i + 2 < n and text[i : i + 3] == "cch":
-                result.append("k")
-                result.append("ː")
-                i += 2  # Skip to the 'h'
-                matched = True
-
-            # ggh -> ɡːɡ (agghiacciare)
-            elif i + 2 < n and text[i : i + 3] == "ggh":
-                result.append("ɡ")
-                result.append("ː")
-                i += 2  # Skip to the 'h'
-                matched = True
-
-            # gn -> ɲ (gnocchi), check for doubling after
-            elif i + 1 < n and text[i : i + 2] == "gn":
-                result.append("ɲ")
-                i += 2
-                # Check if followed by another consonant for gemination
-                if self.mark_gemination and i < n and text[i] == "n":
-                    result.append("ː")
-                    i += 1
-                matched = True
-
-            # gli -> ʎ (famiglia), but only before vowel or word-final
-            elif i + 2 < n and text[i : i + 3] == "gli":
-                if i + 3 >= n or text[i + 3] in VOWELS:
-                    result.append("ʎ")
-                    i += 3
-                    matched = True
-                else:
-                    # gl before non-vowel -> g + l
-                    result.append("ɡ")
-                    i += 1
+            # Try digraphs (gn, gli, gl, sc, ch, gh, qu)
+            if not matched:
+                phonemes, new_i, was_matched = self._process_digraphs(text, i, n)
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
 
-            # gl before i -> ʎ
-            elif (
-                i + 1 < n
-                and text[i : i + 2] == "gl"
-                and i + 2 < n
-                and text[i + 2] == "i"
-            ):
-                result.append("ʎ")
-                i += 2
+            # Process 'c' with context
+            if not matched and text[i] == "c":
+                phonemes, new_i, was_matched = self._process_c_consonant(text, i, n)
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # sc before e/i -> ʃ (pesce)
-            elif i + 1 < n and text[i : i + 2] == "sc":
-                if i + 2 < n and text[i + 2] in "ei":
-                    result.append("ʃ")
-                    i += 2
-                    matched = True
-                else:
-                    # sc before other -> sk
-                    result.append("s")
-                    result.append("k")
-                    i += 2
-                    matched = True
-
-            # ch -> k (che, chi)
-            elif i + 1 < n and text[i : i + 2] == "ch":
-                result.append("k")
-                i += 2
+            # Process 'g' with context
+            if not matched and text[i] == "g":
+                phonemes, new_i, was_matched = self._process_g_consonant(text, i, n)
+                result.extend(phonemes)
+                i = new_i
                 matched = True
 
-            # gh -> ɡ (ghetto, ghiro)
-            elif i + 1 < n and text[i : i + 2] == "gh":
-                result.append("ɡ")
-                i += 2
-                matched = True
-
-            # cci/cce -> ʧː (cappuccino)
-            elif i + 2 < n and text[i : i + 2] == "cc" and text[i + 2] in "ei":
-                if self.mark_gemination:
-                    result.append("ʧ")
-                    result.append("ː")
-                    i += 2
-                else:
-                    result.append("ʧ")
-                    i += 1
-                matched = True
-
-            # ci/ce -> ʧ (ciao, cento)
-            elif text[i] == "c":
-                if i + 1 < n and text[i + 1] in "ei":
-                    result.append("ʧ")
-                    i += 1
+            # Process simple characters (z, h, s, consonants, vowels, j, w, x, y)
+            if not matched:
+                phonemes, new_i, was_matched = self._process_simple_chars(
+                    text, i, n, stressed_vowels
+                )
+                if was_matched:
+                    result.extend(phonemes)
+                    i = new_i
                     matched = True
-                elif i + 1 < n and text[i + 1] == "c":
-                    # Double c before a/o/u -> k:
-                    result.append("k")
-                    result.append("ː")
-                    i += 2
-                    matched = True
-                else:
-                    # c before a/o/u -> k
-                    result.append("k")
-                    i += 1
-                    matched = True
-
-            # ggi/gge -> ʤː (oggi)
-            elif i + 2 < n and text[i : i + 2] == "gg" and text[i + 2] in "ei":
-                if self.mark_gemination:
-                    result.append("ʤ")
-                    result.append("ː")
-                    i += 2
-                    # For ggio/ggia, skip the 'i' (formaggio -> formaʤːo)
-                    if text[i] == "i" and i + 1 < n and text[i + 1] in "aou":
-                        i += 1
-                else:
-                    result.append("ʤ")
-                    i += 1
-                    # For ggio/ggia, skip the 'i' even without gemination
-                    if text[i] == "i" and i + 1 < n and text[i + 1] in "aou":
-                        i += 1
-                matched = True
-
-            # gi/ge -> ʤ (giorno, gente)
-            elif text[i] == "g":
-                if i + 1 < n and text[i + 1] in "ei":
-                    result.append("ʤ")
-                    i += 1
-                    # Handle 'i' after soft g:
-                    # - "gio" + r/n -> keep "io" (giorno)
-                    # - "gio" + other -> drop "i" (gioca)
-                    # - "gia" -> drop "i" (mangia)
-                    # - "giu" -> drop "i" (giulia)
-                    if text[i] == "i" and i + 1 < n:
-                        next_char = text[i + 1]
-                        if next_char == "o":
-                            # Check if followed by r or n
-                            if i + 2 < n and text[i + 2] in "rn":
-                                # Keep the 'i' (giorno, giornale)
-                                pass
-                            else:
-                                # Drop the 'i' (gioca, giocatore)
-                                i += 1
-                        elif next_char in "au":
-                            # Drop the 'i' (mangia, giulia)
-                            i += 1
-                    matched = True
-                elif i + 1 < n and text[i + 1] == "g":
-                    # Double g before a/o/u -> ɡ:
-                    result.append("ɡ")
-                    result.append("ː")
-                    i += 2
-                    matched = True
-                else:
-                    # g before a/o/u -> ɡ
-                    result.append("ɡ")
-                    i += 1
-                    matched = True
-
-            # z -> ʦ or ʣ (context-dependent, default to voiceless)
-            elif text[i] == "z":
-                # Check for double z
-                if self.mark_gemination and i + 1 < n and text[i + 1] == "z":
-                    result.append("ʦ")
-                    result.append("ː")
-                    i += 2
-                    matched = True
-                else:
-                    # Simplified: use ʦ (voiceless) by default
-                    result.append("ʦ")
-                    i += 1
-                    matched = True
-
-            # qu -> kw
-            elif i + 1 < n and text[i : i + 2] == "qu":
-                result.append("k")
-                result.append("w")
-                i += 2
-                matched = True
-
-            # h is silent
-            elif text[i] == "h":
-                i += 1
-                matched = True
-
-            # s -> s (can be [s] or [z], default to s)
-            elif text[i] == "s":
-                # Check for gemination (double s)
-                if self.mark_gemination and i + 1 < n and text[i + 1] == "s":
-                    result.append("s")
-                    result.append("ː")  # length marker
-                    i += 2
-                    matched = True
-                else:
-                    result.append("s")
-                    i += 1
-                    matched = True
-
-            # Simple consonants
-            elif text[i] in SIMPLE_CONSONANTS:
-                consonant = SIMPLE_CONSONANTS[text[i]]
-                # Check for gemination
-                if self.mark_gemination and i + 1 < n and text[i + 1] == text[i]:
-                    result.append(consonant)
-                    result.append("ː")  # length marker
-                    i += 2
-                    matched = True
-                else:
-                    result.append(consonant)
-                    i += 1
-                    matched = True
-
-            # Vowels
-            elif text[i] in "aeiou":
-                result.append(text[i])
-                # Add stress mark AFTER the vowel if this vowel is stressed
-                if self.mark_stress and i in stressed_vowels:
-                    result.append("ˈ")
-                i += 1
-                matched = True
-
-            # j -> j (semivowel)
-            elif text[i] == "j":
-                result.append("j")
-                i += 1
-                matched = True
-
-            # w -> w (in loan words)
-            elif text[i] == "w":
-                result.append("w")
-                i += 1
-                matched = True
-
-            # x -> ks (in loan words)
-            elif text[i] == "x":
-                result.append("k")
-                result.append("s")
-                i += 1
-                matched = True
-
-            # y -> i (in loan words)
-            elif text[i] == "y":
-                result.append("i")
-                i += 1
-                matched = True
 
             # Unknown character
             if not matched:

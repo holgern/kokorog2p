@@ -146,7 +146,8 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     print("German G2P Configuration Comparison")
     print("=" * 80)
     print(
-        f"Dataset: {results[0].total_sentences} sentences, {results[0].total_words} words"
+        f"Dataset: {results[0].total_sentences} sentences, "
+        f"{results[0].total_words} words"
     )
     print()
 
@@ -176,10 +177,12 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     best_speed = max(results, key=lambda x: x.sentences_per_second)
 
     print(
-        f"Best accuracy:  {best_accuracy.config_name} ({best_accuracy.accuracy_percent:.1f}%)"
+        f"Best accuracy:  {best_accuracy.config_name} "
+        f"({best_accuracy.accuracy_percent:.1f}%)"
     )
     print(
-        f"Fastest:        {best_speed.config_name} ({best_speed.sentences_per_second:,.0f} sent/s)"
+        f"Fastest:        {best_speed.config_name} "
+        f"({best_speed.sentences_per_second:,.0f} sent/s)"
     )
     print()
 

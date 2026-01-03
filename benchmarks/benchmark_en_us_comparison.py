@@ -414,7 +414,8 @@ def print_detailed_results(result: ConfigBenchmark, show_errors: bool = True) ->
 
     if show_errors and result.errors:
         print(
-            f"\nSample errors (showing {min(5, len(result.errors))} of {len(result.errors)}):"
+            f"\nSample errors (showing {min(5, len(result.errors))} "
+            f"of {len(result.errors)}):"
         )
         for sent_id, expected, got in result.errors[:5]:
             print(f"  Sentence {sent_id}:")
@@ -495,7 +496,8 @@ def main():
         return 1
 
     print(
-        f"Loaded {len(data['sentences'])} sentences from {data['metadata']['description']}"
+        f"Loaded {len(data['sentences'])} sentences from "
+        f"{data['metadata']['description']}"
     )
 
     # Get vocabulary
@@ -562,10 +564,12 @@ def main():
         best_speed = max(results, key=lambda r: r.words_per_second)
 
         print(
-            f"\nBest accuracy:  {best_accuracy.config_name} ({best_accuracy.accuracy_percent:.1f}%)"
+            f"Best accuracy:  {best_accuracy.config_name} "
+            f"({best_accuracy.accuracy_percent:.1f}%)"
         )
         print(
-            f"Fastest:        {best_speed.config_name} ({best_speed.words_per_second:,.0f} words/sec)"
+            f"Fastest:        {best_speed.config_name} "
+            f"({best_speed.words_per_second:,.0f} words/sec)"
         )
 
         # Export to JSON if requested

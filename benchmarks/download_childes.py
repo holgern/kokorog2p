@@ -81,7 +81,8 @@ def download_with_progress(url: str, output_path: Path, verbose: bool = False) -
 
         # Update progress on same line
         sys.stdout.write(
-            f"\r  Progress: {percent:5.1f}% ({mb_downloaded:6.1f} MB / {mb_total:6.1f} MB)"
+            f"  Progress: {percent:5.1f}% "
+            f"({mb_downloaded:6.1f} MB / {mb_total:6.1f} MB)"
         )
         sys.stdout.flush()
 
@@ -136,7 +137,8 @@ def download_language(language: str, output_dir: Path, verbose: bool = False) ->
     if success:
         file_size = output_path.stat().st_size
         print(
-            f"  ✓ Downloaded {language}: {file_size:,} bytes ({file_size / (1024 * 1024):.1f} MB)"
+            f"  ✓ Downloaded {language}: {file_size:,} bytes "
+            f"({file_size / (1024 * 1024):.1f} MB)"
         )
     else:
         # Clean up partial download

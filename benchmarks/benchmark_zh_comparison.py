@@ -133,7 +133,8 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     print("Chinese (Mandarin) G2P Configuration Comparison")
     print("=" * 80)
     print(
-        f"Dataset: {results[0].total_sentences} sentences, {results[0].total_words} characters"
+        f"Dataset: {results[0].total_sentences} sentences, "
+        f"{results[0].total_words} characters"
     )
     print()
 
@@ -152,7 +153,8 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
         phonemes_str = f"{result.unique_phonemes}"
 
         print(
-            f"{result.config_name:<30} {accuracy_str:>10} {speed_str:>15} {phonemes_str:>10}"
+            f"{result.config_name:<30} {accuracy_str:>10} "
+            f"{speed_str:>15} {phonemes_str:>10}"
         )
 
     print()
@@ -226,7 +228,8 @@ def main():
         result = benchmark_config(g2p, data, config["name"])
         results.append(result)
         print(
-            f"  {result.accuracy_percent:.1f}% accuracy, {result.sentences_per_second:,.0f} sent/s"
+            f"  {result.accuracy_percent:.1f}% accuracy, "
+            f"{result.sentences_per_second:,.0f} sent/s"
         )
 
     # Print results table
