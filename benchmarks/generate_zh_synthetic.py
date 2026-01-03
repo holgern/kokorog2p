@@ -307,7 +307,7 @@ def main():
     print("DATASET STATISTICS")
     print("=" * 80)
     print(f"Total sentences: {len(sentences)}")
-    print(f"\nBy category:")
+    print("\nBy category:")
 
     categories = {}
     for s in sentences:

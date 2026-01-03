@@ -34,9 +34,8 @@ Usage:
 import argparse
 import sys
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.request import urlretrieve
-from urllib.error import URLError, HTTPError
-
 
 # Available languages in the dataset
 AVAILABLE_LANGUAGES = [
@@ -159,10 +158,10 @@ Available languages:
 Examples:
   # Download English datasets
   %(prog)s --languages en-GB en-US
-  
+
   # Download all languages
   %(prog)s --all
-  
+
   # Download with progress display
   %(prog)s --languages en-GB --verbose
 """,
@@ -214,7 +213,7 @@ Examples:
     print("=" * 80)
     print("CHILDES IPA Dataset Downloader")
     print("=" * 80)
-    print(f"Source: https://huggingface.co/datasets/fdemelo/ipa-childes-split")
+    print("Source: https://huggingface.co/datasets/fdemelo/ipa-childes-split")
     print(f"Output directory: {args.output}")
     print(f"Languages to download: {', '.join(languages)}")
     print()
@@ -249,7 +248,7 @@ Examples:
             print(f"  - {lang}")
         return 1
 
-    print(f"\n✓ All downloads complete!")
+    print("\n✓ All downloads complete!")
     print(f"Data saved to: {args.output}")
 
     return 0

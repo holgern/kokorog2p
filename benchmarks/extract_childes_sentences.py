@@ -17,10 +17,11 @@ Usage:
 
 import argparse
 import json
-import pandas as pd
+from collections import Counter
 from pathlib import Path
 from typing import Any
-from collections import Counter
+
+import pandas as pd
 
 
 def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFrame:
@@ -557,7 +558,7 @@ def main():
     df = load_childes_data(args.language, max_rows=args.max_rows)
 
     # Filter for quality
-    print(f"\nFiltering for quality sentences...")
+    print("\nFiltering for quality sentences...")
     df_filtered = filter_quality_sentences(
         df,
         min_tokens=args.min_tokens,

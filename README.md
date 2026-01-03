@@ -5,14 +5,15 @@ A unified multi-language G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
 provides:
 
-- **Multi-language support**: English (US/GB), German, French, Italian, Spanish, Czech, Chinese,
-  Japanese, Korean, Hebrew
+- **Multi-language support**: English (US/GB), German, French, Italian, Spanish,
+  Portuguese (Brazilian), Czech, Chinese, Japanese, Korean, Hebrew
 - **Mixed-language detection**: Automatically detect and handle mixed-language texts
   (e.g., German text with English words)
 - **Dictionary-based lookup** with comprehensive lexicons
   - English: 179k+ entries (gold tier), 187k+ silver tier (both loaded by default)
   - German: 738k+ entries from Olaph/IPA-Dict
   - French: Gold-tier dictionary
+  - Portuguese (Brazilian): Rule-based with affrication support
   - Italian, Spanish: Rule-based with small lexicons
   - Czech, Chinese, Japanese, Korean, Hebrew: Rule-based and specialized engines
 - **Flexible memory usage**: Control dictionary loading with `load_silver` and
@@ -44,6 +45,9 @@ pip install kokorog2p[mixed]
 
 # With espeak-ng backend
 pip install kokorog2p[espeak]
+
+# With goruut backend
+pip install kokorog2p[goruut]
 
 # Full installation (all languages and backends)
 pip install kokorog2p[all]
@@ -278,26 +282,28 @@ Learning             en-us  lˈɜːnɪŋ
 
 ## Supported Languages
 
-| Language     | Code    | Dictionary Size                   | Number Support | Notation   | Status     |
-| ------------ | ------- | --------------------------------- | -------------- | ---------- | ---------- |
-| English (US) | `en-us` | 179k gold + 187k silver (default) | ✓              | IPA        | Production |
-| English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | IPA        | Production |
-| German       | `de`    | 738k+ entries (gold)              | ✓              | IPA        | Production |
-| French       | `fr`    | Gold dictionary                   | ✓              | IPA        | Production |
-| Italian      | `it`    | Rule-based + small lexicon        | -              | IPA        | Production |
-| Spanish      | `es`    | Rule-based + small lexicon        | -              | IPA        | Production |
-| Czech        | `cs`    | Rule-based                        | -              | IPA        | Production |
-| Chinese      | `zh`    | pypinyin + ZHFrontend             | ✓              | Zhuyin     | Production |
-| Japanese     | `ja`    | pyopenjtalk                       | -              | IPA        | Production |
-| Korean       | `ko`    | g2pK rule-based                   | ✓              | IPA        | Production |
-| Hebrew       | `he`    | phonikud-based (requires nikud)   | -              | IPA        | Production |
+| Language     | Code    | Dictionary Size                   | Number Support | Notation | Status     |
+| ------------ | ------- | --------------------------------- | -------------- | -------- | ---------- |
+| English (US) | `en-us` | 179k gold + 187k silver (default) | ✓              | IPA      | Production |
+| English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | IPA      | Production |
+| German       | `de`    | 738k+ entries (gold)              | ✓              | IPA      | Production |
+| French       | `fr`    | Gold dictionary                   | ✓              | IPA      | Production |
+| Italian      | `it`    | Rule-based + small lexicon        | -              | IPA      | Production |
+| Spanish      | `es`    | Rule-based + small lexicon        | -              | IPA      | Production |
+| Czech        | `cs`    | Rule-based                        | -              | IPA      | Production |
+| Chinese      | `zh`    | pypinyin + ZHFrontend             | ✓              | Zhuyin   | Production |
+| Japanese     | `ja`    | pyopenjtalk                       | -              | IPA      | Production |
+| Korean       | `ko`    | g2pK rule-based                   | ✓              | IPA      | Production |
+| Hebrew       | `he`    | phonikud-based (requires nikud)   | -              | IPA      | Production |
 
 **Note:** Both gold and silver dictionaries are loaded by default for English. You can:
 
 - Use `load_silver=False` to save ~22-31 MB (gold only, ~179k entries)
 - Use `load_gold=False, load_silver=False` to save ~50+ MB (espeak fallback only)
 
-**Chinese Note:** Chinese G2P uses Zhuyin (Bopomofo) phonetic notation for Kokoro TTS compatibility. Arabic numerals are automatically converted to Chinese (e.g., "123" → "一百二十三"). For version 1.1 (recommended):
+**Chinese Note:** Chinese G2P uses Zhuyin (Bopomofo) phonetic notation for Kokoro TTS
+compatibility. Arabic numerals are automatically converted to Chinese (e.g., "123" → "一
+百二十三"). For version 1.1 (recommended):
 
 ```python
 from kokorog2p.zh import ChineseG2P
@@ -318,7 +324,8 @@ g2p_la = SpanishG2P(dialect="la")
 print(g2p_la.phonemize("zapato"))  # sapato
 ```
 
-Key features: R trill/tap distinction (pero vs perro), palatals (ñ, ll, ch), jota sound (j), and proper stress marking.
+Key features: R trill/tap distinction (pero vs perro), palatals (ñ, ll, ch), jota sound
+(j), and proper stress marking.
 
 **Korean Note:** Korean G2P works out of the box with rule-based phonemization. For
 improved accuracy with morphological analysis, install MeCab:

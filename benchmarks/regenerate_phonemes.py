@@ -7,10 +7,11 @@ including punctuation marks and context-dependent pronunciations.
 
 import json
 from pathlib import Path
-from kokorog2p.en import EnglishG2P
+
 from kokorog2p.de import GermanG2P
-from kokorog2p.ja import JapaneseG2P
+from kokorog2p.en import EnglishG2P
 from kokorog2p.fr import FrenchG2P
+from kokorog2p.ja import JapaneseG2P
 from kokorog2p.ko import KoreanG2P
 from kokorog2p.zh import ChineseG2P
 
@@ -111,7 +112,7 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
     with open(output_file, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-    print(f"✓ Complete!")
+    print("✓ Complete!")
     print(f"  Updated: {updated_count} sentences")
     print(f"  Unchanged: {unchanged_count} sentences")
     print(f"  Output: {output_file}")

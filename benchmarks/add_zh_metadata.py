@@ -40,5 +40,5 @@ with open(dataset_path, "w", encoding="utf-8") as f:
 
 print(f"✓ Added metadata to {dataset_path}")
 print(f"  Total sentences: {len(sentences)}")
-print(f"  Language: zh-cn (Chinese Mandarin)")
-print(f"  Phoneme notation: Zhuyin (Bopomofo)")
+print("  Language: zh-cn (Chinese Mandarin)")
+print("  Phoneme notation: Zhuyin (Bopomofo)")

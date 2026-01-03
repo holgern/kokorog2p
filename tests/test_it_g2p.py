@@ -26,9 +26,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_palatals(self, g2p):
         """Test palatal consonants (gn, gli)."""
@@ -41,9 +41,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_affricates(self, g2p):
         """Test affricates (c/ci, g/gi, z)."""
@@ -58,9 +58,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_velar_consonants(self, g2p):
         """Test velar consonants (c/ch, g/gh)."""
@@ -75,9 +75,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_sc_combinations(self, g2p):
         """Test 'sc' combinations."""
@@ -90,9 +90,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_gemination(self, g2p):
         """Test double consonants (gemination)."""
@@ -105,9 +105,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_stress_marks(self, g2p):
         """Test stress marking with accented vowels."""
@@ -118,9 +118,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_silent_h(self, g2p):
         """Test silent 'h'."""
@@ -131,9 +131,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_qu_combination(self, g2p):
         """Test 'qu' combinations."""
@@ -145,9 +145,9 @@ class TestItalianG2P:
 
         for word, expected in test_cases:
             result = g2p.phonemize(word)
-            assert result == expected, (
-                f"Expected '{expected}' but got '{result}' for '{word}'"
-            )
+            assert (
+                result == expected
+            ), f"Expected '{expected}' but got '{result}' for '{word}'"
 
     def test_punctuation(self, g2p):
         """Test punctuation handling."""
@@ -193,9 +193,9 @@ class TestItalianG2P:
             phonemes = g2p.phonemize(word)
             for phoneme in phonemes:
                 if phoneme.strip():  # Ignore whitespace
-                    assert phoneme in IT_VOCAB, (
-                        f"Phoneme '{phoneme}' from '{word}' not in IT_VOCAB"
-                    )
+                    assert (
+                        phoneme in IT_VOCAB
+                    ), f"Phoneme '{phoneme}' from '{word}' not in IT_VOCAB"
 
     def test_empty_input(self, g2p):
         """Test empty input."""

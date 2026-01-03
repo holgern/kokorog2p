@@ -66,9 +66,7 @@ def create_g2p(config: dict[str, Any]):
     )
 
 
-def benchmark_config(
-    g2p, data: dict[str, Any], config_name: str
-) -> ConfigBenchmark:
+def benchmark_config(g2p, data: dict[str, Any], config_name: str) -> ConfigBenchmark:
     """Benchmark a single G2P configuration."""
     sentences = data["sentences"]
     successful = 0
@@ -111,7 +109,9 @@ def benchmark_config(
         got_norm = " ".join(got_phonemes.split())
 
         # Also try without stress markers
-        expected_no_stress = expected_norm.replace("ˈ", "").replace("ˌ", "").replace("ː", "")
+        expected_no_stress = (
+            expected_norm.replace("ˈ", "").replace("ˌ", "").replace("ː", "")
+        )
         got_no_stress = got_norm.replace("ˈ", "").replace("ˌ", "").replace("ː", "")
 
         if expected_norm == got_norm or expected_no_stress == got_no_stress:
@@ -126,9 +126,7 @@ def benchmark_config(
 
     return ConfigBenchmark(
         config_name=config_name,
-        accuracy_percent=(successful / len(sentences) * 100)
-        if sentences
-        else 0,
+        accuracy_percent=(successful / len(sentences) * 100) if sentences else 0,
         sentences_per_second=len(sentences) / (total_time_ms / 1000)
         if total_time_ms > 0
         else 0,
@@ -147,13 +145,13 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     print("\n" + "=" * 80)
     print("German G2P Configuration Comparison")
     print("=" * 80)
-    print(f"Dataset: {results[0].total_sentences} sentences, {results[0].total_words} words")
+    print(
+        f"Dataset: {results[0].total_sentences} sentences, {results[0].total_words} words"
+    )
     print()
 
     # Table header
-    print(
-        f"{'Configuration':<30} {'Accuracy':>10} {'Speed':>15} {'Phonemes':>10}"
-    )
+    print(f"{'Configuration':<30} {'Accuracy':>10} {'Speed':>15} {'Phonemes':>10}")
     print("-" * 80)
 
     # Sort by accuracy, then speed
@@ -177,8 +175,12 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     best_accuracy = max(results, key=lambda x: x.accuracy_percent)
     best_speed = max(results, key=lambda x: x.sentences_per_second)
 
-    print(f"Best accuracy:  {best_accuracy.config_name} ({best_accuracy.accuracy_percent:.1f}%)")
-    print(f"Fastest:        {best_speed.config_name} ({best_speed.sentences_per_second:,.0f} sent/s)")
+    print(
+        f"Best accuracy:  {best_accuracy.config_name} ({best_accuracy.accuracy_percent:.1f}%)"
+    )
+    print(
+        f"Fastest:        {best_speed.config_name} ({best_speed.sentences_per_second:,.0f} sent/s)"
+    )
     print()
 
     # Show errors if verbose
@@ -195,12 +197,8 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Benchmark German G2P configurations"
-    )
-    parser.add_argument(
-        "--output", "-o", type=Path, help="Save results to JSON file"
-    )
+    parser = argparse.ArgumentParser(description="Benchmark German G2P configurations")
+    parser.add_argument("--output", "-o", type=Path, help="Save results to JSON file")
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Show detailed errors"
     )

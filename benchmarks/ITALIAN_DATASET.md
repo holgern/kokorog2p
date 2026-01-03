@@ -3,6 +3,7 @@
 ## Overview
 
 The Italian benchmark script is located at:
+
 - **benchmarks/benchmark_it_comparison.py**
 
 This script tests all Italian G2P configurations and measures accuracy and speed.
@@ -22,18 +23,21 @@ python benchmarks/benchmark_it_comparison.py --output results.json
 
 ## Benchmark Results (100 sentences)
 
-| Configuration | Accuracy | Speed | Phonemes | Recommendation |
-|--------------|----------|-------|----------|----------------|
-| Full (stress + gemination) | 100.0% | 9,347 sent/s | 29 | ✅ **Best** |
-| No Stress | 91.0% | 13,453 sent/s | 28 | For fast processing |
-| No Gemination | 70.0% | 15,242 sent/s | 29 | Not recommended |
-| Minimal (no markers) | 65.0% | 13,306 sent/s | 28 | Not recommended |
+| Configuration              | Accuracy | Speed         | Phonemes | Recommendation      |
+| -------------------------- | -------- | ------------- | -------- | ------------------- |
+| Full (stress + gemination) | 100.0%   | 9,347 sent/s  | 29       | ✅ **Best**         |
+| No Stress                  | 91.0%    | 13,453 sent/s | 28       | For fast processing |
+| No Gemination              | 70.0%    | 15,242 sent/s | 29       | Not recommended     |
+| Minimal (no markers)       | 65.0%    | 13,306 sent/s | 28       | Not recommended     |
 
-**Recommendation**: Use **Full configuration** (default) for Italian. It provides 100% accuracy with proper stress and gemination marking, essential for accurate Italian pronunciation.
+**Recommendation**: Use **Full configuration** (default) for Italian. It provides 100%
+accuracy with proper stress and gemination marking, essential for accurate Italian
+pronunciation.
 
 ## Dataset Composition
 
 The dataset consists of 100 hand-crafted Italian sentences covering:
+
 - **Greetings** (8 sentences): Ciao, Buongiorno, Buonasera, etc.
 - **Common words** (12 sentences): Per favore, Grazie, Scusa, Sì, No, etc.
 - **Numbers** (8 sentences): Uno, Due, Tre, Quattro, Cinque, etc.
@@ -56,6 +60,7 @@ a b d e f i j k l m n o p r s t u v w ɡ ɲ ʃ ʎ ʣ ʤ ʦ ʧ ˈ ː
 ```
 
 **Missing phonemes** (2):
+
 - `z` - Basic z consonant (rare in standard Italian)
 
 **Note**: The missing phoneme is extremely rare and doesn't affect practical usage.
@@ -71,29 +76,34 @@ Italian has 5 pure vowels that are always pronounced clearly (no reduction):
 - **u** - close back (uno, scusa)
 
 **Stressed vowels** can be marked with accents in spelling:
+
 - **à è é ì ò ó ù** - indicate irregular stress (caffè, città, perché)
 - In phonemes: stress is marked AFTER the vowel with **ˈ** (eˈ for è)
 
 ### Italian Consonants
 
 **Special Italian Sounds:**
+
 - **ɲ** - palatal nasal (gn: gnocchi, bagno, Spagna)
 - **ʎ** - palatal lateral (gli: famiglia, figlio, aglio)
 - **ʃ** - voiceless postalveolar (sc+e/i: pesce, scienza)
 
 **Affricates:**
+
 - **ʧ** - voiceless palatal affricate (c+e/i: ciao, cento; ch+i)
 - **ʤ** - voiced palatal affricate (g+e/i: giorno, gelato)
 - **ʦ** - voiceless alveolar affricate (z: pizza, grazie, zio)
 - **ʣ** - voiced alveolar affricate (z in some contexts: zero)
 
 **Standard Consonants:**
+
 - **b d f l m n p r t v** - similar to English
 - **s** - voiceless alveolar fricative (casa, sole)
 - **k** - voiceless velar (c+a/o/u: casa, cosa; ch+e/i: che, chi)
 - **ɡ** - voiced velar (g+a/o/u: gatto, gusto; gh+e/i: ghetto)
 
 **Semivowels:**
+
 - **j** - palatal approximant (piano, ieri)
 - **w** - labial-velar approximant (qu: quando, acqua; uo: uomo)
 
@@ -110,13 +120,15 @@ Italian has 5 pure vowels that are always pronounced clearly (no reduction):
 
 ### 1. Gemination (Double Consonants)
 
-Gemination is phonemically distinctive in Italian. Double consonants are marked with **ː**:
+Gemination is phonemically distinctive in Italian. Double consonants are marked with
+**ː**:
 
 - **casa** /kasa/ (house) vs **cassa** /kasːa/ (cash register)
 - **pala** /pala/ (shovel) vs **palla** /palːa/ (ball)
 - **sete** /sete/ (thirst) vs **sette** /setːe/ (seven)
 
 **Special gemination rules:**
+
 - **cc** before e/i → ʧː (cappuccino → kapːuʧːino)
 - **gg** before e/i → ʤː (oggi → oʤːi)
 - **cqu** → kːw (acqua → akːwa)
@@ -126,16 +138,19 @@ Gemination is phonemically distinctive in Italian. Double consonants are marked 
 Context-sensitive pronunciation:
 
 **C consonant:**
+
 - c + e, i → **ʧ** (ciao, cento)
 - c + a, o, u → **k** (casa, cosa, cucina)
 - ch + e, i → **k** (che, chi)
 
 **G consonant:**
+
 - g + e, i → **ʤ** (giorno, gelato)
 - g + a, o, u → **ɡ** (gatto, gondola, gusto)
 - gh + e, i → **ɡ** (ghetto, ghiaccio)
 
 **Silent 'i' rule:**
+
 - After soft g/c, 'i' before another vowel is often silent:
   - **formaggio** → formaʤːo (not formaʤːio)
   - **mangia** → manʤa (not manʤia)
@@ -156,10 +171,12 @@ Context-sensitive pronunciation:
 ### 5. Stress Patterns
 
 Default stress is on the **penultimate** syllable:
+
 - **casa** → kasa (stress on 'a')
 - **parlare** → parlare (stress on 'a')
 
 Irregular stress marked with accents:
+
 - **caffè** → kafːeˈ (final stress)
 - **città** → ʧitːaˈ (final stress)
 - **telefono** → telefono (third-to-last stress, no accent needed in phonemes)
@@ -167,6 +184,7 @@ Irregular stress marked with accents:
 ### 6. Contractions and Apostrophes
 
 Italian uses apostrophes for elision:
+
 - **l'uomo** → luomo (article + noun)
 - **c'è** → ʧeˈ (ci + è)
 - **po'** (poco) → poˈ (stress on final vowel)
@@ -178,12 +196,14 @@ Italian uses apostrophes for elision:
 The Italian G2P uses a pure rule-based approach with a small exception lexicon:
 
 **Why rule-based works well:**
+
 - Italian orthography is highly regular and phonemic
 - Clear, predictable rules for c/g softening
 - Consistent stress patterns
 - Few exceptions to phonological rules
 
 **Exception lexicon** (5 words):
+
 - `scusa` → skuʦa (intervocalic s → ʦ)
 - `scusi` → skuʦi
 - `poˈ` → poˈ (preprocessed from po')
@@ -230,12 +250,10 @@ phonemes = g2p_no_gem.phonemize("Pizza")
 
 The dataset has been validated for:
 
-✅ **Phoneme coverage**: 96.7% (29/30 phonemes)  
-✅ **Accuracy**: 100% on all 100 benchmark sentences  
-✅ **Speed**: 9,347 sentences/second  
-✅ **Category coverage**: All 10 phonological categories covered  
-✅ **Stress marking**: Correct stress placement in all cases  
-✅ **Gemination**: All double consonants properly marked  
+✅ **Phoneme coverage**: 96.7% (29/30 phonemes) ✅ **Accuracy**: 100% on all 100
+benchmark sentences ✅ **Speed**: 9,347 sentences/second ✅ **Category coverage**: All
+10 phonological categories covered ✅ **Stress marking**: Correct stress placement in
+all cases ✅ **Gemination**: All double consonants properly marked
 
 ## Dataset Statistics
 
@@ -264,6 +282,7 @@ The dataset has been validated for:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Add CHILDES it-IT corpus samples for natural speech
 2. Expand lexicon for common irregular words
 3. Add regional pronunciation variants (Sicilian, Neapolitan, etc.)
@@ -279,4 +298,5 @@ Potential improvements:
 
 ## License
 
-This dataset is part of the kokorog2p project and is licensed under the same terms as the main project.
+This dataset is part of the kokorog2p project and is licensed under the same terms as
+the main project.

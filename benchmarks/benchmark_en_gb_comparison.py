@@ -499,7 +499,7 @@ def main():
     )
 
     # Get vocabulary
-    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB
+    from kokorog2p.phonemes import GB_VOCAB, US_VOCAB
 
     if args.language == "en-gb":
         vocab = GB_VOCAB

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Comprehensive benchmark for Italian G2P.
+"""Comprehensive benchmark for Brazilian Portuguese G2P.
 
-This script tests the kokorog2p Italian G2P implementation.
+This script tests the kokorog2p Brazilian Portuguese G2P implementation.
 
 It measures:
 - Accuracy against ground truth
@@ -9,9 +9,9 @@ It measures:
 - Phoneme coverage
 
 Usage:
-    python benchmarks/benchmark_it_comparison.py
-    python benchmarks/benchmark_it_comparison.py --output results.json
-    python benchmarks/benchmark_it_comparison.py --verbose
+    python benchmarks/benchmark_pt_br_comparison.py
+    python benchmarks/benchmark_pt_br_comparison.py --output results.json
+    python benchmarks/benchmark_pt_br_comparison.py --verbose
 """
 
 import argparse
@@ -41,22 +41,25 @@ class ConfigBenchmark:
 
 
 def load_synthetic_data() -> dict[str, Any]:
-    """Load Italian synthetic benchmark data."""
-    filepath = Path(__file__).parent / "data" / "it_synthetic.json"
+    """Load Brazilian Portuguese synthetic benchmark data."""
+    filepath = Path(__file__).parent / "data" / "pt_br_synthetic.json"
     if not filepath.exists():
-        raise FileNotFoundError(f"Italian synthetic data not found: {filepath}")
+        raise FileNotFoundError(
+            f"Brazilian Portuguese synthetic data not found: {filepath}"
+        )
 
     with open(filepath) as f:
         return json.load(f)
 
 
 def create_g2p(config: dict[str, Any]):
-    """Create an Italian G2P instance with the given configuration."""
-    from kokorog2p.it import ItalianG2P
+    """Create a Portuguese G2P instance with the given configuration."""
+    from kokorog2p.pt import PortugueseG2P
 
-    return ItalianG2P(
+    return PortugueseG2P(
+        language="pt-br",
         mark_stress=config.get("mark_stress", True),
-        mark_gemination=config.get("mark_gemination", True),
+        affricate_ti_di=config.get("affricate_ti_di", True),
     )
 
 
@@ -125,7 +128,7 @@ def benchmark_config(g2p, data: dict[str, Any], config_name: str) -> ConfigBench
 def print_results(results: list[ConfigBenchmark], verbose: bool = False):
     """Print benchmark results in a formatted table."""
     print("\n" + "=" * 80)
-    print("ITALIAN G2P BENCHMARK RESULTS")
+    print("BRAZILIAN PORTUGUESE G2P BENCHMARK RESULTS")
     print("=" * 80)
 
     for result in results:
@@ -151,7 +154,7 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
 def save_results(results: list[ConfigBenchmark], output_file: Path):
     """Save benchmark results to JSON file."""
     data = {
-        "benchmark": "italian_g2p",
+        "benchmark": "portuguese_g2p",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "configurations": [
             {
@@ -180,8 +183,10 @@ def save_results(results: list[ConfigBenchmark], output_file: Path):
 
 
 def main():
-    """Run Italian G2P benchmarks."""
-    parser = argparse.ArgumentParser(description="Benchmark Italian G2P configurations")
+    """Run Brazilian Portuguese G2P benchmarks."""
+    parser = argparse.ArgumentParser(
+        description="Benchmark Brazilian Portuguese G2P configurations"
+    )
     parser.add_argument(
         "--output", type=Path, help="Output file for JSON results (optional)"
     )
@@ -191,33 +196,33 @@ def main():
     parser.add_argument(
         "--config",
         type=str,
-        help="Run only a specific configuration (e.g., 'Italian G2P')",
+        help="Run only a specific configuration (e.g., 'Portuguese G2P (Full)')",
     )
 
     args = parser.parse_args()
 
     # Load benchmark data
-    print("Loading Italian synthetic benchmark data...")
+    print("Loading Brazilian Portuguese synthetic benchmark data...")
     data = load_synthetic_data()
     print(f"✓ Loaded {data['metadata']['total_sentences']} sentences")
 
     # Define configurations to test
     all_configs = [
         {
-            "name": "Italian G2P (Full)",
-            "params": {"mark_stress": True, "mark_gemination": True},
+            "name": "Portuguese G2P (Full - Brazilian)",
+            "params": {"mark_stress": True, "affricate_ti_di": True},
         },
         {
-            "name": "Italian G2P (No Stress)",
-            "params": {"mark_stress": False, "mark_gemination": True},
+            "name": "Portuguese G2P (No Affrication)",
+            "params": {"mark_stress": True, "affricate_ti_di": False},
         },
         {
-            "name": "Italian G2P (No Gemination)",
-            "params": {"mark_stress": True, "mark_gemination": False},
+            "name": "Portuguese G2P (No Stress)",
+            "params": {"mark_stress": False, "affricate_ti_di": True},
         },
         {
-            "name": "Italian G2P (Minimal)",
-            "params": {"mark_stress": False, "mark_gemination": False},
+            "name": "Portuguese G2P (Minimal)",
+            "params": {"mark_stress": False, "affricate_ti_di": False},
         },
     ]
 

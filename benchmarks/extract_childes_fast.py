@@ -17,10 +17,11 @@ Usage:
 
 import argparse
 import json
-import pandas as pd
+from collections import Counter
 from pathlib import Path
 from typing import Any
-from collections import Counter
+
+import pandas as pd
 
 
 def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFrame:

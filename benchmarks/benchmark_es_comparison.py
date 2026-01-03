@@ -139,7 +139,7 @@ def print_results(results: list[ConfigBenchmark], verbose: bool = False):
         print(f"  Phonemes found:  {result.unique_phonemes}")
 
         if verbose and result.errors:
-            print(f"\n  First errors:")
+            print("\n  First errors:")
             for sent_id, expected, got in result.errors[:5]:
                 print(f"    Sentence {sent_id}:")
                 print(f"      Expected: {expected}")

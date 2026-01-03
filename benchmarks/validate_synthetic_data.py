@@ -27,14 +27,15 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         Frozenset of valid phoneme characters
     """
     from kokorog2p.phonemes import (
-        US_VOCAB,
-        GB_VOCAB,
-        JA_VOCAB,
-        FR_VOCAB,
-        KO_VOCAB,
-        ZH_VOCAB,
-        IT_VOCAB,
         ES_VOCAB,
+        FR_VOCAB,
+        GB_VOCAB,
+        IT_VOCAB,
+        JA_VOCAB,
+        KO_VOCAB,
+        PT_BR_VOCAB,
+        US_VOCAB,
+        ZH_VOCAB,
     )
 
     if language == "en-us":
@@ -53,6 +54,8 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return IT_VOCAB
     elif language in ("es", "es-es", "es-la"):
         return ES_VOCAB
+    elif language in ("pt-br", "pt"):
+        return PT_BR_VOCAB
     elif language in ("de", "cs"):
         # For now, return US vocab as baseline
         # TODO: Add proper German/Czech vocab
@@ -192,8 +195,8 @@ def validate_sentence(
         "conversation",
         "food",  # Food and drink vocabulary
         # Italian-specific categories
-        "palatals",  # Palatal consonants (gn, gli)
-        "affricates",  # Affricates (c/ci, g/gi, z)
+        "palatals",  # Palatal consonants (gn, gli, nh, lh, ch)
+        "affricates",  # Affricates (c/ci, g/gi, z, t+i, d+i)
         "gemination",  # Double consonants
         "vowels",  # Vowel sequences
         "complex",  # Complex sentences
@@ -206,6 +209,9 @@ def validate_sentence(
         "jota",  # Jota sound (j, g+e/i)
         "theta",  # Theta sound (z, c+e/i) - European Spanish
         "r_sounds",  # R tap vs trill distinction
+        # Portuguese-specific categories
+        "sibilants",  # s, z, x, ʃ, ʒ sounds
+        "nasal_vowels",  # Nasal vowels (ã, ẽ, ĩ, õ, ũ)
     }
     if sentence.get("category") not in valid_categories:
         errors.append(
@@ -319,7 +325,7 @@ def validate_file(filepath: Path) -> dict[str, Any]:
         if len(errors) > 20:
             print(f"  ... and {len(errors) - 20} more errors")
 
-    print(f"\nPhoneme Coverage:")
+    print("\nPhoneme Coverage:")
     print(f"  Total phonemes in vocab: {coverage['total_vocab']}")
     print(f"  Phonemes covered: {coverage['phonemes_covered']}")
     print(f"  Coverage: {coverage['coverage_percent']:.1f}%")
@@ -330,7 +336,7 @@ def validate_file(filepath: Path) -> dict[str, Any]:
 
     # Category breakdown
     if "sentences" in data and is_valid:
-        print(f"\nCategory Breakdown:")
+        print("\nCategory Breakdown:")
         categories = {}
         for sentence in data["sentences"]:
             cat = sentence.get("category", "unknown")

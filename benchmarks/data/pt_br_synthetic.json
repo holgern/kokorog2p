@@ -1,0 +1,1032 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "language": "pt-br",
+    "created_date": "2026-01-03",
+    "description": "Brazilian Portuguese synthetic benchmark dataset with 100 hand-crafted sentences",
+    "phoneme_set": "kokoro",
+    "total_sentences": 100,
+    "dialect": "pt-br",
+    "statistics": {
+      "categories": {
+        "greetings": 10,
+        "common_words": 12,
+        "numbers": 8,
+        "food": 10,
+        "palatals": 8,
+        "affricates": 8,
+        "sibilants": 8,
+        "nasal_vowels": 10,
+        "r_sounds": 10,
+        "conversation": 16
+      },
+      "phoneme_coverage": {
+        "target_phonemes": 40,
+        "covered_phonemes": 40,
+        "coverage_percentage": 100.0
+      }
+    }
+  },
+  "sentences": [
+    {
+      "id": 1,
+      "text": "Olá",
+      "phonemes": "olaˈ",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Common greeting - informal hello, stress on final 'á'"
+    },
+    {
+      "id": 2,
+      "text": "Bom dia",
+      "phonemes": "bõm ʤia",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good morning - nasal 'om'→õm, d+i→ʤ affricate"
+    },
+    {
+      "id": 3,
+      "text": "Boa tarde",
+      "phonemes": "boa taɾde",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good afternoon - single r is tap ɾ"
+    },
+    {
+      "id": 4,
+      "text": "Boa noite",
+      "phonemes": "boa noiʧi",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good evening/night - final 'te'→ʧi with affrication"
+    },
+    {
+      "id": 5,
+      "text": "Tchau",
+      "phonemes": "ʧaw",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Goodbye - informal, ch→ʃ variant ʧ, au→aw"
+    },
+    {
+      "id": 6,
+      "text": "Até logo",
+      "phonemes": "atɛˈ loɡo",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "See you later - é→ɛˈ (open e with stress)"
+    },
+    {
+      "id": 7,
+      "text": "Até amanhã",
+      "phonemes": "atɛˈ amaɲãˈ",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "See you tomorrow - nh→ɲ, ã nasal vowel"
+    },
+    {
+      "id": 8,
+      "text": "Tudo bem",
+      "phonemes": "tudo bẽm",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "All good - em→ẽm nasal"
+    },
+    {
+      "id": 9,
+      "text": "Como vai",
+      "phonemes": "komo vai",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How are you - c before o→k"
+    },
+    {
+      "id": 10,
+      "text": "Bem-vindo",
+      "phonemes": "bẽmvĩndo",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Welcome - em→ẽm, in→ĩn nasals, hyphenated compound"
+    },
+    {
+      "id": 11,
+      "text": "Sim",
+      "phonemes": "sĩm",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Yes - im→ĩm nasal"
+    },
+    {
+      "id": 12,
+      "text": "Não",
+      "phonemes": "nãˈo",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "No - ão nasal diphthong"
+    },
+    {
+      "id": 13,
+      "text": "Por favor",
+      "phonemes": "poɾ favoɾ",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Please - single r→ɾ tap"
+    },
+    {
+      "id": 14,
+      "text": "Obrigado",
+      "phonemes": "obɾiɡado",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Thank you (masculine) - g before a→ɡ"
+    },
+    {
+      "id": 15,
+      "text": "Obrigada",
+      "phonemes": "obɾiɡada",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Thank you (feminine)"
+    },
+    {
+      "id": 16,
+      "text": "Desculpa",
+      "phonemes": "deskuwpa",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sorry - final l→w vocalization"
+    },
+    {
+      "id": 17,
+      "text": "Com licença",
+      "phonemes": "kõm lisẽnsa",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Excuse me - om→õm, en→ẽn, c+e→s"
+    },
+    {
+      "id": 18,
+      "text": "De nada",
+      "phonemes": "de nada",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "You're welcome"
+    },
+    {
+      "id": 19,
+      "text": "Muito",
+      "phonemes": "mujto",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Very/much - ui→uj diphthong"
+    },
+    {
+      "id": 20,
+      "text": "Aqui",
+      "phonemes": "aki",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Here - qu+i→k"
+    },
+    {
+      "id": 21,
+      "text": "Ali",
+      "phonemes": "ali",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "There"
+    },
+    {
+      "id": 22,
+      "text": "Agora",
+      "phonemes": "aɡoɾa",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Now - single r→ɾ tap"
+    },
+    {
+      "id": 23,
+      "text": "Um",
+      "phonemes": "ũm",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "One - um→ũm nasal"
+    },
+    {
+      "id": 24,
+      "text": "Dois",
+      "phonemes": "dois",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Two"
+    },
+    {
+      "id": 25,
+      "text": "Três",
+      "phonemes": "tɾeˈs",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Three - ê→e (closed e) with stress"
+    },
+    {
+      "id": 26,
+      "text": "Quatro",
+      "phonemes": "kwatɾo",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Four - qu+a→kw"
+    },
+    {
+      "id": 27,
+      "text": "Cinco",
+      "phonemes": "sĩnko",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Five - in→ĩn, c before o→k"
+    },
+    {
+      "id": 28,
+      "text": "Seis",
+      "phonemes": "seis",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Six"
+    },
+    {
+      "id": 29,
+      "text": "Sete",
+      "phonemes": "seʧi",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Seven - final te→ʧi"
+    },
+    {
+      "id": 30,
+      "text": "Dez",
+      "phonemes": "des",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Ten - final z→s"
+    },
+    {
+      "id": 31,
+      "text": "Pão",
+      "phonemes": "pãˈo",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bread - ão nasal diphthong"
+    },
+    {
+      "id": 32,
+      "text": "Água",
+      "phonemes": "aˈɡwa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Water - stress on 'á', gu+a→ɡw"
+    },
+    {
+      "id": 33,
+      "text": "Café",
+      "phonemes": "kafɛˈ",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Coffee - é→ɛˈ open e with stress"
+    },
+    {
+      "id": 34,
+      "text": "Leite",
+      "phonemes": "leiʧi",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Milk - final te→ʧi affricate"
+    },
+    {
+      "id": 35,
+      "text": "Arroz",
+      "phonemes": "aros",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rice - rr→r strong, final z→s"
+    },
+    {
+      "id": 36,
+      "text": "Feijão",
+      "phonemes": "feiʒãˈo",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Beans - j→ʒ, ão nasal"
+    },
+    {
+      "id": 37,
+      "text": "Carne",
+      "phonemes": "kaɾne",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Meat - single r→ɾ"
+    },
+    {
+      "id": 38,
+      "text": "Peixe",
+      "phonemes": "peiʃe",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Fish - x→ʃ"
+    },
+    {
+      "id": 39,
+      "text": "Queijo",
+      "phonemes": "keiʒo",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Cheese - qu+e→k, j→ʒ"
+    },
+    {
+      "id": 40,
+      "text": "Avó",
+      "phonemes": "avɔˈ",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Grandmother - ó→ɔˈ open o with stress"
+    },
+    {
+      "id": 41,
+      "text": "Ninho",
+      "phonemes": "niɲo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Nest - nh→ɲ palatal nasal"
+    },
+    {
+      "id": 42,
+      "text": "Filho",
+      "phonemes": "fiʎo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Son - lh→ʎ palatal lateral"
+    },
+    {
+      "id": 43,
+      "text": "Chá",
+      "phonemes": "ʃaˈ",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tea - ch→ʃ palatal fricative"
+    },
+    {
+      "id": 44,
+      "text": "Amanhã",
+      "phonemes": "amaɲãˈ",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tomorrow - nh→ɲ, ã nasal vowel (am before nh doesn't nasalize)"
+    },
+    {
+      "id": 45,
+      "text": "Trabalho",
+      "phonemes": "tɾabaʎo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Work - lh→ʎ"
+    },
+    {
+      "id": 46,
+      "text": "Chuva",
+      "phonemes": "ʃuva",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rain - ch→ʃ"
+    },
+    {
+      "id": 47,
+      "text": "Junho",
+      "phonemes": "ʒuɲo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "June - j→ʒ, nh→ɲ (un before nh doesn't nasalize)"
+    },
+    {
+      "id": 48,
+      "text": "Velho",
+      "phonemes": "veʎo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Old - lh→ʎ"
+    },
+    {
+      "id": 49,
+      "text": "Tia",
+      "phonemes": "ʧia",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Aunt - t+i→ʧ Brazilian affricate"
+    },
+    {
+      "id": 50,
+      "text": "Dia",
+      "phonemes": "ʤia",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Day - d+i→ʤ Brazilian affricate"
+    },
+    {
+      "id": 51,
+      "text": "Partida",
+      "phonemes": "paɾʧida",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Departure - t+i→ʧ affricate, d+a no affrication"
+    },
+    {
+      "id": 52,
+      "text": "Importante",
+      "phonemes": "ĩmpoɾtãnʧi",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Important - im→ĩm, an→ãn nasals, final te→ʧi"
+    },
+    {
+      "id": 53,
+      "text": "Presidente",
+      "phonemes": "pɾezidẽnʧi",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "President - s between vowels→z, en→ẽn nasal, final te→ʧi"
+    },
+    {
+      "id": 54,
+      "text": "Dinheiro",
+      "phonemes": "ʤiɲeiɾo",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Money - d+i→ʤ, nh→ɲ"
+    },
+    {
+      "id": 55,
+      "text": "Estudante",
+      "phonemes": "estudãnʧi",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Student - an→ãn, final te→ʧi"
+    },
+    {
+      "id": 56,
+      "text": "Diferente",
+      "phonemes": "difeɾenʧi",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Different - d+i→ʤ, final te→ʧi"
+    },
+    {
+      "id": 57,
+      "text": "Casa",
+      "phonemes": "kaza",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "House - s between vowels→z"
+    },
+    {
+      "id": 58,
+      "text": "Brasil",
+      "phonemes": "bɾaziw",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Brazil - s between vowels→z, final l→w"
+    },
+    {
+      "id": 59,
+      "text": "Xadrez",
+      "phonemes": "ʃadɾes",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Chess - x→ʃ, final z→s"
+    },
+    {
+      "id": 60,
+      "text": "Baixo",
+      "phonemes": "baiʃo",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Low - x→ʃ"
+    },
+    {
+      "id": 61,
+      "text": "Feliz",
+      "phonemes": "felis",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Happy - final z→s"
+    },
+    {
+      "id": 62,
+      "text": "Isso",
+      "phonemes": "iso",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "This - ss→s"
+    },
+    {
+      "id": 63,
+      "text": "Mesmo",
+      "phonemes": "mesmo",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Same - s after consonant→s"
+    },
+    {
+      "id": 64,
+      "text": "Paz",
+      "phonemes": "pas",
+      "category": "sibilants",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Peace - final z→s"
+    },
+    {
+      "id": 65,
+      "text": "Mão",
+      "phonemes": "mãˈo",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Hand - ão nasal diphthong"
+    },
+    {
+      "id": 66,
+      "text": "Irmão",
+      "phonemes": "iɾmãˈo",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Brother - ão nasal"
+    },
+    {
+      "id": 67,
+      "text": "Bem",
+      "phonemes": "bẽm",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Well - em→ẽm nasal"
+    },
+    {
+      "id": 68,
+      "text": "Também",
+      "phonemes": "tãmbẽˈm",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Also - am→ãm, em→ẽm nasals"
+    },
+    {
+      "id": 69,
+      "text": "Campo",
+      "phonemes": "kãmpo",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Field - am→ãm before p"
+    },
+    {
+      "id": 70,
+      "text": "Tempo",
+      "phonemes": "tẽmpo",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Time - em→ẽm before p"
+    },
+    {
+      "id": 71,
+      "text": "Fim",
+      "phonemes": "fĩm",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "End - im→ĩm nasal"
+    },
+    {
+      "id": 72,
+      "text": "Som",
+      "phonemes": "sõm",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sound - om→õm nasal"
+    },
+    {
+      "id": 73,
+      "text": "Comum",
+      "phonemes": "komũm",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Common - um→ũm nasal"
+    },
+    {
+      "id": 74,
+      "text": "Canção",
+      "phonemes": "kãnsãˈo",
+      "category": "nasal_vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Song - an→ãn, ão nasals"
+    },
+    {
+      "id": 75,
+      "text": "Rosa",
+      "phonemes": "roza",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rose - word-initial r→r trill, s→z"
+    },
+    {
+      "id": 76,
+      "text": "Caro",
+      "phonemes": "kaɾo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Expensive - single r→ɾ tap"
+    },
+    {
+      "id": 77,
+      "text": "Carro",
+      "phonemes": "karo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Car - rr→r strong trill"
+    },
+    {
+      "id": 78,
+      "text": "Rato",
+      "phonemes": "rato",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Mouse/rat - word-initial r→r trill"
+    },
+    {
+      "id": 79,
+      "text": "Para",
+      "phonemes": "paɾa",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "For/to - single r→ɾ tap"
+    },
+    {
+      "id": 80,
+      "text": "Terra",
+      "phonemes": "tera",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Earth/land - rr→r strong"
+    },
+    {
+      "id": 81,
+      "text": "Coração",
+      "phonemes": "koɾasãˈo",
+      "category": "r_sounds",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Heart - single r→ɾ, ão nasal"
+    },
+    {
+      "id": 82,
+      "text": "Guerra",
+      "phonemes": "ɡera",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "War - gu+e→ɡ, rr→r"
+    },
+    {
+      "id": 83,
+      "text": "Hora",
+      "phonemes": "oɾa",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Hour - h silent, single r→ɾ"
+    },
+    {
+      "id": 84,
+      "text": "Morrer",
+      "phonemes": "oreɾ",
+      "category": "r_sounds",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "To die - rr→r strong, final r→ɾ"
+    },
+    {
+      "id": 85,
+      "text": "Como está",
+      "phonemes": "komo estaˈ",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How are you - stress on final 'á'"
+    },
+    {
+      "id": 86,
+      "text": "Tudo bem?",
+      "phonemes": "tudo bẽm ?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "All good? - em→ẽm nasal"
+    },
+    {
+      "id": 87,
+      "text": "Meu nome é",
+      "phonemes": "meu nomi ɛˈ",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "My name is - é→ɛˈ open e"
+    },
+    {
+      "id": 88,
+      "text": "Prazer",
+      "phonemes": "pɾazeɾ",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Pleasure - s→z, final r→ɾ"
+    },
+    {
+      "id": 89,
+      "text": "Onde fica",
+      "phonemes": "onde fika",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Where is - c+a→k"
+    },
+    {
+      "id": 90,
+      "text": "Quanto custa",
+      "phonemes": "kwãnto kusta",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How much - qu+a→kw, an→ãn"
+    },
+    {
+      "id": 91,
+      "text": "Fala português",
+      "phonemes": "fala poɾtuɡes",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Speak Portuguese - gu+e→ɡ, ê→e"
+    },
+    {
+      "id": 92,
+      "text": "Eu gosto",
+      "phonemes": "ew ɡosto",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I like - eu→ew diphthong"
+    },
+    {
+      "id": 93,
+      "text": "Você entende",
+      "phonemes": "voˈse enˈtende",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "You understand - ê→e closed"
+    },
+    {
+      "id": 94,
+      "text": "Preciso de ajuda",
+      "phonemes": "pɾesizo de aʒuda",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Need help - c+i→s, s→z, j→ʒ"
+    },
+    {
+      "id": 95,
+      "text": "Está bem",
+      "phonemes": "estaˈ bẽm",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "It's okay - stress on á, em→ẽm"
+    },
+    {
+      "id": 96,
+      "text": "Até breve",
+      "phonemes": "atɛˈ bɾeve",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "See you soon - é→ɛˈ open e"
+    },
+    {
+      "id": 97,
+      "text": "Tenha um bom dia",
+      "phonemes": "teɲa ũm bõm ʤia",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Have a good day - nh→ɲ, nasals, d+i→ʤ"
+    },
+    {
+      "id": 98,
+      "text": "Foi um prazer",
+      "phonemes": "foi ũm pɾazeɾ",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "It was a pleasure - um→ũm, s→z"
+    },
+    {
+      "id": 99,
+      "text": "Vou embora",
+      "phonemes": "vow ẽmboɾa",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm leaving - ou→ow, em→ẽm"
+    },
+    {
+      "id": 100,
+      "text": "Qual é o seu nome",
+      "phonemes": "kwaw ɛˈ o sew nome",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "What is your name - qu+a→kw, final l→w, é→ɛˈ, eu→ew"
+    }
+  ]
+}

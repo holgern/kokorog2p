@@ -102,9 +102,25 @@ IT_VOCAB: Final[frozenset[str]] = frozenset("abedfijklmnoprstuvwzɡɲʃʎʦʣʧ�
 # - Approximants: β (soft b/v), ð (soft d), ɣ (soft g) - allophonic variants
 # - Semivowels: j (y as in "yo"), w (u in diphthongs, "agua")
 # - Stress: ˈ (primary stress marker)
-# Note: Spanish has predictable stress rules, but accents mark exceptions (café, músi ca)
+# Note: Spanish has predictable stress rules, but accents mark exceptions (café, música)
 # Note: For simplification, we use standard /b d g/ and soft variants are contextual
 ES_VOCAB: Final[frozenset[str]] = frozenset("abdefijklmnoprstuwxβðɣɡɲɾʎʧθˈ")
+
+# Brazilian Portuguese Phoneme Vocabulary (40 phonemes)
+# - Oral vowels: a, e, ɛ, i, o, ɔ, u (7 vowels, e/o have open/closed variants)
+# - Nasal vowels: ã, ẽ, ĩ, õ, ũ (5 nasal vowels - precomposed forms)
+# - Basic consonants: b, d, f, k, l, m, n, p, s, t, v, z, ɡ (IPA g)
+# - Palatals: ɲ (nh as in "ninho"), ʎ (lh as in "filho"), ʃ (x/ch as in "xadrez", "chá")
+# - Affricates: ʤ (d+i in some dialects: "dia" → ʤia), ʧ (t+i: "tia" → ʧia)
+# - Liquids: ɾ (single r: "caro"), r (strong r at start or rr: "rosa", "carro")
+# - Fricative: ʒ (j/g+e/i: "já", "gente")
+# - Semivowels: j (i in diphthongs: "pai"), w (u in diphthongs: "mau")
+# - Nasalization: ̃ (combining tilde for composing nasal vowels)
+# - Stress: ˈ (primary stress marker)
+# Note: Brazilian Portuguese has rich vowel system with oral/nasal distinction
+# Note: Affricate ization of /t d/ before /i/ is characteristic of Brazilian Portuguese
+# Note: Final /r/ varies by dialect (ɾ, x, ʁ, h) - we use standard ɾ
+PT_BR_VOCAB: Final[frozenset[str]] = frozenset("abdefijklmnoprstuvwzãẽĩõũɔɛɡɲɾʃʎʒʤʧˈ̃")
 
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
