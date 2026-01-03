@@ -33,6 +33,7 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         FR_VOCAB,
         KO_VOCAB,
         ZH_VOCAB,
+        IT_VOCAB,
     )
 
     if language == "en-us":
@@ -47,6 +48,8 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return KO_VOCAB
     elif language in ("zh", "zh-cn", "cmn"):
         return ZH_VOCAB
+    elif language in ("it", "it-it"):
+        return IT_VOCAB
     elif language in ("de", "cs"):
         # For now, return US vocab as baseline
         # TODO: Add proper German/Czech vocab
@@ -185,6 +188,12 @@ def validate_sentence(
         "adjectives",
         "conversation",
         "food",  # Food and drink vocabulary
+        # Italian-specific categories
+        "palatals",  # Palatal consonants (gn, gli)
+        "affricates",  # Affricates (c/ci, g/gi, z)
+        "gemination",  # Double consonants
+        "vowels",  # Vowel sequences
+        "complex",  # Complex sentences
         # Chinese-specific categories
         "phoneme_initials",  # Zhuyin initial coverage
         "phoneme_finals",  # Zhuyin final coverage

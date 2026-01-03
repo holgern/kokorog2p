@@ -1,0 +1,1030 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "language": "it",
+    "created_date": "2026-01-03",
+    "description": "Comprehensive Italian synthetic benchmark for kokorog2p G2P testing",
+    "phoneme_set": "kokoro",
+    "total_sentences": 100,
+    "source": "hand-crafted sentences for phoneme coverage",
+    "categories": {
+      "greetings": 8,
+      "common_words": 12,
+      "numbers": 8,
+      "food": 10,
+      "palatals": 8,
+      "affricates": 10,
+      "gemination": 12,
+      "vowels": 10,
+      "conversation": 12,
+      "complex": 10
+    },
+    "phoneme_coverage": {
+      "target_phonemes": 30,
+      "covered_phonemes": 30,
+      "coverage_percentage": 100.0
+    }
+  },
+  "sentences": [
+    {
+      "id": 1,
+      "text": "Ciao",
+      "phonemes": "ʧiao",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Common Italian greeting - informal hello"
+    },
+    {
+      "id": 2,
+      "text": "Buongiorno",
+      "phonemes": "buonʤiorno",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Good morning/day greeting"
+    },
+    {
+      "id": 3,
+      "text": "Buonasera",
+      "phonemes": "buonasera",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Good evening greeting"
+    },
+    {
+      "id": 4,
+      "text": "Buonanotte",
+      "phonemes": "buonanotːe",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Good night greeting"
+    },
+    {
+      "id": 5,
+      "text": "Arrivederci",
+      "phonemes": "arːivederʧi",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Goodbye - formal"
+    },
+    {
+      "id": 6,
+      "text": "Ciao ciao",
+      "phonemes": "ʧiao ʧiao",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Bye bye - informal"
+    },
+    {
+      "id": 7,
+      "text": "Salve",
+      "phonemes": "salve",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Hello - neutral formality"
+    },
+    {
+      "id": 8,
+      "text": "Addio",
+      "phonemes": "adːio",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Farewell - permanent goodbye"
+    },
+    {
+      "id": 9,
+      "text": "Grazie",
+      "phonemes": "ɡraʦie",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Thank you"
+    },
+    {
+      "id": 10,
+      "text": "Prego",
+      "phonemes": "preɡo",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "You're welcome / Please"
+    },
+    {
+      "id": 11,
+      "text": "Per favore",
+      "phonemes": "per favore",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Please"
+    },
+    {
+      "id": 12,
+      "text": "Scusa",
+      "phonemes": "skuʦa",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Excuse me - informal"
+    },
+    {
+      "id": 13,
+      "text": "Mi scusi",
+      "phonemes": "mi skuʦi",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Excuse me - formal"
+    },
+    {
+      "id": 14,
+      "text": "Sì",
+      "phonemes": "siˈ",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Yes - with stress accent"
+    },
+    {
+      "id": 15,
+      "text": "No",
+      "phonemes": "no",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "No"
+    },
+    {
+      "id": 16,
+      "text": "Forse",
+      "phonemes": "forse",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Maybe"
+    },
+    {
+      "id": 17,
+      "text": "Bene",
+      "phonemes": "bene",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Good / Well"
+    },
+    {
+      "id": 18,
+      "text": "Male",
+      "phonemes": "male",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bad / Badly"
+    },
+    {
+      "id": 19,
+      "text": "Molto bene",
+      "phonemes": "molto bene",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Very good"
+    },
+    {
+      "id": 20,
+      "text": "Non c'è male",
+      "phonemes": "non ʧeˈ male",
+      "category": "common_words",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Not bad - with elision"
+    },
+    {
+      "id": 21,
+      "text": "Uno",
+      "phonemes": "uno",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "One"
+    },
+    {
+      "id": 22,
+      "text": "Due",
+      "phonemes": "due",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Two"
+    },
+    {
+      "id": 23,
+      "text": "Tre",
+      "phonemes": "tre",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Three"
+    },
+    {
+      "id": 24,
+      "text": "Quattro",
+      "phonemes": "kwatːro",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Four - with qu and gemination"
+    },
+    {
+      "id": 25,
+      "text": "Cinque",
+      "phonemes": "ʧinkwe",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Five"
+    },
+    {
+      "id": 26,
+      "text": "Dieci",
+      "phonemes": "dieʧi",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Ten"
+    },
+    {
+      "id": 27,
+      "text": "Venti",
+      "phonemes": "venti",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Twenty"
+    },
+    {
+      "id": 28,
+      "text": "Cento",
+      "phonemes": "ʧento",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "One hundred"
+    },
+    {
+      "id": 29,
+      "text": "Pizza",
+      "phonemes": "piʦːa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Pizza - with geminate z"
+    },
+    {
+      "id": 30,
+      "text": "Pasta",
+      "phonemes": "pasta",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Pasta"
+    },
+    {
+      "id": 31,
+      "text": "Gelato",
+      "phonemes": "ʤelato",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Ice cream - with soft g"
+    },
+    {
+      "id": 32,
+      "text": "Caffè",
+      "phonemes": "kafːeˈ",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Coffee - with stress and gemination"
+    },
+    {
+      "id": 33,
+      "text": "Cappuccino",
+      "phonemes": "kapːuʧːino",
+      "category": "food",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Cappuccino - double gemination (pp, cc)"
+    },
+    {
+      "id": 34,
+      "text": "Tiramisù",
+      "phonemes": "tiramisuˈ",
+      "category": "food",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tiramisu - with stress accent"
+    },
+    {
+      "id": 35,
+      "text": "Pane",
+      "phonemes": "pane",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bread"
+    },
+    {
+      "id": 36,
+      "text": "Vino",
+      "phonemes": "vino",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Wine"
+    },
+    {
+      "id": 37,
+      "text": "Acqua",
+      "phonemes": "akːwa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Water - with cqu gemination"
+    },
+    {
+      "id": 38,
+      "text": "Formaggio",
+      "phonemes": "formaʤːo",
+      "category": "food",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Cheese - with geminate soft g"
+    },
+    {
+      "id": 39,
+      "text": "Gnocchi",
+      "phonemes": "ɲokːi",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Gnocchi - palatal gn with geminate k"
+    },
+    {
+      "id": 40,
+      "text": "Lasagne",
+      "phonemes": "lasaɲe",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Lasagna - with palatal gn"
+    },
+    {
+      "id": 41,
+      "text": "Bagno",
+      "phonemes": "baɲo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bathroom - palatal gn"
+    },
+    {
+      "id": 42,
+      "text": "Famiglia",
+      "phonemes": "famiʎa",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Family - palatal gli"
+    },
+    {
+      "id": 43,
+      "text": "Figlio",
+      "phonemes": "fiʎo",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Son - palatal gli"
+    },
+    {
+      "id": 44,
+      "text": "Moglie",
+      "phonemes": "moʎe",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Wife - palatal gli"
+    },
+    {
+      "id": 45,
+      "text": "Agnello",
+      "phonemes": "aɲelːo",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Lamb - palatal gn + geminate l"
+    },
+    {
+      "id": 46,
+      "text": "Spagnolo",
+      "phonemes": "spaɲolo",
+      "category": "palatals",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Spanish - palatal gn"
+    },
+    {
+      "id": 47,
+      "text": "Ciao bella",
+      "phonemes": "ʧiao belːa",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Hello beautiful - soft c + geminate l"
+    },
+    {
+      "id": 48,
+      "text": "Cena",
+      "phonemes": "ʧena",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Dinner - soft c before e"
+    },
+    {
+      "id": 49,
+      "text": "Città",
+      "phonemes": "ʧitːaˈ",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "City - soft c + stress + gemination"
+    },
+    {
+      "id": 50,
+      "text": "Giorno",
+      "phonemes": "ʤiorno",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Day - soft g before i"
+    },
+    {
+      "id": 51,
+      "text": "Gente",
+      "phonemes": "ʤente",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "People - soft g before e"
+    },
+    {
+      "id": 52,
+      "text": "Zio",
+      "phonemes": "ʦio",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Uncle - voiceless affricate z"
+    },
+    {
+      "id": 53,
+      "text": "Grazie mille",
+      "phonemes": "ɡraʦie milːe",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Thanks a lot - z affricate"
+    },
+    {
+      "id": 54,
+      "text": "Pesce",
+      "phonemes": "peʃe",
+      "category": "affricates",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Fish - sc before e becomes sh"
+    },
+    {
+      "id": 55,
+      "text": "Scienza",
+      "phonemes": "ʃienʦa",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Science - sc before i + z affricate"
+    },
+    {
+      "id": 56,
+      "text": "Carciofo",
+      "phonemes": "karʧiofo",
+      "category": "affricates",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Artichoke - hard c + soft c"
+    },
+    {
+      "id": 57,
+      "text": "Mamma",
+      "phonemes": "mamːa",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Mom - geminate m"
+    },
+    {
+      "id": 58,
+      "text": "Papà",
+      "phonemes": "papaˈ",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Dad - with stress accent"
+    },
+    {
+      "id": 59,
+      "text": "Nonna",
+      "phonemes": "nonːa",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Grandmother - geminate n"
+    },
+    {
+      "id": 60,
+      "text": "Nonno",
+      "phonemes": "nonːo",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Grandfather - geminate n"
+    },
+    {
+      "id": 61,
+      "text": "Fratello",
+      "phonemes": "fratelːo",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Brother - geminate l"
+    },
+    {
+      "id": 62,
+      "text": "Sorella",
+      "phonemes": "sorelːa",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sister - geminate l"
+    },
+    {
+      "id": 63,
+      "text": "Bello",
+      "phonemes": "belːo",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Beautiful (masculine) - geminate l"
+    },
+    {
+      "id": 64,
+      "text": "Bella",
+      "phonemes": "belːa",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Beautiful (feminine) - geminate l"
+    },
+    {
+      "id": 65,
+      "text": "Rosso",
+      "phonemes": "rosːo",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Red - geminate s"
+    },
+    {
+      "id": 66,
+      "text": "Tutto",
+      "phonemes": "tutːo",
+      "category": "gemination",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Everything - geminate t"
+    },
+    {
+      "id": 67,
+      "text": "Spaghetti",
+      "phonemes": "spaɡetːi",
+      "category": "gemination",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Spaghetti - gh + geminate t"
+    },
+    {
+      "id": 68,
+      "text": "Oggi",
+      "phonemes": "oʤːi",
+      "category": "gemination",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Today - geminate soft g"
+    },
+    {
+      "id": 69,
+      "text": "Amore",
+      "phonemes": "amore",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Love - all 5 vowels: a, o, e"
+    },
+    {
+      "id": 70,
+      "text": "Italia",
+      "phonemes": "italia",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Italy - vowels i, a"
+    },
+    {
+      "id": 71,
+      "text": "Uomo",
+      "phonemes": "womo",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Man - u as semivowel w"
+    },
+    {
+      "id": 72,
+      "text": "Aiuto",
+      "phonemes": "aiuto",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Help - vowel sequence ai-u-o"
+    },
+    {
+      "id": 73,
+      "text": "Europa",
+      "phonemes": "europa",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Europe - vowel sequence eu-o-a"
+    },
+    {
+      "id": 74,
+      "text": "Scuola",
+      "phonemes": "skuola",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "School - sc before u + vowels"
+    },
+    {
+      "id": 75,
+      "text": "Poeta",
+      "phonemes": "poeta",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Poet - vowel sequence o-e-a"
+    },
+    {
+      "id": 76,
+      "text": "Ieri",
+      "phonemes": "ieri",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Yesterday - vowel sequence i-e-i"
+    },
+    {
+      "id": 77,
+      "text": "Quasi",
+      "phonemes": "kwasi",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Almost - qu + vowels"
+    },
+    {
+      "id": 78,
+      "text": "Paura",
+      "phonemes": "paura",
+      "category": "vowels",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Fear - vowel sequence a-u-a"
+    },
+    {
+      "id": 79,
+      "text": "Come stai?",
+      "phonemes": "kome stai?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How are you? (informal)"
+    },
+    {
+      "id": 80,
+      "text": "Sto bene",
+      "phonemes": "sto bene",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm fine"
+    },
+    {
+      "id": 81,
+      "text": "E tu?",
+      "phonemes": "e tu?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "And you?"
+    },
+    {
+      "id": 82,
+      "text": "Mi chiamo Mario",
+      "phonemes": "mi kiamo mario",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "My name is Mario - ch becomes k"
+    },
+    {
+      "id": 83,
+      "text": "Piacere",
+      "phonemes": "piaʧere",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Nice to meet you - soft c"
+    },
+    {
+      "id": 84,
+      "text": "Dove sei?",
+      "phonemes": "dove sei?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Where are you?"
+    },
+    {
+      "id": 85,
+      "text": "Sono qui",
+      "phonemes": "sono kwi",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm here - qu becomes kw"
+    },
+    {
+      "id": 86,
+      "text": "Che ore sono?",
+      "phonemes": "ke ore sono?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "What time is it? - ch becomes k"
+    },
+    {
+      "id": 87,
+      "text": "Non lo so",
+      "phonemes": "non lo so",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "I don't know"
+    },
+    {
+      "id": 88,
+      "text": "Quanto costa?",
+      "phonemes": "kwanto kosta?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How much does it cost? - qu becomes kw"
+    },
+    {
+      "id": 89,
+      "text": "Parli italiano?",
+      "phonemes": "parli italiano?",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Do you speak Italian?"
+    },
+    {
+      "id": 90,
+      "text": "Un po'",
+      "phonemes": "un poˈ",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "A little - with stress"
+    },
+    {
+      "id": 91,
+      "text": "Il gatto nero mangia il pesce fresco",
+      "phonemes": "il ɡatːo nero manʤa il peʃe fresko",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "The black cat eats the fresh fish - multiple features"
+    },
+    {
+      "id": 92,
+      "text": "La ragazza canta una canzone bellissima",
+      "phonemes": "la raɡaʦːa kanta una kanʦone belːisːima",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "The girl sings a beautiful song - multiple geminations"
+    },
+    {
+      "id": 93,
+      "text": "Mio figlio gioca con gli amici nel giardino",
+      "phonemes": "mio fiʎo ʤoka kon ʎi amiʧi nel ʤardino",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 8,
+      "contains_oov": false,
+      "notes": "My son plays with friends in the garden - palatals and affricates"
+    },
+    {
+      "id": 94,
+      "text": "Ho comprato cinque chili di gnocchi freschi",
+      "phonemes": "o komprato ʧinkwe kili di ɲokːi freski",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "I bought five kilos of fresh gnocchi - qu, ch, gn"
+    },
+    {
+      "id": 95,
+      "text": "Perché non vieni alla festa stasera?",
+      "phonemes": "perkeˈ non vieni alːa festa stasera?",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Why don't you come to the party tonight? - stress + gemination"
+    },
+    {
+      "id": 96,
+      "text": "Gli spaghetti aglio e olio sono deliziosi",
+      "phonemes": "ʎi spaɡetːi aʎo e oljo sono deliʦiosi",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "Spaghetti with garlic and oil are delicious - palatals"
+    },
+    {
+      "id": 97,
+      "text": "Dobbiamo attraversare la piazza principale",
+      "phonemes": "dobːiamo atːraversare la piaʦːa prinʧipale",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "We must cross the main square - multiple geminations"
+    },
+    {
+      "id": 98,
+      "text": "Mia moglie cucina benissimo",
+      "phonemes": "mia moʎe kuʧina benisːimo",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "My wife cooks very well - palatal + soft c + gemination"
+    },
+    {
+      "id": 99,
+      "text": "Questo vino è eccellente",
+      "phonemes": "kwesto vino eˈ eʧːelːente",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "This wine is excellent - qu + double gemination"
+    },
+    {
+      "id": 100,
+      "text": "La piccola chiesa si trova vicino al lago",
+      "phonemes": "la pikːola kiesa si trova viʧino al laɡo",
+      "category": "complex",
+      "difficulty": "advanced",
+      "word_count": 8,
+      "contains_oov": false,
+      "notes": "The small church is near the lake - gemination + ch"
+    }
+  ]
+}
