@@ -5,7 +5,7 @@ analysis and custom phonological rules based on Korean Standard Pronunciation.
 
 Based on g2pK by kyubyong: https://github.com/kyubyong/g2pK
 
-Copyright 2024 kokorog2p contributors
+Copyright 2025 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 

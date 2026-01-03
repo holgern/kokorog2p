@@ -5,7 +5,7 @@ for pinyin extraction and custom IPA mapping for phoneme generation.
 
 Based on misaki's Chinese implementation.
 
-Copyright 2024 kokorog2p contributors
+Copyright 2025 kokorog2p contributors
 Licensed under the Apache License, Version 2.0
 """
 

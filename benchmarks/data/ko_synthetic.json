@@ -1,0 +1,1022 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "language": "ko-kr",
+    "created_date": "2026-01-03",
+    "description": "Korean synthetic benchmark dataset for kokorog2p testing. Includes hand-crafted sentences and CHILDES natural speech samples.",
+    "phoneme_set": "kokoro",
+    "total_sentences": 100,
+    "categories": {
+      "greetings": 5,
+      "common_words": 8,
+      "numbers": 4,
+      "food": 4,
+      "phoneme_coverage": 10,
+      "questions": 4,
+      "conversation": 5,
+      "childes_natural": 60
+    }
+  },
+  "sentences": [
+    {
+      "id": 1,
+      "text": "안녕하세요",
+      "phonemes": "annjʌhasejo",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Common Korean greeting - Hello"
+    },
+    {
+      "id": 2,
+      "text": "감사합니다",
+      "phonemes": "kamsahamnita",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Thank you (formal)"
+    },
+    {
+      "id": 3,
+      "text": "안녕히 가세요",
+      "phonemes": "annjʌhi kasejo",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Goodbye (to person leaving)"
+    },
+    {
+      "id": 4,
+      "text": "좋은 아침입니다",
+      "phonemes": "ʨoɯn aʨʰimimnita",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good morning"
+    },
+    {
+      "id": 5,
+      "text": "만나서 반갑습니다",
+      "phonemes": "mannasʌ pankaps͈ɯmnita",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Nice to meet you"
+    },
+    {
+      "id": 6,
+      "text": "사랑",
+      "phonemes": "sala",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Love"
+    },
+    {
+      "id": 7,
+      "text": "행복",
+      "phonemes": "hɛpok",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Happiness - contains ɛ vowel"
+    },
+    {
+      "id": 8,
+      "text": "가족",
+      "phonemes": "kaʨok",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Family - affricate ʨ"
+    },
+    {
+      "id": 9,
+      "text": "친구",
+      "phonemes": "ʨʰinku",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Friend - aspirated ʨʰ"
+    },
+    {
+      "id": 10,
+      "text": "학교",
+      "phonemes": "hakk͈jo",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "School - tensed k͈"
+    },
+    {
+      "id": 11,
+      "text": "책",
+      "phonemes": "ʨʰɛk",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Book"
+    },
+    {
+      "id": 12,
+      "text": "집",
+      "phonemes": "ʨip",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "House/home"
+    },
+    {
+      "id": 13,
+      "text": "시간",
+      "phonemes": "sikan",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Time"
+    },
+    {
+      "id": 14,
+      "text": "하나 둘 셋",
+      "phonemes": "hana tul set",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "One two three (native Korean)"
+    },
+    {
+      "id": 15,
+      "text": "일 이 삼",
+      "phonemes": "il i sam",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "One two three (Sino-Korean)"
+    },
+    {
+      "id": 16,
+      "text": "열",
+      "phonemes": "jʌl",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Ten (native Korean)"
+    },
+    {
+      "id": 17,
+      "text": "백",
+      "phonemes": "pɛk",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "One hundred"
+    },
+    {
+      "id": 18,
+      "text": "김치",
+      "phonemes": "kimʨʰi",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Kimchi - fermented vegetables"
+    },
+    {
+      "id": 19,
+      "text": "밥",
+      "phonemes": "pap",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rice/meal"
+    },
+    {
+      "id": 20,
+      "text": "물",
+      "phonemes": "mul",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Water - contains ɯ vowel"
+    },
+    {
+      "id": 21,
+      "text": "차",
+      "phonemes": "ʨʰa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tea"
+    },
+    {
+      "id": 22,
+      "text": "과일",
+      "phonemes": "kwail",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Fruit - w sound"
+    },
+    {
+      "id": 23,
+      "text": "외국",
+      "phonemes": "økuk",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Foreign country - ø vowel"
+    },
+    {
+      "id": 24,
+      "text": "의사",
+      "phonemes": "ɰisa",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Doctor - ɰ onset"
+    },
+    {
+      "id": 25,
+      "text": "워크숍",
+      "phonemes": "wʌkʰɯsjop",
+      "category": "phoneme_coverage",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Workshop (loanword)"
+    },
+    {
+      "id": 26,
+      "text": "까다",
+      "phonemes": "k͈ata",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Difficult - tensed k͈"
+    },
+    {
+      "id": 27,
+      "text": "싸다",
+      "phonemes": "s͈ata",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Cheap - tensed s͈"
+    },
+    {
+      "id": 28,
+      "text": "빠르다",
+      "phonemes": "p͈alɯta",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Fast - tensed p͈"
+    },
+    {
+      "id": 29,
+      "text": "짜다",
+      "phonemes": "ʨ͈ata",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Salty - tensed ʨ͈"
+    },
+    {
+      "id": 30,
+      "text": "따뜻하다",
+      "phonemes": "t͈at͈ɯtʰata",
+      "category": "phoneme_coverage",
+      "difficulty": "intermediate",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Warm - tensed t͈"
+    },
+    {
+      "id": 31,
+      "text": "꽃",
+      "phonemes": "k͈ot",
+      "category": "phoneme_coverage",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Flower - tensed onset"
+    },
+    {
+      "id": 32,
+      "text": "어디에 가세요",
+      "phonemes": "ʌtie kasejo",
+      "category": "questions",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Where are you going?"
+    },
+    {
+      "id": 33,
+      "text": "뭐예요",
+      "phonemes": "mwʌejo",
+      "category": "questions",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "What is it?"
+    },
+    {
+      "id": 34,
+      "text": "괜찮아요",
+      "phonemes": "kwɛnʨʰanajo",
+      "category": "questions",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Are you okay?"
+    },
+    {
+      "id": 35,
+      "text": "얼마예요",
+      "phonemes": "ʌlmaejo",
+      "category": "questions",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "How much is it?"
+    },
+    {
+      "id": 36,
+      "text": "네",
+      "phonemes": "ne",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Yes"
+    },
+    {
+      "id": 37,
+      "text": "아니요",
+      "phonemes": "anijo",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "No"
+    },
+    {
+      "id": 38,
+      "text": "알겠습니다",
+      "phonemes": "alkets͈ɯmnita",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "I understand"
+    },
+    {
+      "id": 39,
+      "text": "죄송합니다",
+      "phonemes": "ʨøsohamnita",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "I'm sorry (formal)"
+    },
+    {
+      "id": 40,
+      "text": "천천히 말씀해 주세요",
+      "phonemes": "ʨʰʌnʨʰʌnhi mals͈ɯmhɛ ʨusejo",
+      "category": "conversation",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Please speak slowly"
+    },
+    {
+      "id": 41,
+      "text": "이름아 우리 여기 구경해 보자 구경",
+      "phonemes": "ilɯma uli jʌki kukjʌhɛ poʨa kukjʌ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 42,
+      "text": "와 요리하는 데야 요리하는 데",
+      "phonemes": "wa jolihanɯn teja jolihanɯn te",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 43,
+      "text": "보자 보자 보자",
+      "phonemes": "poʨa poʨa poʨa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 44,
+      "text": "우리 이름이 이거 볼까",
+      "phonemes": "uli ilɯmi ikʌ polk͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 45,
+      "text": "춤을 추며 오너라",
+      "phonemes": "ʨʰumɯl ʨʰumjʌ onʌla",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 46,
+      "text": "꿀벌은 꽃을 좋아해요",
+      "phonemes": "k͈ulpʌlɯn k͈oʨʰɯl ʨoahɛjo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 47,
+      "text": "벌에 쏘이면 아야",
+      "phonemes": "pʌle s͈oimjʌn aja",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 48,
+      "text": "꽃도 폈지요 꽃도",
+      "phonemes": "k͈ott͈o pʰjʌtʨ͈ijo k͈ott͈o",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 49,
+      "text": "잠자리가 있네 잠자리",
+      "phonemes": "ʨamʨalika inne ʨamʨali",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 50,
+      "text": "여기는 딱딱해 딱딱해",
+      "phonemes": "jʌkinɯn t͈akt͈akʰɛ t͈akt͈akʰɛ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 51,
+      "text": "책도 읽었고 책도 읽었고",
+      "phonemes": "ʨʰɛkt͈o ilkʌtk͈o ʨʰɛkt͈o ilkʌtk͈o",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 52,
+      "text": "책 또 봐요",
+      "phonemes": "ʨʰɛk t͈o pwajo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 53,
+      "text": "엄마야 엄마 어",
+      "phonemes": "ʌmmaja ʌmma ʌ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 54,
+      "text": "엄마가 또 책 보여 줄까 어",
+      "phonemes": "ʌmmaka t͈o ʨʰɛk pojʌ ʨulk͈a ʌ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 55,
+      "text": "책 보여 줄까",
+      "phonemes": "ʨʰɛk pojʌ ʨulk͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 56,
+      "text": "이 짝짜꿍짝짜꿍 손을 빨면은 안 돼요 이름이 여기 아프잖아 그치",
+      "phonemes": "i ʨ͈akʨ͈ak͈uʨ͈akʨ͈ak͈u sonɯl p͈almjʌnɯn an twɛjo ilɯmi jʌki apʰɯʨana kɯʨʰi",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 10,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 57,
+      "text": "우리 이름이는 형아 때문에 택시 좋아하지 택시",
+      "phonemes": "uli ilɯminɯn hjʌa t͈ɛmune tʰɛks͈i ʨoahaʨi tʰɛks͈i",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 58,
+      "text": "개구리도 있고 찍찍찍찍 생쥐도 있네 생쥐",
+      "phonemes": "kɛkulito itk͈o ʨ͈ikʨ͈ikʨ͈ikʨ͈ik sɛʨwito inne sɛʨwi",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 59,
+      "text": "여기는 고양이도 있다 고양이 야옹 야옹 고양이",
+      "phonemes": "jʌkinɯn kojaito itt͈a kojai jao jao kojai",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 60,
+      "text": "야옹 따라해 봐야지",
+      "phonemes": "jao t͈alahɛ pwajaʨi",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 61,
+      "text": "찍찍찍찍 당신이 생쥐인가요",
+      "phonemes": "ʨ͈ikʨ͈ikʨ͈ikʨ͈ik tasini sɛʨwiinkajo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 62,
+      "text": "꿀꿀꿀꿀 돼지예요 돼지",
+      "phonemes": "k͈ulk͈ulk͈ulk͈ul twɛʨiejo twɛʨi",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 63,
+      "text": "음메 음메 음메 양이에요 양",
+      "phonemes": "ɯmme ɯmme ɯmme jaiejo ja",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 64,
+      "text": "안녕 당신이 바쁜 생쥐인가요",
+      "phonemes": "annjʌ tasini pap͈ɯn sɛʨwiinkajo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 65,
+      "text": "어서 타세요 출발",
+      "phonemes": "ʌsʌ tʰasejo ʨʰulpal",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 66,
+      "text": "부릉부릉 부릉부릉 택시 타고 갑니다",
+      "phonemes": "pulɯpulɯ pulɯpulɯ tʰɛks͈i tʰako kamnita",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 67,
+      "text": "부릉부릉 부릉부릉 부릉부릉 부릉부릉 부릉부릉부릉부릉",
+      "phonemes": "pulɯpulɯ pulɯpulɯ pulɯpulɯ pulɯpulɯ pulɯpulɯpulɯpulɯ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 68,
+      "text": "짱 짱 짱 짱 짱",
+      "phonemes": "ʨ͈a ʨ͈a ʨ͈a ʨ͈a ʨ͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 69,
+      "text": "으차 으차 으차",
+      "phonemes": "ɯʨʰa ɯʨʰa ɯʨʰa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 70,
+      "text": "또 한 번 더 한 번 더",
+      "phonemes": "t͈o han pʌn tʌ han pʌn tʌ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 71,
+      "text": "한 번 더 탈까",
+      "phonemes": "han pʌn tʌ tʰalk͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 72,
+      "text": "한 번 더 으짜",
+      "phonemes": "han pʌn tʌ ɯʨ͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 73,
+      "text": "얘는 공룡인가 봐 공룡",
+      "phonemes": "jɛnɯn koljoinka pwa koljo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 74,
+      "text": "공룡 잡아먹고 싶어 이름이",
+      "phonemes": "koljo ʨapamʌkk͈o sipʰʌ ilɯmi",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 75,
+      "text": "엄마 공룡송 불러 줄까 공룡송",
+      "phonemes": "ʌmma koljoso pullʌ ʨulk͈a koljoso",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 76,
+      "text": "강력한 턱과 거대한 꼬리 사냥을 시작해 쿵쾅쿵쾅",
+      "phonemes": "kaljʌkʰan tʰʌkk͈wa kʌtɛhan k͈oli sanjaɯl siʨakʰɛ kʰukʰwakʰukʰwa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 77,
+      "text": "응 공룡이야 공룡",
+      "phonemes": "ɯ koljoija koljo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 78,
+      "text": "강력한 턱과 거대한 꼬리",
+      "phonemes": "kaljʌkʰan tʰʌkk͈wa kʌtɛhan k͈oli",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 79,
+      "text": "사냥을 시작해 쿵쾅쿵쾅",
+      "phonemes": "sanjaɯl siʨakʰɛ kʰukʰwakʰukʰwa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 80,
+      "text": "해 보자 쿵쾅쿵쾅",
+      "phonemes": "hɛ poʨa kʰukʰwakʰukʰwa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 81,
+      "text": "오늘 이름이 응가 안 했지 응가",
+      "phonemes": "onɯl ilɯmi ɯka an hɛtʨ͈i ɯka",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 82,
+      "text": "이번에는 응가쏭 불러 볼까",
+      "phonemes": "ipʌnenɯn ɯkas͈o pullʌ polk͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 83,
+      "text": "주먹 꼭 쥐고",
+      "phonemes": "ʨumʌk k͈ok ʨwiko",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 84,
+      "text": "힘을 줘 봐요",
+      "phonemes": "himɯl ʨwʌ pwajo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 85,
+      "text": "뿡뿡뿡뿡 뿡뿌웅 자",
+      "phonemes": "p͈up͈up͈up͈u p͈up͈uu ʨa",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 86,
+      "text": "이야 오늘 이름이 공룡도 봤어요 공룡",
+      "phonemes": "ija onɯl ilɯmi koljoto pwas͈ʌjo koljo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 87,
+      "text": "판다야 판다 판다",
+      "phonemes": "pʰantaja pʰanta pʰanta",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 88,
+      "text": "판다가 이름이 뒤에 있다",
+      "phonemes": "pʰantaka ilɯmi twie itt͈a",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 89,
+      "text": "까꿍 여기 있지",
+      "phonemes": "k͈ak͈u jʌki itʨ͈i",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 90,
+      "text": "이름이 또 쉬 했나",
+      "phonemes": "ilɯmi t͈o swi hɛnna",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 91,
+      "text": "어 쉬 안 했는데",
+      "phonemes": "ʌ swi an hɛnnɯnte",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 92,
+      "text": "오 오 오 오 오",
+      "phonemes": "o o o o o",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 93,
+      "text": "이름이 이제 안녕 빠이빠이 빠이빠이",
+      "phonemes": "ilɯmi iʨe annjʌ p͈aip͈ai p͈aip͈ai",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 94,
+      "text": "공룡 집에 간대",
+      "phonemes": "koljo ʨipe kantɛ",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 95,
+      "text": "빠이빠이 해 줘야지 빠이빠이",
+      "phonemes": "p͈aip͈ai hɛ ʨwʌjaʨi p͈aip͈ai",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 96,
+      "text": "이야 얘는 당근이에요 당근",
+      "phonemes": "ija jɛnɯn takɯniejo takɯn",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 97,
+      "text": "통통 튀는 공은 아니에요",
+      "phonemes": "tʰotʰo tʰwinɯn koɯn aniejo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 4,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 98,
+      "text": "좋아요 좋아요 부드럽지",
+      "phonemes": "ʨoajo ʨoajo putɯlʌpʨ͈i",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 99,
+      "text": "부드럽지 이름이처럼 부드러워요",
+      "phonemes": "putɯlʌpʨ͈i ilɯmiʨʰʌlʌm putɯlʌwʌjo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    },
+    {
+      "id": 100,
+      "text": "판더처럼 검정색도 있어요",
+      "phonemes": "pʰantʌʨʰʌlʌm kʌmʨʌsɛkt͈o is͈ʌjo",
+      "category": "childes_natural",
+      "difficulty": "intermediate",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "Natural adult speech from CHILDES corpus"
+    }
+  ]
+}

@@ -24,6 +24,7 @@ Each benchmark file contains carefully curated sentences designed to:
 | `de_synthetic.json` | German | 189 | 307 unique | ✅ Complete |
 | `ja_synthetic.json` | Japanese | 371 | 29/29 (100%) | ✅ Complete |
 | `fr_synthetic.json` | French | 154 | 35/35 (100%) | ✅ Complete |
+| `ko_synthetic.json` | Korean | 100 | 23/23 (100%) | ✅ Complete |
 | `cs_synthetic.json` | Czech | - | - | 🚧 Planned |
 
 ## File Format
@@ -131,6 +132,9 @@ python benchmarks/benchmark_ja_comparison.py
 # Test all French configurations
 python benchmarks/benchmark_fr_comparison.py
 
+# Test all Korean configurations
+python benchmarks/benchmark_ko_comparison.py
+
 # Test specific language
 python benchmarks/benchmark_en_us_comparison.py --language en-us
 python benchmarks/benchmark_en_gb_comparison.py --language en-gb
@@ -139,6 +143,7 @@ python benchmarks/benchmark_en_gb_comparison.py --language en-gb
 python benchmarks/benchmark_en_us_comparison.py --config "Gold + Espeak"
 python benchmarks/benchmark_ja_comparison.py --config "pyopenjtalk"
 python benchmarks/benchmark_fr_comparison.py --config "Gold only"
+python benchmarks/benchmark_ko_comparison.py --config "Korean G2P + Espeak"
 
 # Verbose output with errors
 python benchmarks/benchmark_en_us_comparison.py --verbose
@@ -149,6 +154,7 @@ python benchmarks/benchmark_en_gb_comparison.py --output results_en_gb.json
 python benchmarks/benchmark_de_comparison.py --output results_de.json
 python benchmarks/benchmark_ja_comparison.py --output results_ja.json
 python benchmarks/benchmark_fr_comparison.py --output results_fr.json
+python benchmarks/benchmark_ko_comparison.py --output results_ko.json
 ```
 
 The benchmark tests:
@@ -393,6 +399,73 @@ The French dataset has a smaller size (154 sentences) compared to other language
 - Strict quality filtering (only sentences with valid phonemes accepted)
 - Lower retention rate (~37%) after phoneme validation
 - Focus on quality over quantity
+
+## Korean Phonemes
+
+The Korean dataset (`ko_synthetic.json`) contains 100 sentences with 23 unique phoneme characters achieving 100% phoneme coverage.
+
+### Key Korean Phonological Features
+
+**Character-based phonemes** (like Japanese):
+- Each character in the phoneme string is a single phoneme
+- Example: 안녕하세요 → annjʌhasejo (11 characters = 11 phonemes)
+
+**Vowels**:
+- **Basic**: a e i o u (similar to other languages)
+- **Special**: ø (외), ɛ (애), ɯ (으), ɰ (의 onset), ʌ (어)
+
+**Consonants**:
+- **Basic**: h j k l m n p s t w
+- **Affricate**: ʨ (ㅈ/ㅊ)
+
+**Phonological features**:
+- **ʰ** - aspiration marker (ㅋ ㅌ ㅍ ㅊ → kʰ tʰ pʰ ʨʰ)
+- **͈** - tenseness marker (ㄲ ㄸ ㅃ ㅆ ㅉ → k͈ t͈ p͈ s͈ ʨ͈)
+
+### Korean Three-Way Contrast
+
+Korean uniquely distinguishes consonants three ways:
+1. **Plain** - ㄱ ㄷ ㅂ ㅅ ㅈ (k t p s ʨ)
+2. **Aspirated** - ㅋ ㅌ ㅍ ㅊ (kʰ tʰ pʰ ʨʰ)
+3. **Tensed** - ㄲ ㄸ ㅃ ㅆ ㅉ (k͈ t͈ p͈ s͈ ʨ͈)
+
+### Korean Dataset Composition
+- **40 hand-crafted sentences** covering greetings, common words, numbers, food, phoneme coverage
+- **60 natural speech examples** from CHILDES ko-KR corpus (adult speech)
+- **Categories**: greetings (5), common_words (8), numbers (4), food (4), phoneme_coverage (10), questions (4), conversation (5), childes_natural (60)
+- **100% accuracy** with Korean G2P (g2pK-based)
+
+### Korean Benchmark Results
+| Configuration | Accuracy | Speed | Notes |
+|--------------|----------|-------|-------|
+| Korean G2P + Espeak | 100% | 37 sent/s | ✅ Recommended (fastest + accurate) |
+| Korean G2P | 100% | 22 sent/s | Good default |
+
+### Korean G2P Backend (g2pK)
+
+The Korean G2P uses g2pK which provides:
+- Hangul → jamo decomposition
+- Korean phonological rules application
+- Jamo → IPA conversion
+- Optional MeCab support (not required for 100% accuracy)
+
+**Without MeCab** (current implementation):
+- Simplified phonology
+- No ŋ (velar nasal) or ̚ (unreleased stops)
+- Still achieves 100% benchmark accuracy
+- Faster processing
+
+**With MeCab** (optional):
+- More accurate morphological analysis
+- Proper handling of ŋ and ̚
+- Better context-dependent pronunciation
+- Install: `pip install mecab-python3`
+
+### Korean CHILDES Extraction Notes
+- **Source**: 23.2 MB (~94,754 sentences)
+- **Extraction rate**: ~4.1% (60 from ~1,450 candidates)
+- **Filtering**: Adult speech, 3-10 tokens, valid Hangul, no errors
+- **Quality focus**: All sentences validated with KoreanG2P
 
 ## Performance Expectations
 

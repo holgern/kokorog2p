@@ -26,7 +26,7 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
     Returns:
         Frozenset of valid phoneme characters
     """
-    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB, JA_VOCAB, FR_VOCAB
+    from kokorog2p.phonemes import US_VOCAB, GB_VOCAB, JA_VOCAB, FR_VOCAB, KO_VOCAB
 
     if language == "en-us":
         return US_VOCAB
@@ -36,6 +36,8 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return JA_VOCAB
     elif language in ("fr", "fr-fr"):
         return FR_VOCAB
+    elif language in ("ko", "ko-kr"):
+        return KO_VOCAB
     elif language in ("de", "cs"):
         # For now, return US vocab as baseline
         # TODO: Add proper German/Czech vocab
@@ -166,13 +168,14 @@ def validate_sentence(
         "mixed_difficulty",
         "gb_specific",  # GB-specific phoneme features
         "childes_natural",  # Natural speech from CHILDES corpus
-        # Japanese categories
+        # Japanese/Korean/multilingual categories
         "greetings",
         "questions",
         "numbers",
         "verbs",
         "adjectives",
         "conversation",
+        "food",  # Food and drink vocabulary
     }
     if sentence.get("category") not in valid_categories:
         errors.append(

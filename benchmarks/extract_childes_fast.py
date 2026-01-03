@@ -36,6 +36,8 @@ def load_childes_data(language: str, max_rows: int | None = None) -> pd.DataFram
         "es-es": "es-ES",
         "ja": "ja-JP",
         "ja-jp": "ja-JP",
+        "ko": "ko-KR",
+        "ko-kr": "ko-KR",
     }
     lang_dir = lang_map.get(language)
     if not lang_dir:
@@ -261,6 +263,8 @@ def main():
             "es-es",
             "ja",
             "ja-jp",
+            "ko",
+            "ko-kr",
         ],
     )
     parser.add_argument(

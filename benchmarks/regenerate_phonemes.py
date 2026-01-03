@@ -11,6 +11,7 @@ from kokorog2p.en import EnglishG2P
 from kokorog2p.de import GermanG2P
 from kokorog2p.ja import JapaneseG2P
 from kokorog2p.fr import FrenchG2P
+from kokorog2p.ko import KoreanG2P
 
 
 def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> None:
@@ -58,6 +59,11 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
             use_spacy=False,
             load_gold=True,
             load_silver=True,
+        )
+    elif language in ("ko", "ko-kr"):
+        g2p = KoreanG2P(
+            use_espeak_fallback=False,
+            use_dict=True,
         )
     else:
         raise ValueError(f"Unsupported language: {language}")

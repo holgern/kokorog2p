@@ -53,6 +53,16 @@ JA_VOCAB: Final[frozenset[str]] = frozenset("abdefghijkmnoprstuwzɕɴʔʥʦʨː�
 # Note: Includes punctuation marks: ' , -
 FR_VOCAB: Final[frozenset[str]] = frozenset("',-abdefijklmnopstuvwyzøœɑɔəɛɡɥʁʃʒ̃")
 
+# Korean phoneme vocabulary (23 characters)
+# - Basic vowels: a e i o u
+# - Special vowels: ø (외), ɛ (애/에), ɯ (으), ɰ (의 onset), ʌ (어)
+# - Consonants: h j k l m n p s t w
+# - Special consonant: ʨ (ㅈ/ㅊ affricate)
+# - Modifiers: ʰ (aspiration), ͈ (tenseness)
+# Note: Character-based like Japanese - each character represents one phoneme
+# Note: Without MeCab, ŋ and ̚ are not produced (simplified phonology)
+KO_VOCAB: Final[frozenset[str]] = frozenset("aehijklmnopstuwøɛɯɰʌʨʰ͈")
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================
