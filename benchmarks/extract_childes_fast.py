@@ -135,7 +135,7 @@ def extract_fast(
 
     # Pre-filter dataframe for speed
     df_filtered = df[
-        (not df["is_child"])  # Adult only
+        (~df["is_child"])  # Adult only (use ~ for boolean negation)
         & (df["num_tokens"] >= min_tokens)
         & (df["num_tokens"] <= max_tokens)
         & (df["ipa_espeak"].notna())

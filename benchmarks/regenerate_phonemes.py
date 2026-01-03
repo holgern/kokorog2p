@@ -38,7 +38,7 @@ def regenerate_phonemes(input_file: Path, output_file: Path | None = None) -> No
     if language in ("en-us", "en-gb"):
         g2p = EnglishG2P(
             language=language,
-            use_espeak_fallback=False,
+            use_espeak_fallback=True,  # Enable fallback for OOV words
             use_spacy=False,
             load_gold=True,
             load_silver=True,
