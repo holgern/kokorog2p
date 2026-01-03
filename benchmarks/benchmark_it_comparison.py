@@ -79,21 +79,17 @@ def benchmark_config(g2p, data: dict[str, Any], config_name: str) -> ConfigBench
 
         # Phonemize
         try:
+            got_phonemes = g2p.phonemize(text)
             tokens = g2p(text)
         except Exception as e:
             failed += 1
             errors.append((sentence_id, expected_phonemes, f"ERROR: {e}"))
             continue
 
-        # Extract phonemes
-        all_phonemes = []
+        # Track unique phonemes
         for token in tokens:
             if token.phonemes:
-                all_phonemes.append(token.phonemes)
-                # Track unique phonemes
                 phonemes_used.update(c for c in token.phonemes if c.strip())
-
-        got_phonemes = " ".join(all_phonemes)
 
         # Compare
         if got_phonemes == expected_phonemes:

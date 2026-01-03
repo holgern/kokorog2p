@@ -74,6 +74,15 @@ class ItalianG2P(G2PBase):
         chr(8230): "...",  # …
     }
 
+    # Small lexicon for exceptional words or common words with irregular patterns
+    _LEXICON = {
+        "scusa": "skuʦa",
+        "scusi": "skuʦi",
+        "poˈ": "poˈ",  # "po'" with stress (preprocessed)
+        "gli": "ʎi",  # Article "gli" keeps the 'i'
+        "olio": "oljo",  # 'i' is a semivowel [j]
+    }
+
     def __init__(
         self,
         language: str = "it-it",
@@ -147,6 +156,15 @@ class ItalianG2P(G2PBase):
         for old, new in self._PUNCT_MAP.items():
             text = text.replace(old, new)
 
+        # Handle specific Italian contractions/abbreviations
+        # "po'" (poco) with final apostrophe indicates stress
+        text = re.sub(r"\bpo'", "poˈ", text, flags=re.IGNORECASE)
+
+        # Handle Italian contractions with apostrophes
+        # c'è -> cè, l'uomo -> luomo, etc.
+        # Remove apostrophes that appear between letters
+        text = re.sub(r"([a-zA-Zàèéìòóù])'([a-zA-Zàèéìòóù])", r"\1\2", text)
+
         # Remove non-breaking spaces
         text = text.replace("\u00a0", " ")
         text = text.replace("\u202f", " ")
@@ -205,6 +223,17 @@ class ItalianG2P(G2PBase):
         if not word:
             return ""
 
+        # Check lexicon first for exceptional words
+        word_lower = word.lower()
+        if word_lower in self._LEXICON:
+            base_phonemes = self._LEXICON[word_lower]
+            # Apply stress and gemination markers if needed
+            if not self.mark_stress:
+                base_phonemes = base_phonemes.replace("ˈ", "")
+            if not self.mark_gemination:
+                base_phonemes = base_phonemes.replace("ː", "")
+            return base_phonemes
+
         # Convert to lowercase for processing
         text = word.lower()
 
@@ -238,6 +267,13 @@ class ItalianG2P(G2PBase):
         while i < n:
             matched = False
             chars_consumed = 0
+
+            # uo -> wo at word start (uomo -> womo)
+            if i == 0 and i + 1 < n and text[i : i + 2] == "uo":
+                result.append("w")
+                result.append("o")
+                i += 2
+                matched = True
 
             # Try multi-character sequences first
             # Check for double consonants first (cch, ggh, cqu, etc.)
@@ -357,9 +393,15 @@ class ItalianG2P(G2PBase):
                     result.append("ʤ")
                     result.append("ː")
                     i += 2
+                    # For ggio/ggia, skip the 'i' (formaggio -> formaʤːo)
+                    if text[i] == "i" and i + 1 < n and text[i + 1] in "aou":
+                        i += 1
                 else:
                     result.append("ʤ")
                     i += 1
+                    # For ggio/ggia, skip the 'i' even without gemination
+                    if text[i] == "i" and i + 1 < n and text[i + 1] in "aou":
+                        i += 1
                 matched = True
 
             # gi/ge -> ʤ (giorno, gente)
@@ -367,6 +409,24 @@ class ItalianG2P(G2PBase):
                 if i + 1 < n and text[i + 1] in "ei":
                     result.append("ʤ")
                     i += 1
+                    # Handle 'i' after soft g:
+                    # - "gio" + r/n -> keep "io" (giorno)
+                    # - "gio" + other -> drop "i" (gioca)
+                    # - "gia" -> drop "i" (mangia)
+                    # - "giu" -> drop "i" (giulia)
+                    if text[i] == "i" and i + 1 < n:
+                        next_char = text[i + 1]
+                        if next_char == "o":
+                            # Check if followed by r or n
+                            if i + 2 < n and text[i + 2] in "rn":
+                                # Keep the 'i' (giorno, giornale)
+                                pass
+                            else:
+                                # Drop the 'i' (gioca, giocatore)
+                                i += 1
+                        elif next_char in "au":
+                            # Drop the 'i' (mangia, giulia)
+                            i += 1
                     matched = True
                 elif i + 1 < n and text[i + 1] == "g":
                     # Double g before a/o/u -> ɡ:
@@ -496,7 +556,13 @@ class ItalianG2P(G2PBase):
             Phoneme string.
         """
         tokens = self(text)
-        return " ".join(t.phonemes or "" for t in tokens if t.phonemes)
+        result = []
+        for token in tokens:
+            if token.phonemes:
+                result.append(token.phonemes)
+                if token.whitespace:
+                    result.append(token.whitespace)
+        return "".join(result).rstrip()
 
     def __repr__(self) -> str:
         return f"ItalianG2P(language={self.language!r})"

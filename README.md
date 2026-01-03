@@ -5,8 +5,8 @@ A unified multi-language G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
 provides:
 
-- **Multi-language support**: English (US/GB), German, French, Czech, Chinese, Japanese,
-  Korean, Hebrew
+- **Multi-language support**: English (US/GB), German, French, Italian, Czech, Chinese,
+  Japanese, Korean, Hebrew
 - **Mixed-language detection**: Automatically detect and handle mixed-language texts
   (e.g., German text with English words)
 - **Dictionary-based lookup** with comprehensive lexicons
@@ -68,6 +68,10 @@ print(phonemes)  # ɡuːtn̩ taːk!
 # French
 phonemes = phonemize("Bonjour!", language="fr")
 print(phonemes)
+
+# Italian
+phonemes = phonemize("Ciao, come stai?", language="it")
+print(phonemes)  # ʧiao, kome stai?
 
 # Chinese
 phonemes = phonemize("你好", language="zh")
@@ -275,6 +279,7 @@ Learning             en-us  lˈɜːnɪŋ
 | English (GB) | `en-gb` | 173k gold + 220k silver (default) | ✓              | IPA        | Production |
 | German       | `de`    | 738k+ entries (gold)              | ✓              | IPA        | Production |
 | French       | `fr`    | Gold dictionary                   | ✓              | IPA        | Production |
+| Italian      | `it`    | Rule-based + small lexicon        | -              | IPA        | Production |
 | Czech        | `cs`    | Rule-based                        | -              | IPA        | Production |
 | Chinese      | `zh`    | pypinyin + ZHFrontend             | ✓              | Zhuyin     | Production |
 | Japanese     | `ja`    | pyopenjtalk                       | -              | IPA        | Production |
