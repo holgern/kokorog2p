@@ -180,7 +180,8 @@ class EnglishG2P(G2PBase):
         spaces = []
 
         # Simple pattern now that apostrophes are normalized
-        for match in re.finditer(r"\w+'\w+|\w+|[^\w\s]+|\s+", text):
+        # Support double contractions like "I'd've" with multiple apostrophes
+        for match in re.finditer(r"\w+(?:'\w+)+|\w+|[^\w\s]+|\s+", text):
             word = match.group()
             if word.isspace():
                 # Mark whitespace for previous token

@@ -89729,5 +89729,35 @@
   "zymological": "zIməlˈɒʤɪkᵊl",
   "zymology": "zImˈɒləʤi",
   "zymotic": "zImˈɒtɪk",
-  "zymurgy": "zˈImˌɜːʤi"
+  "zymurgy": "zˈImˌɜːʤi",
+  "that's": {
+    "DEFAULT": "ðˈæts"
+  },
+  "i'd've": {
+    "DEFAULT": "ˈIdəv"
+  },
+  "you'd've": {
+    "DEFAULT": "jˈudəv"
+  },
+  "he'd've": {
+    "DEFAULT": "hˈidəv"
+  },
+  "she'd've": {
+    "DEFAULT": "ʃˈidəv"
+  },
+  "we'd've": {
+    "DEFAULT": "wˈidəv"
+  },
+  "they'd've": {
+    "DEFAULT": "ðˈAdəv"
+  },
+  "couldn't've": {
+    "DEFAULT": "kˈʊdəntəv"
+  },
+  "shouldn't've": {
+    "DEFAULT": "ʃˈʊdəntəv"
+  },
+  "wouldn't've": {
+    "DEFAULT": "wˈʊdəntəv"
+  }
 }
