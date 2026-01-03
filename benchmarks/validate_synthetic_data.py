@@ -34,6 +34,7 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         KO_VOCAB,
         ZH_VOCAB,
         IT_VOCAB,
+        ES_VOCAB,
     )
 
     if language == "en-us":
@@ -50,6 +51,8 @@ def get_vocab_for_language(language: str) -> frozenset[str]:
         return ZH_VOCAB
     elif language in ("it", "it-it"):
         return IT_VOCAB
+    elif language in ("es", "es-es", "es-la"):
+        return ES_VOCAB
     elif language in ("de", "cs"):
         # For now, return US vocab as baseline
         # TODO: Add proper German/Czech vocab
@@ -199,6 +202,10 @@ def validate_sentence(
         "phoneme_finals",  # Zhuyin final coverage
         "tone_coverage",  # All 5 Mandarin tones
         "complex_phonemes",  # Complex syllables and compounds
+        # Spanish-specific categories
+        "jota",  # Jota sound (j, g+e/i)
+        "theta",  # Theta sound (z, c+e/i) - European Spanish
+        "r_sounds",  # R tap vs trill distinction
     }
     if sentence.get("category") not in valid_categories:
         errors.append(

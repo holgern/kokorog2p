@@ -1,0 +1,1032 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "language": "es",
+    "created_date": "2026-01-03",
+    "description": "Spanish (European) synthetic benchmark dataset with 100 hand-crafted sentences",
+    "phoneme_set": "kokoro",
+    "total_sentences": 100,
+    "dialect": "es",
+    "statistics": {
+      "categories": {
+        "greetings": 8,
+        "common_words": 12,
+        "numbers": 8,
+        "food": 10,
+        "palatals": 8,
+        "jota": 8,
+        "theta": 8,
+        "r_sounds": 10,
+        "conversation": 18,
+        "complex": 10
+      },
+      "phoneme_coverage": {
+        "target_phonemes": 30,
+        "covered_phonemes": 30,
+        "coverage_percentage": 100.0
+      }
+    }
+  },
+  "sentences": [
+    {
+      "id": 1,
+      "text": "Hola",
+      "phonemes": "ola",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Common greeting - informal hello, h is silent"
+    },
+    {
+      "id": 2,
+      "text": "Buenos días",
+      "phonemes": "buenos diˈas",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good morning - stress on 'í'"
+    },
+    {
+      "id": 3,
+      "text": "Buenas tardes",
+      "phonemes": "buenas taɾdes",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good afternoon - single r is tap ɾ"
+    },
+    {
+      "id": 4,
+      "text": "Buenas noches",
+      "phonemes": "buenas noʧes",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Good evening/night - ch is ʧ"
+    },
+    {
+      "id": 5,
+      "text": "Adiós",
+      "phonemes": "adioˈs",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Goodbye - stress on final syllable"
+    },
+    {
+      "id": 6,
+      "text": "Hasta luego",
+      "phonemes": "asta lueɡo",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "See you later - h is silent"
+    },
+    {
+      "id": 7,
+      "text": "Hasta mañana",
+      "phonemes": "asta maɲana",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "See you tomorrow - ñ is ɲ"
+    },
+    {
+      "id": 8,
+      "text": "Bienvenido",
+      "phonemes": "bienbenido",
+      "category": "greetings",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Welcome - v is pronounced as b"
+    },
+    {
+      "id": 9,
+      "text": "Por favor",
+      "phonemes": "poɾ faboɾ",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Please - single r is tap ɾ, v is b"
+    },
+    {
+      "id": 10,
+      "text": "Gracias",
+      "phonemes": "ɡɾaθias",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Thank you - c before i is θ, r after consonant is tap ɾ"
+    },
+    {
+      "id": 11,
+      "text": "De nada",
+      "phonemes": "de nada",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "You're welcome"
+    },
+    {
+      "id": 12,
+      "text": "Perdón",
+      "phonemes": "peɾdoˈn",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sorry/pardon - stress on final syllable"
+    },
+    {
+      "id": 13,
+      "text": "Lo siento",
+      "phonemes": "lo siento",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm sorry"
+    },
+    {
+      "id": 14,
+      "text": "Sí",
+      "phonemes": "siˈ",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Yes - stress marker on final vowel"
+    },
+    {
+      "id": 15,
+      "text": "No",
+      "phonemes": "no",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "No"
+    },
+    {
+      "id": 16,
+      "text": "Quizás",
+      "phonemes": "kiθaˈs",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Maybe/perhaps - qu+i is k, z is θ"
+    },
+    {
+      "id": 17,
+      "text": "Bien",
+      "phonemes": "bien",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Good/well"
+    },
+    {
+      "id": 18,
+      "text": "Mal",
+      "phonemes": "mal",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bad/badly"
+    },
+    {
+      "id": 19,
+      "text": "Muy bien",
+      "phonemes": "mui bien",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Very good"
+    },
+    {
+      "id": 20,
+      "text": "Excelente",
+      "phonemes": "ekseˈlente",
+      "category": "common_words",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Excellent - x is ks"
+    },
+    {
+      "id": 21,
+      "text": "Uno",
+      "phonemes": "uno",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "One"
+    },
+    {
+      "id": 22,
+      "text": "Dos",
+      "phonemes": "dos",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Two"
+    },
+    {
+      "id": 23,
+      "text": "Tres",
+      "phonemes": "tɾes",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Three - r after consonant is tap ɾ"
+    },
+    {
+      "id": 24,
+      "text": "Cuatro",
+      "phonemes": "kuatɾo",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Four - single r is tap ɾ"
+    },
+    {
+      "id": 25,
+      "text": "Cinco",
+      "phonemes": "θinko",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Five - c before i is θ"
+    },
+    {
+      "id": 26,
+      "text": "Seis",
+      "phonemes": "seis",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Six"
+    },
+    {
+      "id": 27,
+      "text": "Siete",
+      "phonemes": "siete",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Seven"
+    },
+    {
+      "id": 28,
+      "text": "Ocho",
+      "phonemes": "oʧo",
+      "category": "numbers",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Eight - ch is ʧ"
+    },
+    {
+      "id": 29,
+      "text": "Pan",
+      "phonemes": "pan",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Bread"
+    },
+    {
+      "id": 30,
+      "text": "Agua",
+      "phonemes": "aɡua",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Water - silent h in orthography"
+    },
+    {
+      "id": 31,
+      "text": "Vino",
+      "phonemes": "bino",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Wine - v is b"
+    },
+    {
+      "id": 32,
+      "text": "Café",
+      "phonemes": "kafeˈ",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Coffee - stress on final syllable"
+    },
+    {
+      "id": 33,
+      "text": "Cerveza",
+      "phonemes": "θeɾbeθa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Beer - c+e is θ, v is b, z is θ, r is tap ɾ"
+    },
+    {
+      "id": 34,
+      "text": "Queso",
+      "phonemes": "keso",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Cheese - qu+e is k"
+    },
+    {
+      "id": 35,
+      "text": "Jamón",
+      "phonemes": "xamoˈn",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Ham - j is x (jota)"
+    },
+    {
+      "id": 36,
+      "text": "Paella",
+      "phonemes": "paeʎa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Paella - ll is ʎ"
+    },
+    {
+      "id": 37,
+      "text": "Tortilla",
+      "phonemes": "toɾtiʎa",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tortilla/omelette - ll is ʎ, r is tap ɾ"
+    },
+    {
+      "id": 38,
+      "text": "Chorizo",
+      "phonemes": "ʧoɾiθo",
+      "category": "food",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Chorizo - ch is ʧ, r is tap ɾ, z is θ"
+    },
+    {
+      "id": 39,
+      "text": "Niño",
+      "phonemes": "niɲo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Boy/child - ñ is ɲ (palatal nasal)"
+    },
+    {
+      "id": 40,
+      "text": "Año",
+      "phonemes": "aɲo",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Year - ñ is ɲ"
+    },
+    {
+      "id": 41,
+      "text": "Mañana",
+      "phonemes": "maɲana",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Tomorrow/morning - ñ is ɲ"
+    },
+    {
+      "id": 42,
+      "text": "Llamar",
+      "phonemes": "ʎamaɾ",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "To call - ll is ʎ (palatal lateral), final r is tap ɾ"
+    },
+    {
+      "id": 43,
+      "text": "Calle",
+      "phonemes": "kaʎe",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Street - ll is ʎ"
+    },
+    {
+      "id": 44,
+      "text": "Lluvia",
+      "phonemes": "ʎubia",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rain - ll is ʎ, v is b"
+    },
+    {
+      "id": 45,
+      "text": "Chico",
+      "phonemes": "ʧiko",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Boy - ch is ʧ (palatal affricate)"
+    },
+    {
+      "id": 46,
+      "text": "Leche",
+      "phonemes": "leʧe",
+      "category": "palatals",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Milk - ch is ʧ"
+    },
+    {
+      "id": 47,
+      "text": "Joven",
+      "phonemes": "xoben",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Young person - j is x (voiceless velar fricative), v is b"
+    },
+    {
+      "id": 48,
+      "text": "Jugar",
+      "phonemes": "xuɡaɾ",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "To play - j is x, final r is tap ɾ"
+    },
+    {
+      "id": 49,
+      "text": "Julio",
+      "phonemes": "xulio",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "July - j is x"
+    },
+    {
+      "id": 50,
+      "text": "Gente",
+      "phonemes": "xente",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "People - g before e is x"
+    },
+    {
+      "id": 51,
+      "text": "General",
+      "phonemes": "xeneɾal",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "General - g before e is x, r is tap ɾ"
+    },
+    {
+      "id": 52,
+      "text": "Gitano",
+      "phonemes": "xitano",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Gypsy - g before i is x"
+    },
+    {
+      "id": 53,
+      "text": "Girar",
+      "phonemes": "xiɾaɾ",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "To turn - g before i is x, both r are tap ɾ"
+    },
+    {
+      "id": 54,
+      "text": "Hijo",
+      "phonemes": "ixo",
+      "category": "jota",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Son - h is silent, j is x"
+    },
+    {
+      "id": 55,
+      "text": "Zapato",
+      "phonemes": "θapato",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Shoe - z is θ (theta, interdental fricative)"
+    },
+    {
+      "id": 56,
+      "text": "Azul",
+      "phonemes": "aθul",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Blue - z is θ"
+    },
+    {
+      "id": 57,
+      "text": "Cielo",
+      "phonemes": "θielo",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sky/heaven - c before i is θ"
+    },
+    {
+      "id": 58,
+      "text": "Cena",
+      "phonemes": "θena",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Dinner - c before e is θ"
+    },
+    {
+      "id": 59,
+      "text": "Ciudad",
+      "phonemes": "θiudad",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "City - c before i is θ"
+    },
+    {
+      "id": 60,
+      "text": "Corazón",
+      "phonemes": "koɾaθoˈn",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Heart - z is θ, r is tap ɾ, stress on final syllable"
+    },
+    {
+      "id": 61,
+      "text": "Cabeza",
+      "phonemes": "kabeθa",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Head - z is θ"
+    },
+    {
+      "id": 62,
+      "text": "Dulce",
+      "phonemes": "dulθe",
+      "category": "theta",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Sweet - c before e is θ"
+    },
+    {
+      "id": 63,
+      "text": "Perro",
+      "phonemes": "pero",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Dog - rr is r (trill)"
+    },
+    {
+      "id": 64,
+      "text": "Pero",
+      "phonemes": "peɾo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "But - single r is ɾ (tap)"
+    },
+    {
+      "id": 65,
+      "text": "Carro",
+      "phonemes": "karo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Car - rr is r (trill)"
+    },
+    {
+      "id": 66,
+      "text": "Caro",
+      "phonemes": "kaɾo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Expensive - single r is ɾ (tap)"
+    },
+    {
+      "id": 67,
+      "text": "Rosa",
+      "phonemes": "rosa",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rose - r at word start is r (trill)"
+    },
+    {
+      "id": 68,
+      "text": "Río",
+      "phonemes": "riˈo",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "River - r at word start is r (trill), stress on í"
+    },
+    {
+      "id": 69,
+      "text": "Guerra",
+      "phonemes": "ɡera",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "War - gu+e is ɡ, rr is r (trill)"
+    },
+    {
+      "id": 70,
+      "text": "Tierra",
+      "phonemes": "tiera",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Earth/land - rr is r (trill)"
+    },
+    {
+      "id": 71,
+      "text": "Cerrar",
+      "phonemes": "θeraɾ",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "To close - c+e is θ, rr is r (trill), final r is tap ɾ"
+    },
+    {
+      "id": 72,
+      "text": "Arroz",
+      "phonemes": "aroθ",
+      "category": "r_sounds",
+      "difficulty": "basic",
+      "word_count": 1,
+      "contains_oov": false,
+      "notes": "Rice - rr is r (trill), z is θ"
+    },
+    {
+      "id": 73,
+      "text": "¿Cómo estás?",
+      "phonemes": "?koˈmo estaˈs?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How are you? - stress on ó and á"
+    },
+    {
+      "id": 74,
+      "text": "¿Qué tal?",
+      "phonemes": "?keˈ tal?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How's it going? - stress on é"
+    },
+    {
+      "id": 75,
+      "text": "¿Dónde estás?",
+      "phonemes": "?doˈnde estaˈs?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Where are you? - stress on ó and á"
+    },
+    {
+      "id": 76,
+      "text": "Yo soy",
+      "phonemes": "jo soi",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I am - y is j (consonant)"
+    },
+    {
+      "id": 77,
+      "text": "Tú eres",
+      "phonemes": "tuˈ eɾes",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "You are - stress on ú, r is tap ɾ"
+    },
+    {
+      "id": 78,
+      "text": "Él es",
+      "phonemes": "eˈl es",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "He is - stress on é"
+    },
+    {
+      "id": 79,
+      "text": "Me llamo",
+      "phonemes": "me ʎamo",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "My name is - ll is ʎ"
+    },
+    {
+      "id": 80,
+      "text": "Mucho gusto",
+      "phonemes": "muʧo ɡusto",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Nice to meet you - ch is ʧ"
+    },
+    {
+      "id": 81,
+      "text": "Con permiso",
+      "phonemes": "kon peɾmiso",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Excuse me - r is tap ɾ"
+    },
+    {
+      "id": 82,
+      "text": "¿Cuánto cuesta?",
+      "phonemes": "?kuaˈnto kuesta?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "How much does it cost? - stress on á"
+    },
+    {
+      "id": 83,
+      "text": "No entiendo",
+      "phonemes": "no entiendo",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I don't understand"
+    },
+    {
+      "id": 84,
+      "text": "Hablo español",
+      "phonemes": "ablo espaɲol",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I speak Spanish - h is silent, ñ is ɲ"
+    },
+    {
+      "id": 85,
+      "text": "¿Hablas inglés?",
+      "phonemes": "?ablas inɡleˈs?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "Do you speak English? - h is silent, stress on é"
+    },
+    {
+      "id": 86,
+      "text": "No hablo francés",
+      "phonemes": "no ablo fɾanθeˈs",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "I don't speak French - h is silent, c+e is θ, r after consonant is tap ɾ"
+    },
+    {
+      "id": 87,
+      "text": "Tengo hambre",
+      "phonemes": "tenɡo ambɾe",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm hungry - h is silent, r after consonant is tap ɾ"
+    },
+    {
+      "id": 88,
+      "text": "Tengo sed",
+      "phonemes": "tenɡo sed",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "I'm thirsty"
+    },
+    {
+      "id": 89,
+      "text": "¿Qué hora es?",
+      "phonemes": "?keˈ oɾa es?",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 3,
+      "contains_oov": false,
+      "notes": "What time is it? - stress on é, h is silent, r is tap ɾ"
+    },
+    {
+      "id": 90,
+      "text": "Hace frío",
+      "phonemes": "aθe fɾiˈo",
+      "category": "conversation",
+      "difficulty": "basic",
+      "word_count": 2,
+      "contains_oov": false,
+      "notes": "It's cold - h is silent, c+e is θ, r after consonant is tap ɾ, stress on í"
+    },
+    {
+      "id": 91,
+      "text": "La casa blanca es muy hermosa y grande",
+      "phonemes": "la kasa blanka es mui eɾmosa i ɡɾande",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 8,
+      "contains_oov": false,
+      "notes": "The white house is very beautiful and big - h is silent, both r are tap ɾ, y is i"
+    },
+    {
+      "id": 92,
+      "text": "El gato negro duerme en el jardín",
+      "phonemes": "el ɡato neɡɾo dueɾme en el xaɾdiˈn",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "The black cat sleeps in the garden - all r are tap ɾ, j is x, stress on í"
+    },
+    {
+      "id": 93,
+      "text": "Me gusta mucho la música española",
+      "phonemes": "me ɡusta muʧo la muˈsika espaɲola",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "I really like Spanish music - ch is ʧ, stress on ú, ñ is ɲ"
+    },
+    {
+      "id": 94,
+      "text": "Los niños juegan en la calle",
+      "phonemes": "los niɲos xueɡan en la kaʎe",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "The children play in the street - ñ is ɲ, j is x, ll is ʎ"
+    },
+    {
+      "id": 95,
+      "text": "Mañana voy a viajar a Barcelona",
+      "phonemes": "maɲana boi a biaxaɾ a baɾθelona",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "Tomorrow I'm going to travel to Barcelona - ñ is ɲ, both v are b, j is x, final r is tap ɾ, c+e is θ"
+    },
+    {
+      "id": 96,
+      "text": "Quiero comer paella con jamón y chorizo",
+      "phonemes": "kieɾo komeɾ paeʎa kon xamoˈn i ʧoɾiθo",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "I want to eat paella with ham and chorizo - qu+i is k, all r are tap ɾ, ll is ʎ, j is x, stress on ó, y is i, ch is ʧ, z is θ"
+    },
+    {
+      "id": 97,
+      "text": "La lluvia cae sobre las montañas",
+      "phonemes": "la ʎubia kae sobɾe las montaɲas",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 6,
+      "contains_oov": false,
+      "notes": "The rain falls on the mountains - ll is ʎ, v is b, r after consonant is tap ɾ, ñ is ɲ"
+    },
+    {
+      "id": 98,
+      "text": "El cielo azul y el mar tranquilo",
+      "phonemes": "el θielo aθul i el maɾ tɾankilo",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 7,
+      "contains_oov": false,
+      "notes": "The blue sky and the calm sea - c+i is θ, z is θ, y is i, both r are tap ɾ, qu+i is k"
+    },
+    {
+      "id": 99,
+      "text": "Necesito hacer una llamada telefónica",
+      "phonemes": "neθesito aseɾ una ʎamada telefoˈnika",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "I need to make a phone call - c+e is θ, h is silent, r is tap ɾ, ll is ʎ, stress on ó"
+    },
+    {
+      "id": 100,
+      "text": "Gracias por todo, hasta pronto",
+      "phonemes": "ɡɾaθias poɾ todo, asta pɾonto",
+      "category": "complex",
+      "difficulty": "intermediate",
+      "word_count": 5,
+      "contains_oov": false,
+      "notes": "Thanks for everything, see you soon - r after consonant is tap ɾ, c+i is θ, both middle r are tap ɾ, h is silent"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ A unified multi-language G2P (Grapheme-to-Phoneme) library for Kokoro TTS.
 kokorog2p converts text to phonemes optimized for the Kokoro text-to-speech system. It
 provides:
 
-- **Multi-language support**: English (US/GB), German, French, Italian, Czech, Chinese,
+- **Multi-language support**: English (US/GB), German, French, Italian, Spanish, Czech, Chinese,
   Japanese, Korean, Hebrew
 - **Mixed-language detection**: Automatically detect and handle mixed-language texts
   (e.g., German text with English words)
@@ -13,6 +13,7 @@ provides:
   - English: 179k+ entries (gold tier), 187k+ silver tier (both loaded by default)
   - German: 738k+ entries from Olaph/IPA-Dict
   - French: Gold-tier dictionary
+  - Italian, Spanish: Rule-based with small lexicons
   - Czech, Chinese, Japanese, Korean, Hebrew: Rule-based and specialized engines
 - **Flexible memory usage**: Control dictionary loading with `load_silver` and
   `load_gold` parameters
@@ -72,6 +73,10 @@ print(phonemes)
 # Italian
 phonemes = phonemize("Ciao, come stai?", language="it")
 print(phonemes)  # ʧiao, kome stai?
+
+# Spanish
+phonemes = phonemize("¡Hola! ¿Cómo estás?", language="es")
+print(phonemes)  # !ola! ?koˈmo estaˈs?
 
 # Chinese
 phonemes = phonemize("你好", language="zh")
@@ -280,6 +285,7 @@ Learning             en-us  lˈɜːnɪŋ
 | German       | `de`    | 738k+ entries (gold)              | ✓              | IPA        | Production |
 | French       | `fr`    | Gold dictionary                   | ✓              | IPA        | Production |
 | Italian      | `it`    | Rule-based + small lexicon        | -              | IPA        | Production |
+| Spanish      | `es`    | Rule-based + small lexicon        | -              | IPA        | Production |
 | Czech        | `cs`    | Rule-based                        | -              | IPA        | Production |
 | Chinese      | `zh`    | pypinyin + ZHFrontend             | ✓              | Zhuyin     | Production |
 | Japanese     | `ja`    | pyopenjtalk                       | -              | IPA        | Production |
@@ -297,6 +303,22 @@ Learning             en-us  lˈɜːnɪŋ
 from kokorog2p.zh import ChineseG2P
 g2p = ChineseG2P(version="1.1")  # Uses ZHFrontend with Zhuyin notation
 ```
+
+**Spanish Note:** Spanish G2P supports both European and Latin American dialects:
+
+```python
+from kokorog2p.es import SpanishG2P
+
+# European Spanish (with theta θ)
+g2p_es = SpanishG2P(dialect="es")
+print(g2p_es.phonemize("zapato"))  # θapato
+
+# Latin American Spanish (seseo: θ→s)
+g2p_la = SpanishG2P(dialect="la")
+print(g2p_la.phonemize("zapato"))  # sapato
+```
+
+Key features: R trill/tap distinction (pero vs perro), palatals (ñ, ll, ch), jota sound (j), and proper stress marking.
 
 **Korean Note:** Korean G2P works out of the box with rule-based phonemization. For
 improved accuracy with morphological analysis, install MeCab:

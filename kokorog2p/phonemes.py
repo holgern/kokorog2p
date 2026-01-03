@@ -92,6 +92,20 @@ ZH_VOCAB: Final[frozenset[str]] = frozenset(
 # Note: All 5 vowels are always pronounced fully (no schwa reduction like English)
 IT_VOCAB: Final[frozenset[str]] = frozenset("abedfijklmnoprstuvwzɡɲʃʎʦʣʧʤˈː")
 
+# Spanish Phoneme Vocabulary (30 phonemes)
+# - Vowels: a, e, i, o, u (5 pure vowels, always pronounced clearly)
+# - Basic consonants: b, d, f, k, l, m, n, p, s, t, ɡ (IPA g)
+# - Palatals: ɲ (ñ as in "niño"), ʎ (ll in some dialects, "lluvia"), ʧ (ch as in "chico")
+# - Jota: x (j/g before e/i as in "jamón", "gente")
+# - Theta: θ (z/c before e/i in European Spanish, "zapato", "cielo")
+# - Taps/Trills: ɾ (single r, "pero"), r (rr or initial r, "perro", "rosa")
+# - Approximants: β (soft b/v), ð (soft d), ɣ (soft g) - allophonic variants
+# - Semivowels: j (y as in "yo"), w (u in diphthongs, "agua")
+# - Stress: ˈ (primary stress marker)
+# Note: Spanish has predictable stress rules, but accents mark exceptions (café, músi ca)
+# Note: For simplification, we use standard /b d g/ and soft variants are contextual
+ES_VOCAB: Final[frozenset[str]] = frozenset("abdefijklmnoprstuwxβðɣɡɲɾʎʧθˈ")
+
 # =============================================================================
 # IPA to Kokoro Mappings (for espeak conversion)
 # =============================================================================
