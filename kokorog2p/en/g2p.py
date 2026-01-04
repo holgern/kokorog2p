@@ -174,38 +174,46 @@ class EnglishG2P(G2PBase):
         text = text.replace("`", "'")  # Grave accent
         text = text.replace("\u00b4", "'")  # Acute accent
 
-        # Step 1: Pre-tokenize to identify contractions in lexicon
-        # Pattern matches: contractions (word+apostrophe+suffix), words, punctuation
-        pre_tokens = []
-        spaces = []
+        # Step 1: Check if we have any punctuation+apostrophe combinations
+        # If so, use spaCy's default tokenization to handle them correctly
+        has_punct_apostrophe = re.search(r"[^\w\s]'|'[^\w\s]", text)
 
-        # Simple pattern now that apostrophes are normalized
-        # Support double contractions like "I'd've" with multiple apostrophes
-        for match in re.finditer(r"\w+(?:'\w+)+|\w+|[^\w\s]+|\s+", text):
-            word = match.group()
-            if word.isspace():
-                # Mark whitespace for previous token
-                if spaces:
-                    spaces[-1] = True
-                continue
+        if has_punct_apostrophe:
+            # Use spaCy's default tokenization
+            doc = self.nlp(text)  # type: ignore
+        else:
+            # Step 1: Pre-tokenize to identify contractions in lexicon
+            # Pattern matches: contractions (word+apostrophe+suffix), words, punctuation
+            pre_tokens = []
+            spaces = []
 
-            # Check if this contraction exists in lexicon
-            # This prevents spaCy from splitting words we already know
-            if "'" in word:
-                result, _ = self.lexicon.lookup(word)
-                # If in lexicon, use as-is; otherwise let spaCy handle it
+            # Simple pattern now that apostrophes are normalized
+            # Support double contractions like "I'd've" with multiple apostrophes
+            for match in re.finditer(r"\w+(?:'\w+)+|\w+|[^\w\s]+|\s+", text):
+                word = match.group()
+                if word.isspace():
+                    # Mark whitespace for previous token
+                    if spaces:
+                        spaces[-1] = True
+                    continue
 
-            pre_tokens.append(word)
-            spaces.append(False)  # Will be updated if whitespace follows
+                # Check if this contraction exists in lexicon
+                # This prevents spaCy from splitting words we already know
+                if "'" in word:
+                    result, _ = self.lexicon.lookup(word)
+                    # If in lexicon, use as-is; otherwise let spaCy handle it
 
-        # Step 2: Create spaCy Doc with our pre-tokenization
-        # This prevents spaCy from re-splitting contractions
-        doc = Doc(self.nlp.vocab, words=pre_tokens, spaces=spaces)  # type: ignore
+                pre_tokens.append(word)
+                spaces.append(False)  # Will be updated if whitespace follows
 
-        # Apply the full pipeline to get POS tags
-        # We need both tok2vec and tagger for accurate tagging
-        for _name, proc in self.nlp.pipeline:  # type: ignore
-            doc = proc(doc)
+            # Step 2: Create spaCy Doc with our pre-tokenization
+            # This prevents spaCy from re-splitting contractions
+            doc = Doc(self.nlp.vocab, words=pre_tokens, spaces=spaces)  # type: ignore
+
+            # Apply the full pipeline to get POS tags
+            # We need both tok2vec and tagger for accurate tagging
+            for _name, proc in self.nlp.pipeline:  # type: ignore
+                doc = proc(doc)
 
         # Step 3: Convert to GToken objects
         tokens: list[GToken] = []
