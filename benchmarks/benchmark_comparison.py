@@ -130,7 +130,6 @@ def run_language_benchmark(
         )
 
         if result.returncode != 0:
-            error_msg = result.stderr if not verbose else "See output above"
             print(f"  ✗ Failed with return code {result.returncode}")
             if not verbose and result.stderr:
                 print(f"    Error: {result.stderr[:200]}")
@@ -145,7 +144,7 @@ def run_language_benchmark(
             return None
 
     except subprocess.TimeoutExpired:
-        print(f"  ✗ Timeout after 5 minutes")
+        print("  ✗ Timeout after 5 minutes")
         return None
     except Exception as e:
         print(f"  ✗ Error: {e}")
@@ -442,7 +441,7 @@ def main():
             if lang in LANGUAGES and LANGUAGES[lang]["enabled"]
         }
         if not languages_to_run:
-            print(f"Error: No valid languages specified")
+            print("Error: No valid languages specified")
             print(f"Available: {', '.join(LANGUAGES.keys())}")
             return 1
     else:

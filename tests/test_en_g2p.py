@@ -119,11 +119,11 @@ class TestEnglishG2PWithSpacy:
     def test_punctuation_with_quotes(self, english_g2p_with_spacy):
         """Test that punctuation followed by quotes is preserved as punctuation.
 
-        This is a regression test for the issue where !' was being looked up
+        This is a regression test for the issue where !' and !" were being looked up
         in the lexicon and matching 'exclamation' instead of being treated
         as punctuation.
         """
-        # Test case 1: "'Master Maker!'"
+        # Test case 1: Single quotes with punctuation
         tokens = english_g2p_with_spacy("'Master Maker!'")
         phonemes = english_g2p_with_spacy.phonemize("'Master Maker!'")
 
@@ -143,27 +143,37 @@ class TestEnglishG2PWithSpacy:
                     f"Phonemes: {t.phonemes!r}"
                 )
 
-        # Test case 2: "Master Maker!'"
-        phonemes2 = english_g2p_with_spacy.phonemize("Master Maker!'")
+        # Test case 2: Double quotes with punctuation
+        phonemes2 = english_g2p_with_spacy.phonemize('"Hello!"')
 
         assert (
             "ˈɛkskləmˌAʃən" not in phonemes2
         ), f"! should not be converted to 'exclamation'. Got: {phonemes2!r}"
         assert "!" in phonemes2, f"! should be preserved. Got: {phonemes2!r}"
 
-        # Test case 3: Other punctuation combinations
+        # Test case 3: Various punctuation+quote combinations
         test_cases = [
             ("Hello?'", "?"),
             ("Wait!'", "!"),
             ("Really.'", "."),
             ("'Hello!'", "!"),
+            ('"Hello!"', "!"),
+            ('"Stop?"', "?"),
+            ('"Wait…"', "…"),  # Use actual ellipsis character
+            ("'Amazing!'", "!"),
         ]
 
         for text, expected_punct in test_cases:
             result = english_g2p_with_spacy.phonemize(text)
+            # Check punctuation is preserved
             assert (
                 expected_punct in result
             ), f"For '{text}', expected '{expected_punct}' in result. Got: {result!r}"
+            # Check NOT converted to word
+            assert "ɛkskləm" not in result, (
+                f"For '{text}', punctuation should not be converted to word. "
+                f"Got: {result!r}"
+            )
 
     def test_contraction_phonemes_with_spacy(self, english_g2p_with_spacy):
         """Test contractions are phonemized correctly with spaCy.

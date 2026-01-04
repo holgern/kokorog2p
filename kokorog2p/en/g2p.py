@@ -174,11 +174,12 @@ class EnglishG2P(G2PBase):
         text = text.replace("`", "'")  # Grave accent
         text = text.replace("\u00b4", "'")  # Acute accent
 
-        # Step 1: Check if we have any punctuation+apostrophe combinations
+        # Step 1: Check if we have any punctuation+quote combinations
         # If so, use spaCy's default tokenization to handle them correctly
-        has_punct_apostrophe = re.search(r"[^\w\s]'|'[^\w\s]", text)
+        # This includes: !' ?" ." etc.
+        has_punct_quote = re.search(r'[^\w\s]["\']|["\'][^\w\s]', text)
 
-        if has_punct_apostrophe:
+        if has_punct_quote:
             # Use spaCy's default tokenization
             doc = self.nlp(text)  # type: ignore
         else:
